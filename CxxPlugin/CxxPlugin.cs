@@ -14,6 +14,7 @@
 namespace CxxPlugin
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel.Composition;
     using System.Globalization;
     using System.IO;
@@ -24,7 +25,7 @@ namespace CxxPlugin
 
     using global::CxxPlugin.ServerExtensions;
 
-    using ExtensionHelpers;
+    using ExtensionTypes;
 
     using VSSonarPlugins;
 
@@ -143,6 +144,34 @@ namespace CxxPlugin
         public IServerAnalyserExtension GetServerAnalyserExtension()
         {
             return new CxxServerExtension();
+        }
+
+        /// <summary>
+        /// The get licenses.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// The <see>
+        ///         <cref>Dictionary</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
+        public Dictionary<string, VsLicense> GetLicenses(ConnectionConfiguration configuration)
+        {
+            return new Dictionary<string, VsLicense>();
+        }
+
+        /// <summary>
+        /// The generate token id.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public string GenerateTokenId()
+        {
+            return string.Empty;
         }
 
         /// <summary>

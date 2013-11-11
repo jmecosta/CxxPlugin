@@ -65,10 +65,6 @@
     <Reference Include="SonarRestService">
       <HintPath>..\References\SonarRestService.dll</HintPath>
     </Reference>
-    <Reference Include="VSSonarPlugins, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\VSSonarPlugins.dll</HintPath>
-    </Reference>
     <Reference Include="ExtensionHelpers">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\ExtensionHelpers.dll</HintPath>
@@ -87,9 +83,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="VSSonarPlugins, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="VSSonarPlugins, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\VSSonarPlugins.0.523\lib\net40\VSSonarPlugins.dll</HintPath>
+      <HintPath>..\References\VSSonarPlugins.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
