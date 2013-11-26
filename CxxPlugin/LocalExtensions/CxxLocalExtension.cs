@@ -97,7 +97,7 @@ namespace CxxPlugin.LocalExtensions
         /// <returns>
         /// The <see cref="Thread"/>.
         /// </returns>
-        public Thread GetAnalyserThread(string filePath)
+        public Thread GetFileAnalyserThread(string filePath)
         {
             this.filePathToAnalyse = filePath;
             return new Thread(this.LocalAnalyser);            
@@ -132,6 +132,21 @@ namespace CxxPlugin.LocalExtensions
                     }
                 }
             }
+        }
+
+        public Thread GetIncrementalAnalyserThread()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Thread GetPreviewAnalyserThread()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Thread GetAnalyserThread()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

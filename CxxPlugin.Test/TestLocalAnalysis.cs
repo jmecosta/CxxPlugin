@@ -109,7 +109,7 @@ namespace CxxPlugin.Test
 
             var localextension = new CxxLocalExtension(serviceStub.Object, executorStub.Object);
             localextension.LocalAnalysisCompleted += this.AnalysisCompleted;
-            var thread = localextension.GetAnalyserThread(this.fileToAnalyse);
+            var thread = localextension.GetFileAnalyserThread(this.fileToAnalyse);
             thread.Start();
             thread.Join();
         }
