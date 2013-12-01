@@ -134,17 +134,17 @@ namespace CxxPlugin.LocalExtensions
             }
         }
 
-        public Thread GetIncrementalAnalyserThread()
+        public Thread GetIncrementalAnalyserThread(string solutionpath)
         {
             throw new NotImplementedException();
         }
 
-        public Thread GetPreviewAnalyserThread()
+        public Thread GetPreviewAnalyserThread(string solutionpath)
         {
             throw new NotImplementedException();
         }
 
-        public Thread GetAnalyserThread()
+        public Thread GetAnalyserThread(string solutionpath)
         {
             throw new NotImplementedException();
         }
