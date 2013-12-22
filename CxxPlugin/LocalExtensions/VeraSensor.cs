@@ -41,8 +41,8 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="options">
         /// The options.
         /// </param>
-        public VeraSensor(ICommandExecution ctrl, Dictionary<string, string> options)
-            : base(SKey, ctrl, true)            
+        public VeraSensor(ICommandExecution ctrl, Dictionary<string, string> options, EventHandler handler)
+            : base(SKey, ctrl, true, handler)            
         {
             this.Command = options["VeraExecutable"];
             this.Args = options["VeraArguments"];

@@ -14,6 +14,7 @@
 
 namespace CxxPlugin.LocalExtensions
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -43,8 +44,8 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="options">
         /// The options.
         /// </param>
-        public CppCheckSensor(ICommandExecution ctrl, Dictionary<string, string> options)
-            : base(SKey, ctrl, true)
+        public CppCheckSensor(ICommandExecution ctrl, Dictionary<string, string> options, EventHandler handler)
+            : base(SKey, ctrl, true, handler)
         {
             this.Command = options["CppCheckExecutable"];
             this.Args = options["CppCheckArguments"];

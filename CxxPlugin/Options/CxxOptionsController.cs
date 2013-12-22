@@ -20,6 +20,8 @@ namespace CxxPlugin.Options
     using System.IO;
     using System.Windows.Controls;
 
+    using ExtensionTypes;
+
     using global::CxxPlugin.Commands;
 
     using SonarRestService;
@@ -363,10 +365,13 @@ namespace CxxPlugin.Options
         /// <summary>
         /// The get user control options.
         /// </summary>
+        /// <param name="project">
+        /// The project.
+        /// </param>
         /// <returns>
         /// The <see cref="UserControl"/>.
         /// </returns>
-        public UserControl GetUserControlOptions()
+        public UserControl GetUserControlOptions(Resource project)
         {
             return this.cxxControl ?? (this.cxxControl = new CxxUserControl(this));
         }

@@ -17,6 +17,8 @@ namespace CxxPlugin.Test
     using System.Collections.Generic;
     using System.IO;
 
+    using ExtensionTypes;
+
     using global::CxxPlugin.LocalExtensions;
 
     using Moq;
@@ -104,12 +106,13 @@ namespace CxxPlugin.Test
             var serviceStub = new Mock<IPlugin>();
             var optionsStub = new Mock<IPluginsOptions>();
             var executorStub = new Mock<ICommandExecution>();
-            serviceStub.Setup(control => control.GetUsePluginControlOptions()).Returns(optionsStub.Object);
+            serviceStub.Setup(control => control.GetPluginControlOptions(new ConnectionConfiguration())).Returns(optionsStub.Object);
             optionsStub.Setup(control => control.GetOptions()).Returns(this.options);
 
             var localextension = new CxxLocalExtension(serviceStub.Object, executorStub.Object);
             localextension.LocalAnalysisCompleted += this.AnalysisCompleted;
-            var thread = localextension.GetFileAnalyserThread(this.fileToAnalyse);
+            var vsitem = new VsProjectItem("", this.fileToAnalyse, "", "", "", "");
+            var thread = localextension.GetFileAnalyserThread(vsitem, string.Empty);
             thread.Start();
             thread.Join();
         }

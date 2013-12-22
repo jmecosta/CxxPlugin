@@ -75,7 +75,7 @@ namespace CxxPlugin.Test
         {
             var lines = new List<string>(File.ReadAllLines(Path.Combine(this.sampleDataPath, "cppcheck-result-0.xml")));
             var serviceStub = new Mock<ICommandExecution>();
-            var cppcheckSensor = new CppCheckSensor(serviceStub.Object, this.options);
+            var cppcheckSensor = new CppCheckSensor(serviceStub.Object, this.options, null);
             var violations = cppcheckSensor.GetViolations(lines);
             Assert.IsNotNull(violations);
             Assert.AreEqual(9, violations.Count);
@@ -89,7 +89,7 @@ namespace CxxPlugin.Test
         {
             var lines = new List<string>(File.ReadAllLines(Path.Combine(this.sampleDataPath, "cpplint-result-0.txt")));
             var serviceStub = new Mock<ICommandExecution>();
-            var sensor = new CxxExternalSensor(serviceStub.Object, this.options);
+            var sensor = new CxxExternalSensor(serviceStub.Object, this.options, null);
             var violations = sensor.GetViolations(lines);
             Assert.IsNotNull(violations);
             Assert.AreEqual(11, violations.Count);
@@ -106,7 +106,7 @@ namespace CxxPlugin.Test
             var lines = new List<string>(File.ReadAllLines(Path.Combine(this.sampleDataPath, "rats-result-0.xml")));
             var serviceStub = new Mock<ICommandExecution>();
 
-            var ratsSensor = new RatsSensor(serviceStub.Object, this.options);
+            var ratsSensor = new RatsSensor(serviceStub.Object, this.options, null);
             var violations = ratsSensor.GetViolations(new List<string>(lines));
             Assert.IsNotNull(violations);
             Assert.AreEqual(35, violations.Count);
@@ -121,7 +121,7 @@ namespace CxxPlugin.Test
             var lines = new List<string>(File.ReadAllLines(Path.Combine(this.sampleDataPath, "vera++-result-0.txt")));
             var serviceStub = new Mock<ICommandExecution>();
 
-            var sensor = new VeraSensor(serviceStub.Object, this.options);
+            var sensor = new VeraSensor(serviceStub.Object, this.options, null);
             var violations = sensor.GetViolations(lines);
             Assert.IsNotNull(violations);
             Assert.AreEqual(39, violations.Count);

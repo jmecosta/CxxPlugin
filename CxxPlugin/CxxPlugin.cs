@@ -18,6 +18,7 @@ namespace CxxPlugin
     using System.ComponentModel.Composition;
     using System.Globalization;
     using System.IO;
+    using System.Windows.Threading;
 
     using global::CxxPlugin.LocalExtensions;
 
@@ -69,67 +70,34 @@ namespace CxxPlugin
         /// <summary>
         /// The write log message.
         /// </summary>
+        /// <param name="handler"></param>
         /// <param name="message">
         /// The message.
         /// </param>
-        public static void WriteLogMessage(string message)
+        /// <param name="e"></param>
+        public static void WriteLogMessage(object e, EventHandler handler, string message)
         {
-            lock (LockThatLog)
+            var dispatcher = Dispatcher.CurrentDispatcher;
+
+            dispatcher.Invoke(() =>
             {
-                using (var w = File.AppendText(LogPath))
+                var tempEvent = handler;
+                if (tempEvent != null)
                 {
-                    var op = w as TextWriter;
-                    op.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + " : " + message);
+                    tempEvent(e, new LocalAnalysisCompletedEventArgs(Key, message, null));
                 }
-            }
-        }
-
-        /// <summary>
-        /// The get use plugin control options.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="IPluginsOptions"/>.
-        /// </returns>
-        public IPluginsOptions GetUsePluginControlOptions()
-        {
-            return this.pluginOptions;
-        }
-
-        /// <summary>
-        /// The is supported.
-        /// </summary>
-        /// <param name="resource">
-        /// The resource.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool IsSupported(string resource)
-        {
-            if (resource.EndsWith(".cpp", true, CultureInfo.CurrentCulture) 
-                || resource.EndsWith(".cc", true, CultureInfo.CurrentCulture) 
-                || resource.EndsWith(".c", true, CultureInfo.CurrentCulture)
-                || resource.EndsWith(".h", true, CultureInfo.CurrentCulture) 
-                || resource.EndsWith(".hpp", true, CultureInfo.CurrentCulture))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// The get local analysis extensions.
-        /// </summary>
-        /// <returns>
-        /// The <see>
-        ///     <cref>List</cref>
-        /// </see>
-        ///     .
-        /// </returns>
-        public ILocalAnalyserExtension GetLocalAnalysisExtension()
-        {
-            return new CxxLocalExtension(this, new CommandExecution());
+                else
+                {
+                    lock (LockThatLog)
+                    {
+                        using (var w = File.AppendText(LogPath))
+                        {
+                            var op = w as TextWriter;
+                            op.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + " : " + message);
+                        }
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -142,6 +110,56 @@ namespace CxxPlugin
         ///     .
         /// </returns>
         public IServerAnalyserExtension GetServerAnalyserExtension()
+        {
+            return new CxxServerExtension();
+        }
+
+        public string GetKey(ConnectionConfiguration configuration)
+        {
+            return Key;
+        }
+
+        public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration, Resource project)
+        {
+            return this.pluginOptions;
+        }
+
+        public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration)
+        {
+            return this.pluginOptions;
+        }
+
+        public bool IsSupported(ConnectionConfiguration configuration, string resource)
+        {
+            if (resource.EndsWith(".cpp", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".cc", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".c", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".h", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".hpp", true, CultureInfo.CurrentCulture))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool IsSupported(ConnectionConfiguration configuration, Resource resource)
+        {
+            return resource.Lang.Equals("c++");
+        }
+
+        public string GetResourceKey(VsProjectItem projectItem, string projectKey)
+        {
+            var filerelativePath = projectItem.FilePath.Replace(projectItem.SolutionPath + "\\", string.Empty).Replace("\\", "/");
+            return projectKey + ":" + filerelativePath;
+        }
+
+        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration, Resource project)
+        {
+            return new CxxLocalExtension(this, new CommandExecution());
+        }
+
+        public IServerAnalyserExtension GetServerAnalyserExtension(ConnectionConfiguration configuration, Resource project)
         {
             return new CxxServerExtension();
         }
@@ -163,26 +181,9 @@ namespace CxxPlugin
             return new Dictionary<string, VsLicense>();
         }
 
-        /// <summary>
-        /// The generate token id.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        public string GenerateTokenId()
+        public string GenerateTokenId(ConnectionConfiguration configuration)
         {
             return string.Empty;
-        }
-
-        /// <summary>
-        /// The get key.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        public string GetKey()
-        {
-            return Key;
         }
     }
 }

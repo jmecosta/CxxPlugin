@@ -14,6 +14,8 @@
 
 namespace CxxPlugin.Test
 {
+    using ExtensionTypes;
+
     using NUnit.Framework;
 
     /// <summary>
@@ -29,7 +31,7 @@ namespace CxxPlugin.Test
         public void TestPluginKey()
         {
             var plugin = new CxxPlugin();
-            Assert.AreEqual("CxxPlugin", plugin.GetKey());
+            Assert.AreEqual("CxxPlugin", plugin.GetKey(new ConnectionConfiguration()));
         }
 
         /// <summary>
@@ -49,10 +51,10 @@ namespace CxxPlugin.Test
         public void TestLanguageIsSupported()
         {
             var plugin = new CxxPlugin();
-            Assert.IsTrue(plugin.IsSupported("file.cpp"));
-            Assert.IsTrue(plugin.IsSupported("file.h"));
-            Assert.IsTrue(plugin.IsSupported("file.cc"));
-            Assert.IsFalse(plugin.IsSupported("file.cs"));
+            Assert.IsTrue(plugin.IsSupported(new ConnectionConfiguration(), "file.cpp"));
+            Assert.IsTrue(plugin.IsSupported(new ConnectionConfiguration(), "file.h"));
+            Assert.IsTrue(plugin.IsSupported(new ConnectionConfiguration(), "file.cc"));
+            Assert.IsFalse(plugin.IsSupported(new ConnectionConfiguration(), "file.cs"));
         }
     }
 }

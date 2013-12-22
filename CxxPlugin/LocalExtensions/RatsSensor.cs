@@ -14,6 +14,7 @@
 
 namespace CxxPlugin.LocalExtensions
 {
+    using System;
     using System.Collections.Generic;
 
     using ExtensionHelpers;
@@ -42,8 +43,8 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="options">
         /// The options.
         /// </param>
-        public RatsSensor(ICommandExecution processCtrlIn, Dictionary<string, string> options)
-            : base(SKey, processCtrlIn, false)
+        public RatsSensor(ICommandExecution processCtrlIn, Dictionary<string, string> options, EventHandler handler)
+            : base(SKey, processCtrlIn, false, handler)
         {
             this.Command = options["RatsExecutable"];
             this.Args = options["RatsArguments"];

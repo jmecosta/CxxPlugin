@@ -15,14 +15,11 @@
 namespace CxxPlugin.LocalExtensions
 {
     using System;
-    using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using System.Security.Permissions;
     using System.Threading;
-
-    using ExtensionHelpers;
 
     using ExtensionTypes;
 
@@ -62,6 +59,15 @@ namespace CxxPlugin.LocalExtensions
         private List<Issue> issues;
 
         /// <summary>
+        /// The command plugin.
+        /// </summary>
+        private IPlugin commandPlugin;
+
+        private string projectKey;
+
+        private VsProjectItem projectItem;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CxxLocalExtension"/> class.
         /// </summary>
         /// <param name="commandPlugin">
@@ -73,13 +79,14 @@ namespace CxxPlugin.LocalExtensions
         public CxxLocalExtension(IPlugin commandPlugin, ICommandExecution executor)
         {
             this.issues = new List<Issue>();
-            var options = commandPlugin.GetUsePluginControlOptions().GetOptions();
+            var options = commandPlugin.GetPluginControlOptions(null).GetOptions();
+            this.commandPlugin = commandPlugin;
             this.sensors = new Dictionary<string, ASensor>
                                {
-                                   { CppCheckSensor.SKey, new CppCheckSensor(executor, options) },
-                                   { RatsSensor.SKey, new RatsSensor(executor, options) },
-                                   { VeraSensor.SKey, new VeraSensor(executor, options) },
-                                   { CxxExternalSensor.SKey, new CxxExternalSensor(executor, options) }
+                                   { CppCheckSensor.SKey, new CppCheckSensor(executor, options, this.StdOutEvent) },
+                                   { RatsSensor.SKey, new RatsSensor(executor, options, this.StdOutEvent) },
+                                   { VeraSensor.SKey, new VeraSensor(executor, options, this.StdOutEvent) },
+                                   { CxxExternalSensor.SKey, new CxxExternalSensor(executor, options, this.StdOutEvent) }
                                };
         }
 
@@ -87,6 +94,16 @@ namespace CxxPlugin.LocalExtensions
         /// The local analysis completed.
         /// </summary>
         public event EventHandler LocalAnalysisCompleted;
+
+        /// <summary>
+        /// The std out event.
+        /// </summary>
+        public event EventHandler StdOutEvent;
+
+        /// <summary>
+        /// The std err event.
+        /// </summary>
+        public event EventHandler StdErrEvent;
 
         /// <summary>
         /// The launch local analysis.
@@ -97,9 +114,11 @@ namespace CxxPlugin.LocalExtensions
         /// <returns>
         /// The <see cref="Thread"/>.
         /// </returns>
-        public Thread GetFileAnalyserThread(string filePath)
+        public Thread GetFileAnalyserThread(VsProjectItem file, string projectKey)
         {
-            this.filePathToAnalyse = filePath;
+            this.filePathToAnalyse = file.FilePath;
+            this.projectItem = file;
+            this.projectKey = projectKey;
             return new Thread(this.LocalAnalyser);            
         }
 
@@ -113,18 +132,18 @@ namespace CxxPlugin.LocalExtensions
                 return;
             }
 
-            this.issues = new List<Issue>();
+            this.issues.Clear();
             this.executorsLauched = this.sensors.Count;
             foreach (var sensor in this.sensors)
             {
                 try
                 {
-                    CxxPlugin.WriteLogMessage("Launching  Analysis on: " + sensor.Key + " " + this.filePathToAnalyse);
+                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Launching  Analysis on: " + sensor.Key + " " + this.filePathToAnalyse);
                     sensor.Value.LaunchSensor(this.filePathToAnalyse, this.CallbackDisplayLocalAnalysisMenuItem);                   
                 }
                 catch (Exception ex)
                 {
-                    CxxPlugin.WriteLogMessage("Exception on Analysing: " + this.filePathToAnalyse + " " + ex.StackTrace);
+                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception on Analysing: " + this.filePathToAnalyse + " " + ex.StackTrace);
                     var tempEvent = this.LocalAnalysisCompleted;
                     if (tempEvent != null)
                     {
@@ -181,12 +200,18 @@ namespace CxxPlugin.LocalExtensions
                     var issuesInTool = this.sensors[key].GetViolations(sensorReportedLines);
                     foreach (var issue in issuesInTool)
                     {
-                        this.issues.Add(issue);
+                        var path1 = Path.GetFullPath(this.projectItem.FilePath); 
+                        var path2 = issue.Component;
+                        if (path1.Equals(path2))
+                        {
+                            issue.Component = this.commandPlugin.GetResourceKey(this.projectItem, this.projectKey);
+                            this.issues.Add(issue);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    CxxPlugin.WriteLogMessage("Exception: " + key + " " + ex.StackTrace);
+                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception: " + key + " " + ex.StackTrace);
                 }
                 
                 this.executorsLauched--;

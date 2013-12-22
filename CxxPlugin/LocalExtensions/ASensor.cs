@@ -37,6 +37,8 @@ namespace CxxPlugin.LocalExtensions
         /// </summary>
         protected readonly bool UseStdout;
 
+        private readonly EventHandler handler;
+
         /// <summary>
         /// The executor.
         /// </summary>
@@ -45,12 +47,12 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         /// The CommandLineOuput.
         /// </summary>
-        private readonly List<string> commandLineOuput = new List<string>();
+        private List<string> commandLineOuput = new List<string>();
 
         /// <summary>
         /// The command line error.
         /// </summary>
-        private readonly List<string> commandLineError = new List<string>();
+        private List<string> commandLineError = new List<string>();
 
         /// <summary>
         /// The call back handler.
@@ -69,11 +71,12 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="useStdout">
         /// The use Stdout.
         /// </param>
-        protected ASensor(string repositoryKey, ICommandExecution ctrl, bool useStdout)
+        protected ASensor(string repositoryKey, ICommandExecution ctrl, bool useStdout, EventHandler handler)
         {
             this.RepositoryKey = repositoryKey;
             this.ProcessCtrl = ctrl;
             this.UseStdout = useStdout;
+            this.handler = handler;
         }
    
         /// <summary>
@@ -109,6 +112,8 @@ namespace CxxPlugin.LocalExtensions
         public virtual void LaunchSensor(string executable, string args, Dictionary<string, string> environment, Action<string, List<string>> callBackHandlerIn)
         {
             this.callBackHandler = callBackHandlerIn;
+            this.commandLineError = new List<string>();
+            this.commandLineOuput = new List<string>();
             this.ProcessCtrl.ExecuteCommand(executable, args, environment, this.ProcessOutputDataReceived, this.ProcessErrorDataReceived, this.EventHandlerFunction);
         }
 
@@ -123,8 +128,10 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         public virtual void LaunchSensor(string filePath, Action<string, List<string>> callBackHandlerIn)
         {
-            CxxPlugin.WriteLogMessage("LaunchSensor: " + this.Command + this.Args + " " + filePath);
+            CxxPlugin.WriteLogMessage(this, handler, "LaunchSensor: " + this.Command + this.Args + " " + filePath);
             this.callBackHandler = callBackHandlerIn;
+            this.commandLineError = new List<string>();
+            this.commandLineOuput = new List<string>();
             this.ProcessCtrl.ExecuteCommand(this.Command, this.Args + " " + filePath, this.Environment, this.ProcessOutputDataReceived, this.ProcessErrorDataReceived, this.EventHandlerFunction);
         }
 
@@ -195,7 +202,7 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         private void EventHandlerFunction(object sender, EventArgs e)
         {
-            CxxPlugin.WriteLogMessage("Finish Executing : " + this.RepositoryKey);
+            CxxPlugin.WriteLogMessage(this, handler, "Finish Executing : " + this.RepositoryKey);
             this.callBackHandler(this.RepositoryKey, this.UseStdout ? this.commandLineOuput : this.commandLineError);
         }
     }
