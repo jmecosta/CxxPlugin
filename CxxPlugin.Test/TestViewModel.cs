@@ -111,7 +111,7 @@ namespace CxxPlugin.Test
         {
             var serviceStub = new Mock<ICxxIoService>();
             var controller = new CxxOptionsController(serviceStub.Object);
-            serviceStub.Setup(control => control.OpenFileDialog()).Returns("Executable");
+            serviceStub.Setup(control => control.OpenFileDialog("")).Returns("Executable");
             controller.OpenCommand.Execute("Vera++");
             Assert.AreEqual("Executable", controller.VeraExecutable);
             controller.OpenCommand.Execute("CppCheck");

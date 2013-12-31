@@ -94,26 +94,46 @@ namespace CxxPlugin.Commands
                 return;
             }
 
-            var data = this.service.OpenFileDialog();
-
             if (optionsTab.Equals("Vera++"))
             {
+                var data = this.service.OpenFileDialog("Vera++ executable|vera++.exe");
                 this.model.VeraExecutable = data;
             }
 
             if (optionsTab.Equals("CppCheck"))
             {
+                var data = this.service.OpenFileDialog("CppCheck executable|cppcheck.exe");
                 this.model.CppCheckExecutable = data;
             }
 
             if (optionsTab.Equals("Rats"))
             {
+                var data = this.service.OpenFileDialog("Rats executable|rats.exe");
                 this.model.RatsExecutable = data;
             }
 
-            if (optionsTab.Equals("Custom"))
+            if (optionsTab.Equals("ExternalSensor"))
             {
+                var data = this.service.OpenFileDialog("Custom executable|*.exe");
                 this.model.CustomExecutable = data;
+            }
+
+            if (optionsTab.Equals("JavaBinary"))
+            {
+                var data = this.service.OpenFileDialog("Java Executable|java.exe");
+                this.model.JavaBinaryPath = data;
+            }
+
+            if (optionsTab.Equals("SonarRunnerBinary"))
+            {
+                var data = this.service.OpenFileDialog("SonarRunner Executable|sonar-runner.bat");
+                this.model.SonarRunnerPath = data;
+            }
+
+            if (optionsTab.Equals("MavenBinary"))
+            {
+                var data = this.service.OpenFileDialog("SonarRunner Executable|mvn.bat");
+                this.model.MavenPath = data;
             }
         }
     }

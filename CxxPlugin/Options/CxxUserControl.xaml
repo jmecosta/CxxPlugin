@@ -5,112 +5,168 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:options="clr-namespace:CxxPlugin.Options"
              x:Class="CxxPlugin.Options.CxxUserControl" 
-             mc:Ignorable="d" Background="#FFA88446">
+             mc:Ignorable="d" Background="#FF2D2D30" Foreground="White" Height="400" Width="800">
 	<UserControl.Resources>
-		<options:CxxOptionsController x:Key="CxxOptionsControllerDataSource" d:IsDataSource="True"/>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="StylesAndTemplates.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+			
+		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.DataContext>
 		<Binding Source="{StaticResource CxxOptionsControllerDataSource}"/>
 	</UserControl.DataContext>
-	<TabControl>
-		<TabItem x:Name="TabItemVera" Header="Vera++">
-			<Grid Background="#FFE5E5E5">
+	<Grid>
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="85"/>
 					<ColumnDefinition Width="349*"/>
-					<ColumnDefinition Width="59"/>
+				</Grid.ColumnDefinitions>		
+	<ScrollViewer PanningMode="VerticalOnly">
+		<StackPanel>
+			<Expander Header="Vera++" Background="Transparent" Foreground="White">
+				<Grid Background="Transparent" Height="100">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="349*"/>
+						<ColumnDefinition Width="100"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="25"/>
+					</Grid.RowDefinitions>
+					<Label Background="#FF2D2D30" Foreground="White" Content="Executable" VerticalContentAlignment="Center"/>
+					<Label Background="#FF2D2D30" Foreground="White" Content="Arguments" Grid.Row="1" Grid.Column="0"
+					       VerticalContentAlignment="Center"/>
+					<Label Background="#FF2D2D30" Foreground="White" Content="Environment" Grid.Row="2" Grid.Column="0"
+					       VerticalContentAlignment="Center"/>
+					<TextBox Background="Transparent" Foreground="White" Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" Text="{Binding VeraExecutable}" VerticalContentAlignment="Center"/>
+					<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding VeraArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
+					<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding VeraEnvironment}" VerticalContentAlignment="Center" Grid.Row="2" ToolTip="VERA_ROOT needs to be set"/>
+					<Button Background="Transparent" Foreground="White" x:Name="VeraBrowse" Content="..." Grid.Row="0" Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="Vera++" Template="{DynamicResource SquareButtonTemplate}"/>
+					<Button Background="Transparent" Foreground="White" Content="Reset Defaults" Grid.Row="3" Grid.Column="0"
+					        Command="{Binding ResetDefaultCommand}" CommandParameter="Vera++" Template="{DynamicResource SquareButtonTemplate}"/>				
+				</Grid>
+			</Expander>
+			<Expander Header="CppCheck" Background="Transparent" Foreground="White">
+				<Grid Background="Transparent" Height="100">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="100"/>
+					<ColumnDefinition Width="349*"/>
+					<ColumnDefinition Width="100"/>
 				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="122*"/>
-					<RowDefinition Height="32"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
 				</Grid.RowDefinitions>
-				<Label Content="Executable" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Arguments" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Environment" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding VeraExecutable}" VerticalContentAlignment="Center"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding VeraArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding VeraEnvironment}" VerticalContentAlignment="Center" Grid.Row="2" ToolTip="VERA_ROOT needs to be set"/>
-				<Button x:Name="VeraBrowse" Content="..." Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="{Binding Header, ElementName=TabItemVera}"/>
-				<Button Content="Reset Defaults" Grid.Row="4" Command="{Binding ResetDefaultCommand}" CommandParameter="{Binding Header, ElementName=TabItemVera}"/>				
-			</Grid>
-		</TabItem>
-		<TabItem x:Name="TabItemCppCheck" Header="CppCheck">
-			<Grid Background="#FFE5E5E5">
+				<Label Background="Transparent" Foreground="White" Content="Executable" VerticalContentAlignment="Center"/>
+				<Label Background="Transparent" Foreground="White" Content="Arguments" Grid.Row="1" Grid.Column="0"
+				       VerticalContentAlignment="Center"/>
+				<Label Background="Transparent" Foreground="White" Content="Environment" Grid.Row="2" Grid.Column="0"
+				       VerticalContentAlignment="Center"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" Text="{Binding CppCheckExecutable}" VerticalContentAlignment="Center"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding CppCheckArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding CppCheckEnvironment}" VerticalContentAlignment="Center" Grid.Row="2"/>
+				<Button Background="Transparent" Foreground="White" x:Name="CppCheckBrowse" Content="..." Grid.Row="0" Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="CppCheck" ToolTip="Open CppCheck.exe" Template="{DynamicResource SquareButtonTemplate}"/>
+				<Button Background="Transparent" Foreground="White" Content="Reset Defaults" Grid.Row="3" Grid.Column="0"
+				        Command="{Binding ResetDefaultCommand}" CommandParameter="CppCheck" Template="{DynamicResource SquareButtonTemplate}"/>									
+				</Grid>
+			</Expander>
+			<Expander Header="Rats" Background="Transparent" Foreground="White">
+				<Grid Background="Transparent" Height="100">
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="85"/>
+					<ColumnDefinition Width="100"/>
 					<ColumnDefinition Width="349*"/>
-					<ColumnDefinition Width="59"/>
+					<ColumnDefinition Width="100"/>
 				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="122*"/>
-					<RowDefinition Height="32"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
 				</Grid.RowDefinitions>
-				<Label Content="Executable" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Arguments" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Environment" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding CppCheckExecutable}" VerticalContentAlignment="Center"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding CppCheckArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding CppCheckEnvironment}" VerticalContentAlignment="Center" Grid.Row="2"/>
-				<Button x:Name="CppCheckBrowse" Content="..." Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="{Binding Header, ElementName=TabItemCppCheck}" ToolTip="Open CppCheck.exe"/>
-				<Button Content="Reset Defaults" Grid.Row="4" Command="{Binding ResetDefaultCommand}" CommandParameter="{Binding Header, ElementName=TabItemCppCheck}"/>				
-			</Grid>
-		</TabItem>
-		<TabItem x:Name="TabItemRats" Header="Rats">
-			<Grid Background="#FFE5E5E5">
+				<Label Background="Transparent" Foreground="White" Content="Executable" VerticalContentAlignment="Center"/>
+				<Label Background="Transparent" Foreground="White" Content="Arguments" Grid.Row="1" Grid.Column="0" VerticalContentAlignment="Center"/>
+				<Label Background="Transparent" Foreground="White" Content="Environment" Grid.Row="2" Grid.Column="0" VerticalContentAlignment="Center"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" Text="{Binding RatsExecutable}" VerticalContentAlignment="Center"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding RatsArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding RatsEnvironment}" VerticalContentAlignment="Center" Grid.Row="2"/>
+				<Button Background="Transparent" Foreground="White" x:Name="RatsBrowse" Content="..." Grid.Row="0" Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="Rats" ToolTip="Open Rats.exe" Template="{DynamicResource SquareButtonTemplate}"/>
+				<Button  Background="Transparent" Foreground="White" Content="Reset Defaults" Grid.Row="3" Grid.Column="0" Command="{Binding ResetDefaultCommand}" CommandParameter="Rats" Template="{DynamicResource SquareButtonTemplate}"/>				
+					
+				</Grid>
+			</Expander>
+			<Expander Header="External Sensor" Background="Transparent" Foreground="White">
+				<Grid Background="Transparent">
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="85"/>
+					<ColumnDefinition Width="100"/>
 					<ColumnDefinition Width="349*"/>
-					<ColumnDefinition Width="59"/>
+					<ColumnDefinition Width="100"/>
 				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="122*"/>
-					<RowDefinition Height="32"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="25"/>
 				</Grid.RowDefinitions>
-				<Label Content="Executable" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Arguments" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Environment" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<TextBox Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" Text="{Binding RatsExecutable}" VerticalContentAlignment="Center"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding RatsArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding RatsEnvironment}" VerticalContentAlignment="Center" Grid.Row="2"/>
-				<Button x:Name="RatsBrowse" Content="..." Grid.Row="0" Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="{Binding Header, ElementName=TabItemRats}" ToolTip="Open Rats.exe"/>
-				<Button Content="Reset Defaults" Grid.Row="4" Grid.Column="0" Command="{Binding ResetDefaultCommand}" CommandParameter="{Binding Header, ElementName=TabItemRats}"/>				
-			</Grid>
-		</TabItem>
-		<TabItem x:Name="TabItemCustom" Header="Custom">
-			<Grid Background="#FFE5E5E5">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="85"/>
-					<ColumnDefinition Width="349*"/>
-					<ColumnDefinition Width="59"/>
-				</Grid.ColumnDefinitions>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="32"/>
-					<RowDefinition Height="139*"/>
-					<RowDefinition Height="32"/>
-				</Grid.RowDefinitions>
-				<Label Content="Executable" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Arguments" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Key" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<Label Content="Environment" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0,4.361"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding CustomExecutable}" VerticalContentAlignment="Center"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding CustomArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding CustomKey}" VerticalContentAlignment="Center" Grid.Row="2"/>
-				<TextBox Grid.Column="1" TextWrapping="Wrap" Text="{Binding CustomEnvironment}" VerticalContentAlignment="Center" Grid.Row="3"/>
-				<Button x:Name="CustomBrowse" Content="..." Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="{Binding Header, ElementName=TabItemCustom}" ToolTip="Open *.exe"/>
-				<Button Content="Reset Defaults" Grid.Row="5" Command="{Binding ResetDefaultCommand}" CommandParameter="{Binding Header, ElementName=TabItemCustom}"/>				
-			</Grid>
-		</TabItem>
-	</TabControl>
+				<Label Background="Transparent" Foreground="White" Content="Executable" VerticalContentAlignment="Center"/>
+				<Label Background="Transparent" Foreground="White" Content="Arguments" Grid.Row="1" Grid.Column="0"
+				       VerticalContentAlignment="Center"/>
+				<Label Background="Transparent" Foreground="White" Content="Key" Grid.Row="2" Grid.Column="0"
+				       VerticalContentAlignment="Center"/>
+				<Label Background="Transparent" Foreground="White" Content="Environment" Grid.Row="3" Grid.Column="0"
+				       VerticalContentAlignment="Center"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" Text="{Binding CustomExecutable}" VerticalContentAlignment="Center"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding CustomArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding CustomKey}" VerticalContentAlignment="Center" Grid.Row="2"/>
+				<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding CustomEnvironment}" VerticalContentAlignment="Center" Grid.Row="3"/>
+				<Button Background="Transparent" Foreground="White" x:Name="CustomBrowse" Content="..." Grid.Row="0" Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="ExternalSensor" ToolTip="Open *.exe" Template="{DynamicResource SquareButtonTemplate}"/>
+				<Button Background="Transparent" Foreground="White" Content="Reset Defaults" Grid.Row="4" Grid.Column="0"
+				        Command="{Binding ResetDefaultCommand}" CommandParameter="ExternalSensor" Template="{DynamicResource SquareButtonTemplate}"/>									
+				</Grid>
+			</Expander>
+			<Expander Header="Sonar Analysis" Background="Transparent" Foreground="White">
+				<Grid Background="Transparent" Height="250">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="252*"/>
+						<ColumnDefinition Width="100"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="100"/>
+					</Grid.RowDefinitions>
+					<Label Grid.Row="0" Content="Java Binary" Background="Transparent" Foreground="White" />
+					<CheckBox IsEnabled="{Binding ProjectIsAssociated}" IsChecked="{Binding SonarRunnerIsChecked}" Background="Transparent" Foreground="White" Content="Sonar Runner" Grid.Row="1"
+					          Grid.Column="0" VerticalAlignment="Center"/>
+					<CheckBox IsEnabled="{Binding ProjectIsAssociated}" IsChecked="{Binding MavenIsChecked}" Background="Transparent" Foreground="White" Content="Maven" Grid.Row="2"
+					          Grid.Column="0" VerticalAlignment="Center"/>
+					<TextBox  Grid.Row="0" Grid.Column="1" Background="Transparent" Foreground="White" TextWrapping="Wrap" Text="{Binding JavaBinaryPath}" VerticalContentAlignment="Center"/>
+					<TextBox  Grid.Row="1" Grid.Column="1" IsEnabled="{Binding ProjectIsAssociated}" Background="Transparent" Foreground="White" TextWrapping="Wrap" Text="{Binding SonarRunnerPath}" VerticalContentAlignment="Center"/>
+					<TextBox  Grid.Row="2" Grid.Column="1" IsEnabled="{Binding ProjectIsAssociated}" Background="Transparent" Foreground="White" TextWrapping="Wrap" Text="{Binding MavenPath}" VerticalContentAlignment="Center"/>
+					<Button   Grid.Row="0" Grid.Column="2" Background="Transparent" Foreground="White" x:Name="JavaBinaryBrowse" Content="..."  Command="{Binding OpenCommand}" CommandParameter="JavaBinary" ToolTip="Open java.exe" Template="{DynamicResource SquareButtonTemplate}"/>
+					<Button   Grid.Row="1" Grid.Column="2" IsEnabled="{Binding ProjectIsAssociated}" Background="Transparent" Foreground="White" x:Name="SonarRunnerBrowse" Content="..."  Command="{Binding OpenCommand}" CommandParameter="SonarRunnerBinary" ToolTip="Open sonarrunner.bat" Template="{DynamicResource SquareButtonTemplate}"/>
+					<Button   Grid.Row="2" Grid.Column="2" IsEnabled="{Binding ProjectIsAssociated}" Background="Transparent" Foreground="White" x:Name="MavenBrowse" Content="..."  Command="{Binding OpenCommand}" CommandParameter="MavenBinary" ToolTip="Open mvn.bat" Template="{DynamicResource SquareButtonTemplate}"/>
+					<Label    Grid.Row="3" Grid.Column="0" Content="Excluded Plugins" Background="Transparent" Foreground="White" />
+					<TextBox  Grid.Row="3" Grid.Column="1" Text="{Binding ExcludedPlugins}" IsEnabled="{Binding ProjectIsAssociated}" Background="Transparent" Foreground="White" TextWrapping="Wrap" VerticalContentAlignment="Center"/>
+					<Button   Grid.Row="4" Grid.Column="2" IsEnabled="{Binding ProjectIsAssociated}" Background="Transparent" Foreground="White" Content="Reset Defaults" Command="{Binding ResetDefaultCommand}" CommandParameter="RunnerOptions" Template="{DynamicResource SquareButtonTemplate}"/>									
+					<CheckBox Grid.Row="4" Grid.Column="0" IsEnabled="{Binding ProjectIsAssociated}"  IsChecked="{Binding IsDebugChecked}" Background="Transparent" Foreground="White" Content="Debug" VerticalAlignment="Center"/>
+					<Label Grid.Row="5" Grid.Column="0" Content="Properties" Background="Transparent" Foreground="White" />
+					<ScrollViewer Grid.Row="5" Grid.Column="1"  Grid.RowSpan="2" Grid.ColumnSpan="2" >
+                            <TextBox IsEnabled="{Binding ProjectIsAssociated}" TextWrapping="Wrap" VerticalScrollBarVisibility="auto" AcceptsReturn="True" Background="Transparent" Foreground="White" ToolTip="; separated or new line, In the form of Property=Value" Text="{Binding PropertiesToRunner}" />
+					</ScrollViewer>
+				</Grid>
+			</Expander>
+		</StackPanel>
+	</ScrollViewer>
+	</Grid>
 </UserControl>

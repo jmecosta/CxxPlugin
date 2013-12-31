@@ -12,6 +12,8 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 // --------------------------------------------------------------------------------------------------------------------
 
+using VSSonarPlugins;
+
 namespace CxxPlugin.LocalExtensions
 {
     using System;
@@ -30,6 +32,8 @@ namespace CxxPlugin.LocalExtensions
     /// </summary>
     public class CppCheckSensor : ASensor
     {
+        private readonly IPluginsOptions pluginOptions;
+
         /// <summary>
         /// The repository key.
         /// </summary>
@@ -41,15 +45,13 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="ctrl">
         /// The ctrl.
         /// </param>
-        /// <param name="options">
-        /// The options.
+        /// <param name="pluginOptions">
+        /// The plugin Options.
         /// </param>
-        public CppCheckSensor(ICommandExecution ctrl, Dictionary<string, string> options, EventHandler handler)
-            : base(SKey, ctrl, true, handler)
+        public CppCheckSensor(ICommandExecution ctrl, IPluginsOptions pluginOptions)
+            : base(SKey, ctrl, true)
         {
-            this.Command = options["CppCheckExecutable"];
-            this.Args = options["CppCheckArguments"];
-            this.Environment = VsSonarUtils.GetEnvironmentFromString(options["CppCheckEnvironment"]);
+            this.pluginOptions = pluginOptions;
         }
 
         /// <summary>
@@ -73,9 +75,42 @@ namespace CxxPlugin.LocalExtensions
             var xml = new XmlDeserializer();
             var output = xml.Deserialize<Results>(new RestResponse { Content = string.Join("\r\n", lines) });
 
-            violations.AddRange(from result in output.Errors select new Issue { Line = result.Line, Message = result.Msg, Rule = this.RepositoryKey + "." + result.Id, Component = result.File });
+            violations.AddRange(from error in output.Errors let ruleKey = this.RepositoryKey + "." + error.Id where !ruleKey.Equals("cppcheck.unusedFunction") select new Issue { Line = error.Line, Message = error.Msg, Rule = this.RepositoryKey + "." + error.Id, Component = error.File });
 
             return violations;
+        }
+
+        /// <summary>
+        /// The get environment.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Dictionary"/>.
+        /// </returns>
+        public override Dictionary<string, string> GetEnvironment()
+        {
+            return VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["CppCheckEnvironment"]);
+        }
+
+        /// <summary>
+        /// The get command.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string GetCommand()
+        {
+            return this.pluginOptions.GetOptions()["CppCheckExecutable"];
+        }
+
+        /// <summary>
+        /// The get arguments.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string GetArguments()
+        {
+            return this.pluginOptions.GetOptions()["CppCheckArguments"];
         }
 
         /// <summary>

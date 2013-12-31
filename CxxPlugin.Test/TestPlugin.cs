@@ -14,9 +14,14 @@
 
 namespace CxxPlugin.Test
 {
+    using System.Threading;
+    using System.Windows;
+
     using ExtensionTypes;
 
     using NUnit.Framework;
+
+    using VSSonarPlugins;
 
     /// <summary>
     /// The test server extension.
@@ -24,6 +29,33 @@ namespace CxxPlugin.Test
     [TestFixture]
     public class TestPlugin
     {
+        /// <summary>
+        ///     The run main window.
+        /// </summary>
+        [Test]
+        public void RunMainWindow()
+        {
+            var t = new Thread(this.CreateMainIssueWindow);
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            t.Join();
+        }
+
+        /// <summary>
+        ///     The create main issue window.
+        /// </summary>
+        private void CreateMainIssueWindow()
+        {
+            var win = new Window();
+            IPlugin plugin = new CxxPlugin();
+
+            win.Content =
+                plugin.GetPluginControlOptions(
+                    new ConnectionConfiguration("http://sonar", "jocs1", "jocs1"),
+                    new Resource { Key = "test.test:project" }).GetUserControlOptions(new Resource { Key = "sds.salsd.sd:sadsa" });
+            win.ShowDialog();
+        }
+
         /// <summary>
         /// The test resource key.
         /// </summary>

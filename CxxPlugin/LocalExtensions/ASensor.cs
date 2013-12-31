@@ -12,6 +12,8 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.IO;
+
 namespace CxxPlugin.LocalExtensions
 {
     using System;
@@ -36,8 +38,6 @@ namespace CxxPlugin.LocalExtensions
         /// The use stdout.
         /// </summary>
         protected readonly bool UseStdout;
-
-        private readonly EventHandler handler;
 
         /// <summary>
         /// The executor.
@@ -71,68 +71,39 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="useStdout">
         /// The use Stdout.
         /// </param>
-        protected ASensor(string repositoryKey, ICommandExecution ctrl, bool useStdout, EventHandler handler)
+        protected ASensor(string repositoryKey, ICommandExecution ctrl, bool useStdout)
         {
             this.RepositoryKey = repositoryKey;
             this.ProcessCtrl = ctrl;
             this.UseStdout = useStdout;
-            this.handler = handler;
         }
    
         /// <summary>
-        /// Gets or sets the environment.
-        /// </summary>
-        protected Dictionary<string, string> Environment { get; set; }
-
-        /// <summary>
-        /// Gets or sets the args.
-        /// </summary>
-        protected string Args { get; set; }
-
-        /// <summary>
-        /// Gets or sets the command.
-        /// </summary>
-        protected string Command { get; set; }
-
-        /// <summary>
         /// The launch sensor.
         /// </summary>
-        /// <param name="executable">
-        /// The executable.
+        /// <param name="caller">
+        /// The caller.
         /// </param>
-        /// <param name="args">
-        /// The args.
+        /// <param name="logger">
+        /// The logger.
         /// </param>
-        /// <param name="environment">
-        /// The environment.
-        /// </param>
-        /// <param name="callBackHandlerIn">
-        /// The call back handler.
-        /// </param>
-        public virtual void LaunchSensor(string executable, string args, Dictionary<string, string> environment, Action<string, List<string>> callBackHandlerIn)
-        {
-            this.callBackHandler = callBackHandlerIn;
-            this.commandLineError = new List<string>();
-            this.commandLineOuput = new List<string>();
-            this.ProcessCtrl.ExecuteCommand(executable, args, environment, this.ProcessOutputDataReceived, this.ProcessErrorDataReceived, this.EventHandlerFunction);
-        }
-
-        /// <summary>
-        /// The launch sensor.
-        /// </summary>
         /// <param name="filePath">
         /// The file Path.
         /// </param>
         /// <param name="callBackHandlerIn">
         /// The call back handler in.
         /// </param>
-        public virtual void LaunchSensor(string filePath, Action<string, List<string>> callBackHandlerIn)
+        /// <returns>
+        /// The <see cref="Process"/>.
+        /// </returns>
+        public virtual Process LaunchSensor(object caller, EventHandler logger, string filePath, Action<string, List<string>> callBackHandlerIn)
         {
-            CxxPlugin.WriteLogMessage(this, handler, "LaunchSensor: " + this.Command + this.Args + " " + filePath);
             this.callBackHandler = callBackHandlerIn;
             this.commandLineError = new List<string>();
             this.commandLineOuput = new List<string>();
-            this.ProcessCtrl.ExecuteCommand(this.Command, this.Args + " " + filePath, this.Environment, this.ProcessOutputDataReceived, this.ProcessErrorDataReceived, this.EventHandlerFunction);
+            var commandline = "[" + Directory.GetParent(filePath) + "] : " + this.GetCommand() + " " + this.GetArguments() + " " + filePath;
+            CxxPlugin.WriteLogMessage(caller, logger, commandline);
+            return this.ProcessCtrl.ExecuteCommand(Directory.GetParent(filePath).ToString(), this.GetCommand(), this.GetArguments() + " " + filePath, this.GetEnvironment(), this.ProcessOutputDataReceived, this.ProcessErrorDataReceived, this.EventHandlerFunction);
         }
 
         /// <summary>
@@ -156,6 +127,18 @@ namespace CxxPlugin.LocalExtensions
         /// The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.
         /// </returns>
         public abstract List<Issue> GetViolations(List<string> lines);
+
+        public abstract Dictionary<string, string> GetEnvironment();
+
+        public abstract string GetCommand();
+
+        /// <summary>
+        /// The get arguments.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public abstract string GetArguments();
 
         /// <summary>
         /// The process output data received.
@@ -202,7 +185,6 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         private void EventHandlerFunction(object sender, EventArgs e)
         {
-            CxxPlugin.WriteLogMessage(this, handler, "Finish Executing : " + this.RepositoryKey);
             this.callBackHandler(this.RepositoryKey, this.UseStdout ? this.commandLineOuput : this.commandLineError);
         }
     }

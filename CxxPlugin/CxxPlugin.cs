@@ -19,15 +19,10 @@ namespace CxxPlugin
     using System.Globalization;
     using System.IO;
     using System.Windows.Threading;
-
     using global::CxxPlugin.LocalExtensions;
-
     using global::CxxPlugin.Options;
-
     using global::CxxPlugin.ServerExtensions;
-
     using ExtensionTypes;
-
     using VSSonarPlugins;
 
     /// <summary>
@@ -70,11 +65,15 @@ namespace CxxPlugin
         /// <summary>
         /// The write log message.
         /// </summary>
-        /// <param name="handler"></param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
+        /// <param name="handler">
+        /// The handler.
+        /// </param>
         /// <param name="message">
         /// The message.
         /// </param>
-        /// <param name="e"></param>
         public static void WriteLogMessage(object e, EventHandler handler, string message)
         {
             var dispatcher = Dispatcher.CurrentDispatcher;
@@ -114,21 +113,66 @@ namespace CxxPlugin
             return new CxxServerExtension();
         }
 
+        /// <summary>
+        /// The get key.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
         public string GetKey(ConnectionConfiguration configuration)
         {
             return Key;
         }
 
+        /// <summary>
+        /// The get plugin control options.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <param name="project">
+        /// The project.
+        /// </param>
+        /// <returns>
+        /// The <see cref="IPluginsOptions"/>.
+        /// </returns>
         public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration, Resource project)
         {
+            ((CxxOptionsController)this.pluginOptions).Project = this.IsSupported(configuration, project) ? project : null;
+
             return this.pluginOptions;
         }
 
+        /// <summary>
+        /// The get plugin control options.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// The <see cref="IPluginsOptions"/>.
+        /// </returns>
         public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration)
         {
+            ((CxxOptionsController)this.pluginOptions).Project = null;
             return this.pluginOptions;
         }
 
+        /// <summary>
+        /// The is supported.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <param name="resource">
+        /// The resource.
+        /// </param>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
         public bool IsSupported(ConnectionConfiguration configuration, string resource)
         {
             if (resource.EndsWith(".cpp", true, CultureInfo.CurrentCulture)
@@ -143,22 +187,70 @@ namespace CxxPlugin
             return false;
         }
 
+        /// <summary>
+        /// The is supported.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <param name="resource">
+        /// The resource.
+        /// </param>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
         public bool IsSupported(ConnectionConfiguration configuration, Resource resource)
         {
-            return resource.Lang.Equals("c++");
+            return resource != null && resource.Lang.Equals("c++");
         }
 
+        /// <summary>
+        /// The get resource key.
+        /// </summary>
+        /// <param name="projectItem">
+        /// The project item.
+        /// </param>
+        /// <param name="projectKey">
+        /// The project key.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
         public string GetResourceKey(VsProjectItem projectItem, string projectKey)
         {
             var filerelativePath = projectItem.FilePath.Replace(projectItem.SolutionPath + "\\", string.Empty).Replace("\\", "/");
-            return projectKey + ":" + filerelativePath;
+            return projectKey + ":" + filerelativePath.Trim();
         }
 
-        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration, Resource project)
+        /// <summary>
+        /// The get local analysis extension.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <param name="project">
+        /// The project.
+        /// </param>
+        /// <returns>
+        /// The <see cref="ILocalAnalyserExtension"/>.
+        /// </returns>
+        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration, Resource project, double sonarVersion)
         {
-            return new CxxLocalExtension(this, new CommandExecution());
+            return this.IsSupported(configuration, project) ? new CxxLocalExtension(this, new CommandExecution(), configuration, project, sonarVersion) : null;
         }
 
+        /// <summary>
+        /// The get server analyser extension.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <param name="project">
+        /// The project.
+        /// </param>
+        /// <returns>
+        /// The <see cref="IServerAnalyserExtension"/>.
+        /// </returns>
         public IServerAnalyserExtension GetServerAnalyserExtension(ConnectionConfiguration configuration, Resource project)
         {
             return new CxxServerExtension();
@@ -170,17 +262,29 @@ namespace CxxPlugin
         /// <param name="configuration">
         /// The configuration.
         /// </param>
+        /// <param name="overwrite">
+        /// The overwrite.
+        /// </param>
         /// <returns>
         /// The <see>
         ///         <cref>Dictionary</cref>
         ///     </see>
         ///     .
         /// </returns>
-        public Dictionary<string, VsLicense> GetLicenses(ConnectionConfiguration configuration)
+        public Dictionary<string, VsLicense> GetLicenses(ConnectionConfiguration configuration, bool overwrite)
         {
             return new Dictionary<string, VsLicense>();
         }
 
+        /// <summary>
+        /// The generate token id.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
         public string GenerateTokenId(ConnectionConfiguration configuration)
         {
             return string.Empty;

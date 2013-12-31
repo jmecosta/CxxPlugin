@@ -33,6 +33,11 @@ namespace CxxPlugin.Test
     [TestFixture]
     public class TestLocalAnalysis
     {
+        public TestLocalAnalysis(IPluginsOptions pluginOptions)
+        {
+            _pluginOptions = pluginOptions;
+        }
+
         /// <summary>
         /// The options.
         /// </summary>
@@ -42,6 +47,8 @@ namespace CxxPlugin.Test
         /// The file to analyse.
         /// </summary>
         private string fileToAnalyse = "file.cpp";
+
+        private IPluginsOptions _pluginOptions;
 
         /// <summary>
         /// The set up.
@@ -106,13 +113,13 @@ namespace CxxPlugin.Test
             var serviceStub = new Mock<IPlugin>();
             var optionsStub = new Mock<IPluginsOptions>();
             var executorStub = new Mock<ICommandExecution>();
-            serviceStub.Setup(control => control.GetPluginControlOptions(new ConnectionConfiguration())).Returns(optionsStub.Object);
+            serviceStub.Setup(control => control.GetPluginControlOptions(new ConnectionConfiguration(), null)).Returns(optionsStub.Object);
             optionsStub.Setup(control => control.GetOptions()).Returns(this.options);
 
-            var localextension = new CxxLocalExtension(serviceStub.Object, executorStub.Object);
+            var localextension = new CxxLocalExtension(serviceStub.Object, executorStub.Object, new ConnectionConfiguration(), new Resource(), 4.0);
             localextension.LocalAnalysisCompleted += this.AnalysisCompleted;
             var vsitem = new VsProjectItem("", this.fileToAnalyse, "", "", "", "");
-            var thread = localextension.GetFileAnalyserThread(vsitem, string.Empty);
+            var thread = localextension.GetFileAnalyserThread(vsitem, string.Empty, new Profile(), "", false);
             thread.Start();
             thread.Join();
         }

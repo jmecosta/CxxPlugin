@@ -16,11 +16,9 @@ namespace CxxPlugin.LocalExtensions
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-
     using ExtensionHelpers;
-
     using ExtensionTypes;
+    using VSSonarPlugins;
 
     /// <summary>
     /// The vera sensor.
@@ -33,20 +31,23 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "vera++";
 
         /// <summary>
+        /// The plugin options.
+        /// </summary>
+        private readonly IPluginsOptions pluginOptions;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="VeraSensor"/> class.
         /// </summary>
         /// <param name="ctrl">
         /// The ctrl.
         /// </param>
-        /// <param name="options">
-        /// The options.
+        /// <param name="pluginsOptions">
+        /// The plugins Options.
         /// </param>
-        public VeraSensor(ICommandExecution ctrl, Dictionary<string, string> options, EventHandler handler)
-            : base(SKey, ctrl, true, handler)            
+        public VeraSensor(ICommandExecution ctrl, IPluginsOptions pluginsOptions)
+            : base(SKey, ctrl, true)
         {
-            this.Command = options["VeraExecutable"];
-            this.Args = options["VeraArguments"];
-            this.Environment = VsSonarUtils.GetEnvironmentFromString(options["VeraEnvironment"]);
+            this.pluginOptions = pluginsOptions;
         }
         
         /// <summary>
@@ -95,6 +96,42 @@ namespace CxxPlugin.LocalExtensions
             }
 
             return violations;
+        }
+
+        /// <summary>
+        /// The get environment.
+        /// </summary>
+        /// <returns>
+        /// The <see>
+        ///         <cref>Dictionary</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
+        public override Dictionary<string, string> GetEnvironment()
+        {
+            return VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["VeraEnvironment"]);
+        }
+
+        /// <summary>
+        /// The get command.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string GetCommand()
+        {
+            return this.pluginOptions.GetOptions()["VeraExecutable"];
+        }
+
+        /// <summary>
+        /// The get arguments.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string GetArguments()
+        {
+            return this.pluginOptions.GetOptions()["VeraArguments"];
         }
     }
 }

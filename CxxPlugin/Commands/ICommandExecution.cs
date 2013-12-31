@@ -26,6 +26,9 @@ namespace CxxPlugin
         /// <summary>
         /// The execute command.
         /// </summary>
+        /// <param name="rootPath">
+        /// The root Path.
+        /// </param>
         /// <param name="cmd">
         /// The cmd.
         /// </param>
@@ -44,7 +47,11 @@ namespace CxxPlugin
         /// <param name="processEnded">
         /// The process ended.
         /// </param>
-        void ExecuteCommand(
+        /// <returns>
+        /// The <see cref="Process"/>.
+        /// </returns>
+        Process ExecuteCommand(
+            string rootPath,
             string cmd,
             string args,
             Dictionary<string, string> environment,

@@ -24,6 +24,6 @@ namespace CxxPlugin.Commands
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        string OpenFileDialog();
+        string OpenFileDialog(string filter);
     }
 }

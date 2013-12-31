@@ -35,6 +35,9 @@ namespace CxxPlugin
         /// <summary>
         /// The execute command.
         /// </summary>
+        /// <param name="rootPath">
+        /// The root path.
+        /// </param>
         /// <param name="cmd">
         /// The cmd.
         /// </param>
@@ -53,7 +56,8 @@ namespace CxxPlugin
         /// <param name="processEnded">
         /// The process ended.
         /// </param>
-        public void ExecuteCommand(
+        public Process ExecuteCommand(
+            string rootPath,
             string cmd,
             string args,
             Dictionary<string, string> environment,
@@ -72,6 +76,11 @@ namespace CxxPlugin
                 RedirectStandardInput = true,
                 CreateNoWindow = true
             };
+
+            if (!string.IsNullOrEmpty(rootPath))
+            {
+                processStartInfo.WorkingDirectory = rootPath;
+            }
 
             if (environment != null)
             {
@@ -107,10 +116,12 @@ namespace CxxPlugin
             processexec.BeginOutputReadLine();
             processexec.BeginErrorReadLine();
 
-            if (processEnded != null)
+            if (processEnded == null)
             {
                 processexec.WaitForExit();
             }
+
+            return processexec;
         }
     }
 }

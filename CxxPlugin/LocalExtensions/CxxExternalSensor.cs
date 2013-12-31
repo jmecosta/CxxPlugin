@@ -16,10 +16,9 @@ namespace CxxPlugin.LocalExtensions
 {
     using System;
     using System.Collections.Generic;
-
     using ExtensionHelpers;
-
     using ExtensionTypes;
+    using VSSonarPlugins;
 
     /// <summary>
     /// The vera sensor.
@@ -37,21 +36,24 @@ namespace CxxPlugin.LocalExtensions
         public readonly string OtherKey = string.Empty;
 
         /// <summary>
+        /// The plugin options.
+        /// </summary>
+        private readonly IPluginsOptions pluginOptions;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CxxExternalSensor"/> class.
         /// </summary>
         /// <param name="ctrl">
         /// The ctrl.
         /// </param>
-        /// <param name="options">
-        /// The options.
+        /// <param name="pluginOptions">
+        /// The plugin Options.
         /// </param>
-        public CxxExternalSensor(ICommandExecution ctrl, Dictionary<string, string> options, EventHandler handler)
-            : base(SKey, ctrl, true, handler)
+        public CxxExternalSensor(ICommandExecution ctrl, IPluginsOptions pluginOptions)
+            : base(SKey, ctrl, true)
         {
-            this.Command = options["CustomExecutable"];
-            this.Args = options["CustomArguments"];
-            this.Environment = VsSonarUtils.GetEnvironmentFromString(options["CustomEnvironment"]);
-            this.OtherKey = options["CustomKey"];
+            this.pluginOptions = pluginOptions;
+            this.OtherKey = this.pluginOptions.GetOptions()["CustomKey"];
         }
 
         /// <summary>
@@ -110,6 +112,42 @@ namespace CxxPlugin.LocalExtensions
             }
 
             return violations;
+        }
+
+        /// <summary>
+        /// The get environment.
+        /// </summary>
+        /// <returns>
+        /// The <see>
+        ///         <cref>Dictionary</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
+        public override Dictionary<string, string> GetEnvironment()
+        {
+            return VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["CustomEnvironment"]);
+        }
+
+        /// <summary>
+        /// The get command.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string GetCommand()
+        {
+            return this.pluginOptions.GetOptions()["CustomExecutable"];
+        }
+
+        /// <summary>
+        /// The get arguments.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string GetArguments()
+        {
+            return this.pluginOptions.GetOptions()["CustomArguments"];
         }
 
         /// <summary>

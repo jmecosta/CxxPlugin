@@ -12,6 +12,8 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 // --------------------------------------------------------------------------------------------------------------------
 
+using VSSonarPlugins;
+
 namespace CxxPlugin.LocalExtensions
 {
     using System;
@@ -29,6 +31,8 @@ namespace CxxPlugin.LocalExtensions
     /// </summary>
     public class RatsSensor : ASensor
     {
+        private readonly IPluginsOptions pluginOptions;
+
         /// <summary>
         /// The s key.
         /// </summary>
@@ -40,15 +44,13 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="processCtrlIn">
         /// The process ctrl in.
         /// </param>
-        /// <param name="options">
-        /// The options.
+        /// <param name="pluginsOptions">
+        /// The plugins options.
         /// </param>
-        public RatsSensor(ICommandExecution processCtrlIn, Dictionary<string, string> options, EventHandler handler)
-            : base(SKey, processCtrlIn, false, handler)
+        public RatsSensor(ICommandExecution processCtrlIn, IPluginsOptions pluginsOptions)
+            : base(SKey, processCtrlIn, false)
         {
-            this.Command = options["RatsExecutable"];
-            this.Args = options["RatsArguments"];
-            this.Environment = VsSonarUtils.GetEnvironmentFromString(options["RatsEnvironment"]);
+            this.pluginOptions = pluginsOptions;
         }
 
         /// <summary>
@@ -96,6 +98,39 @@ namespace CxxPlugin.LocalExtensions
             }
 
             return violations;
+        }
+
+        /// <summary>
+        /// The get environment.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Dictionary"/>.
+        /// </returns>
+        public override Dictionary<string, string> GetEnvironment()
+        {
+            return VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["RatsEnvironment"]);
+        }
+
+        /// <summary>
+        /// The get command.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string GetCommand()
+        {
+            return this.pluginOptions.GetOptions()["RatsExecutable"];
+        }
+
+        /// <summary>
+        /// The get arguments.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string GetArguments()
+        {
+            return this.pluginOptions.GetOptions()["RatsArguments"];
         }
 
         /// <summary>
