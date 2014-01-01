@@ -16,8 +16,13 @@ namespace CxxPlugin.LocalExtensions
 {
     using System;
     using System.Collections.Generic;
+
+    using global::CxxPlugin.Commands;
+
     using ExtensionHelpers;
+
     using ExtensionTypes;
+
     using VSSonarPlugins;
 
     /// <summary>

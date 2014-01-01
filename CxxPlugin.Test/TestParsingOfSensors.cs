@@ -20,6 +20,7 @@ namespace CxxPlugin.Test
     using System.Collections.Generic;
     using System.IO;
 
+    using global::CxxPlugin.Commands;
     using global::CxxPlugin.LocalExtensions;
 
     using Moq;

@@ -12,12 +12,11 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 // --------------------------------------------------------------------------------------------------------------------
 
-using VSSonarPlugins;
-
 namespace CxxPlugin.LocalExtensions
 {
-    using System;
     using System.Collections.Generic;
+
+    using global::CxxPlugin.Commands;
 
     using ExtensionHelpers;
 
@@ -26,17 +25,22 @@ namespace CxxPlugin.LocalExtensions
     using RestSharp;
     using RestSharp.Deserializers;
 
+    using VSSonarPlugins;
+
     /// <summary>
     /// The rats sensor.
     /// </summary>
     public class RatsSensor : ASensor
     {
-        private readonly IPluginsOptions pluginOptions;
-
         /// <summary>
         /// The s key.
         /// </summary>
         public const string SKey = "rats";
+
+        /// <summary>
+        /// The plugin options.
+        /// </summary>
+        private readonly IPluginsOptions pluginOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RatsSensor"/> class.
@@ -104,7 +108,10 @@ namespace CxxPlugin.LocalExtensions
         /// The get environment.
         /// </summary>
         /// <returns>
-        /// The <see cref="Dictionary"/>.
+        /// The <see>
+        ///         <cref>Dictionary</cref>
+        ///     </see>
+        ///     .
         /// </returns>
         public override Dictionary<string, string> GetEnvironment()
         {

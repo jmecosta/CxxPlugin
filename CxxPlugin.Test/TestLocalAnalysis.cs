@@ -19,6 +19,7 @@ namespace CxxPlugin.Test
 
     using ExtensionTypes;
 
+    using global::CxxPlugin.Commands;
     using global::CxxPlugin.LocalExtensions;
 
     using Moq;

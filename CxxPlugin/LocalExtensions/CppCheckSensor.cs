@@ -12,11 +12,8 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 // --------------------------------------------------------------------------------------------------------------------
 
-using VSSonarPlugins;
-
 namespace CxxPlugin.LocalExtensions
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -24,20 +21,27 @@ namespace CxxPlugin.LocalExtensions
 
     using ExtensionTypes;
 
+    using global::CxxPlugin.Commands;
+
     using RestSharp;
     using RestSharp.Deserializers;
+
+    using VSSonarPlugins;
 
     /// <summary>
     /// The cpp check sensor.
     /// </summary>
     public class CppCheckSensor : ASensor
     {
-        private readonly IPluginsOptions pluginOptions;
-
         /// <summary>
         /// The repository key.
         /// </summary>
         public const string SKey = "cppcheck";
+
+        /// <summary>
+        /// The plugin options.
+        /// </summary>
+        private readonly IPluginsOptions pluginOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CppCheckSensor"/> class.
@@ -84,7 +88,10 @@ namespace CxxPlugin.LocalExtensions
         /// The get environment.
         /// </summary>
         /// <returns>
-        /// The <see cref="Dictionary"/>.
+        /// The <see>
+        ///         <cref>Dictionary</cref>
+        ///     </see>
+        ///     .
         /// </returns>
         public override Dictionary<string, string> GetEnvironment()
         {

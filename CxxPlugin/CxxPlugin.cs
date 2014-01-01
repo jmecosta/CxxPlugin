@@ -20,6 +20,9 @@ namespace CxxPlugin
     using System.IO;
     using System.Windows.Threading;
     using ExtensionTypes;
+
+    using global::CxxPlugin.Commands;
+
     using LocalExtensions;
     using Options;
     using ServerExtensions;

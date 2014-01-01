@@ -12,9 +12,6 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Diagnostics;
-using ExtensionHelpers;
-
 namespace CxxPlugin.LocalExtensions
 {
     using System;
@@ -23,9 +20,16 @@ namespace CxxPlugin.LocalExtensions
     using System.Runtime.InteropServices;
     using System.Security.Permissions;
     using System.Threading;
+
+    using global::CxxPlugin.Commands;
     using global::CxxPlugin.Options;
+
+    using ExtensionHelpers;
+
     using ExtensionTypes;
+
     using SonarRestService;
+
     using VSSonarPlugins;
 
     /// <summary>
@@ -67,11 +71,40 @@ namespace CxxPlugin.LocalExtensions
         /// </summary>
         private readonly object lockThis = new object();
 
+        /// <summary>
+        /// The executor.
+        /// </summary>
         private readonly ICommandExecution executor;
+
+        /// <summary>
+        /// The project.
+        /// </summary>
         private readonly Resource project;
+
+        /// <summary>
+        /// The configuration.
+        /// </summary>
         private readonly ConnectionConfiguration configuration;
+
+        /// <summary>
+        /// The plugin options.
+        /// </summary>
         private readonly IPluginsOptions pluginOptions;
+
+        /// <summary>
+        /// The rest service.
+        /// </summary>
         private readonly ISonarRestService restService = new SonarRestService(new JsonSonarConnector());
+
+        /// <summary>
+        /// The issues.
+        /// </summary>
+        private readonly List<Issue> issues;
+
+        /// <summary>
+        /// The issues in file.
+        /// </summary>
+        private readonly List<Issue> issuesInFile;
 
         /// <summary>
         /// Gets or sets the sonar version.
@@ -87,13 +120,6 @@ namespace CxxPlugin.LocalExtensions
         /// The file path to analyse.
         /// </summary>
         private string filePathToAnalyse;
-
-        /// <summary>
-        /// The issues.
-        /// </summary>
-        private List<Issue> issues;
-
-        private List<Issue> issuesInFile;
 
         /// <summary>
         /// The command plugin.
@@ -124,6 +150,10 @@ namespace CxxPlugin.LocalExtensions
         /// The profileIn.
         /// </summary>
         private Profile profile;
+
+        /// <summary>
+        /// The source in server.
+        /// </summary>
         private string sourceInServer;
 
         /// <summary>
@@ -301,12 +331,15 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="solutionpath">
         /// The solutionpath.
         /// </param>
+        /// <param name="profileIn">
+        /// The profile In.
+        /// </param>
         /// <returns>
         /// The <see cref="Thread"/>.
         /// </returns>
-        public Thread GetIncrementalAnalyserThread(string solutionpath, Profile profile)
+        public Thread GetIncrementalAnalyserThread(string solutionpath, Profile profileIn)
         {
-            this.profile = profile;
+            this.profile = profileIn;
             this.mode = AnalysisMode.Incremental;
             this.solutionPath = solutionpath;
             return new Thread(this.LocalAnalyser);
@@ -318,17 +351,29 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="solutionpath">
         /// The solutionpath.
         /// </param>
+        /// <param name="profileIn">
+        /// The profile In.
+        /// </param>
         /// <returns>
         /// The <see cref="Thread"/>.
         /// </returns>
-        public Thread GetPreviewAnalyserThread(string solutionpath, Profile profile)
+        public Thread GetPreviewAnalyserThread(string solutionpath, Profile profileIn)
         {
-            this.profile = profile;
+            this.profile = profileIn;
             this.mode = AnalysisMode.Preview;
             this.solutionPath = solutionpath;
             return new Thread(this.LocalAnalyser);
         }
 
+        /// <summary>
+        /// The get analyser thread.
+        /// </summary>
+        /// <param name="solutionpath">
+        /// The solutionpath.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Thread"/>.
+        /// </returns>
         public Thread GetAnalyserThread(string solutionpath)
         {
             this.mode = AnalysisMode.Full;
@@ -394,12 +439,9 @@ namespace CxxPlugin.LocalExtensions
                     {
                         if (this.modifiedLinesOnly)
                         {
-                            var elemKey = this.commandPlugin.GetResourceKey(this.projectItem, this.project.Key);
-                            var source = this.restService.GetSourceForFileResource(this.configuration, elemKey);
-                            if (source != null)
+                            if (this.sourceInServer != null)
                             {
-                                var sourcestr = VsSonarUtils.GetLinesFromSource(source, "\r\n");
-                                var diffReport = VsSonarUtils.GetDifferenceReport(this.filePathToAnalyse, sourcestr, false);
+                                var diffReport = VsSonarUtils.GetDifferenceReport(this.filePathToAnalyse, this.sourceInServer, false);
                                 this.issues.AddRange(VsSonarUtils.GetIssuesInModifiedLinesOnly(this.issuesInFile, diffReport));
                             }
                             else
@@ -412,7 +454,7 @@ namespace CxxPlugin.LocalExtensions
                             this.issues.AddRange(this.issuesInFile);
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         this.issues.AddRange(this.issuesInFile);
                     }

@@ -12,15 +12,14 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.IO;
-
 namespace CxxPlugin.LocalExtensions
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
 
-    using ExtensionHelpers;
+    using global::CxxPlugin.Commands;
 
     using ExtensionTypes;
 
@@ -128,8 +127,23 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public abstract List<Issue> GetViolations(List<string> lines);
 
+        /// <summary>
+        /// The get environment.
+        /// </summary>
+        /// <returns>
+        /// The <see>
+        ///         <cref>Dictionary</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
         public abstract Dictionary<string, string> GetEnvironment();
 
+        /// <summary>
+        /// The get command.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
         public abstract string GetCommand();
 
         /// <summary>

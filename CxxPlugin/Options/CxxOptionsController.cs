@@ -1,26 +1,33 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CxxOptionsController.cs" company="">
-//   
+// <copyright file="CxxOptionsController.cs" company="Copyright © 2013 Tekla Corporation. Tekla is a Trimble Company">
+//     Copyright (C) 2013 [Jorge Costa, Jorge.Costa@tekla.com]
 // </copyright>
-// <summary>
-//   The dummy options controller.
-// </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
-using System.Linq;
-using System.Windows.Forms.VisualStyles;
-
+// This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
+// as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. 
+// You should have received a copy of the GNU Lesser General Public License along with this program; if not, write to the Free
+// Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+// --------------------------------------------------------------------------------------------------------------------
 namespace CxxPlugin.Options
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.IO;
+    using System.Linq;
     using System.Windows.Forms;
+
     using global::CxxPlugin.Commands;
+
     using ExtensionTypes;
+
     using SonarRestService;
+
     using VSSonarPlugins;
+
     using UserControl = System.Windows.Controls.UserControl;
 
     /// <summary>
@@ -28,7 +35,16 @@ namespace CxxPlugin.Options
     /// </summary>
     public class CxxOptionsController : INotifyPropertyChanged, IPluginsOptions
     {
-        private const string excludedPluginsDefaultValue = "devcockpit,pdfreport,report,scmactivity,views,jira,scmstats";
+        #region Constants
+
+        /// <summary>
+        /// The excluded plugins default value.
+        /// </summary>
+        private const string ExcludedPluginsDefaultValue = "devcockpit,pdfreport,report,scmactivity,views,jira,scmstats";
+
+        #endregion
+
+        #region Fields
 
         /// <summary>
         ///     The cpp check arguments.
@@ -71,27 +87,37 @@ namespace CxxPlugin.Options
         private UserControl cxxControl;
 
         /// <summary>
+        ///     The excluded plugins.
+        /// </summary>
+        private string excludedPlugins;
+
+        /// <summary>
         ///     The is debug checked.
         /// </summary>
         private bool isDebugChecked;
 
         /// <summary>
-        /// The java binary path.
+        ///     The java binary path.
         /// </summary>
         private string javaBinaryPath;
 
         /// <summary>
-        /// The maven is checked.
+        ///     The maven is checked.
         /// </summary>
         private bool mavenIsChecked;
 
         /// <summary>
-        /// The maven path.
+        ///     The maven path.
         /// </summary>
         private string mavenPath;
 
         /// <summary>
-        /// The properties to runner.
+        ///     The project.
+        /// </summary>
+        private Resource project;
+
+        /// <summary>
+        ///     The properties to runner.
         /// </summary>
         private string propertiesToRunner;
 
@@ -111,12 +137,12 @@ namespace CxxPlugin.Options
         private string ratsExecutable;
 
         /// <summary>
-        /// The sonar runner is checked.
+        ///     The sonar runner is checked.
         /// </summary>
         private bool sonarRunnerIsChecked;
 
         /// <summary>
-        /// The sonar runner path.
+        ///     The sonar runner path.
         /// </summary>
         private string sonarRunnerPath;
 
@@ -135,15 +161,9 @@ namespace CxxPlugin.Options
         /// </summary>
         private string veraExecutable;
 
-        /// <summary>
-        /// The project.
-        /// </summary>
-        private Resource project;
+        #endregion
 
-        /// <summary>
-        /// The excluded plugins.
-        /// </summary>
-        private string excludedPlugins;
+        #region Constructors and Destructors
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CxxOptionsController" /> class.
@@ -152,8 +172,8 @@ namespace CxxPlugin.Options
         {
             this.cxxControl = null;
             this.OpenCommand = new CxxOpenFileCommand(this, new CxxService());
-            this.ResetDefaultCommand = new CxxResetDefaultsCommand(this);            
-            this.ExcludedPlugins = excludedPluginsDefaultValue;
+            this.ResetDefaultCommand = new CxxResetDefaultsCommand(this);
+            this.ExcludedPlugins = ExcludedPluginsDefaultValue;
         }
 
         /// <summary>
@@ -165,26 +185,374 @@ namespace CxxPlugin.Options
         public CxxOptionsController(ICxxIoService service)
         {
             this.cxxControl = null;
-            this.OpenCommand = service != null
-                ? new CxxOpenFileCommand(this, service)
-                : new CxxOpenFileCommand(this, new CxxService());
+            this.OpenCommand = service != null ? new CxxOpenFileCommand(this, service) : new CxxOpenFileCommand(this, new CxxService());
             this.ResetDefaultCommand = new CxxResetDefaultsCommand(this);
+        }
+
+        #endregion
+
+        #region Public Events
+
+        /// <summary>
+        ///     The property changed.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
+        #region Public Properties
+
+        /// <summary>
+        ///     Gets or sets the vera arguments.
+        /// </summary>
+        public string CppCheckArguments
+        {
+            get
+            {
+                return this.cppCheckArguments;
+            }
+
+            set
+            {
+                this.cppCheckArguments = value;
+                this.OnPropertyChanged("CppCheckArguments");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the vera arguments.
+        /// </summary>
+        public string CppCheckEnvironment
+        {
+            get
+            {
+                return this.cppCheckEnvironment;
+            }
+
+            set
+            {
+                this.cppCheckEnvironment = value;
+                this.OnPropertyChanged("CppCheckEnvironment");
+            }
         }
 
         /// <summary>
         ///     Gets or sets the text box.
         /// </summary>
-        public string VeraExecutable
+        public string CppCheckExecutable
         {
             get
             {
-                return this.veraExecutable;
+                return this.cppCheckExecutable;
             }
 
             set
             {
-                this.veraExecutable = value;
-                this.OnPropertyChanged("VeraExecutable");
+                this.cppCheckExecutable = value;
+                this.OnPropertyChanged("CppCheckExecutable");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the vera arguments.
+        /// </summary>
+        public string CustomArguments
+        {
+            get
+            {
+                return this.customArguments;
+            }
+
+            set
+            {
+                this.customArguments = value;
+                this.OnPropertyChanged("CustomArguments");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the vera arguments.
+        /// </summary>
+        public string CustomEnvironment
+        {
+            get
+            {
+                return this.customEnvironment;
+            }
+
+            set
+            {
+                this.customEnvironment = value;
+                this.OnPropertyChanged("CustomEnvironment");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the text box.
+        /// </summary>
+        public string CustomExecutable
+        {
+            get
+            {
+                return this.customExecutable;
+            }
+
+            set
+            {
+                this.customExecutable = value;
+                this.OnPropertyChanged("CustomExecutable");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the vera arguments.
+        /// </summary>
+        public string CustomKey
+        {
+            get
+            {
+                return this.customKey;
+            }
+
+            set
+            {
+                this.customKey = value;
+                this.OnPropertyChanged("CustomKey");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the excluded plugins.
+        /// </summary>
+        public string ExcludedPlugins
+        {
+            get
+            {
+                return this.excludedPlugins;
+            }
+
+            set
+            {
+                this.excludedPlugins = value;
+                this.OnPropertyChanged("ExcludedPlugins");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether is debug checked.
+        /// </summary>
+        public bool IsDebugChecked
+        {
+            get
+            {
+                return this.isDebugChecked;
+            }
+
+            set
+            {
+                this.isDebugChecked = value;
+                this.OnPropertyChanged("IsDebugChecked");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the java binary path.
+        /// </summary>
+        public string JavaBinaryPath
+        {
+            get
+            {
+                return this.javaBinaryPath;
+            }
+
+            set
+            {
+                this.javaBinaryPath = value;
+                this.OnPropertyChanged("JavaBinaryPath");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether maven is checked.
+        /// </summary>
+        public bool MavenIsChecked
+        {
+            get
+            {
+                return this.mavenIsChecked;
+            }
+
+            set
+            {
+                this.mavenIsChecked = value;
+                if (value)
+                {
+                    this.SonarRunnerIsChecked = false;
+                }
+
+                this.OnPropertyChanged("MavenIsChecked");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the maven path.
+        /// </summary>
+        public string MavenPath
+        {
+            get
+            {
+                return this.mavenPath;
+            }
+
+            set
+            {
+                this.mavenPath = value;
+                this.OnPropertyChanged("MavenPath");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the open command.
+        /// </summary>
+        public CxxOpenFileCommand OpenCommand { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the project.
+        /// </summary>
+        public Resource Project
+        {
+            get
+            {
+                return this.project;
+            }
+
+            set
+            {
+                this.project = value;
+                this.OnPropertyChanged("ProjectIsAssociated");
+            }
+        }
+
+        /// <summary>
+        ///     Gets the project is associated.
+        /// </summary>
+        public object ProjectIsAssociated
+        {
+            get
+            {
+                return this.Project != null;
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the properties to runner.
+        /// </summary>
+        public string PropertiesToRunner
+        {
+            get
+            {
+                return this.propertiesToRunner;
+            }
+
+            set
+            {
+                this.propertiesToRunner = value;
+                this.OnPropertyChanged("PropertiesToRunner");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the vera arguments.
+        /// </summary>
+        public string RatsArguments
+        {
+            get
+            {
+                return this.ratsArguments;
+            }
+
+            set
+            {
+                this.ratsArguments = value;
+                this.OnPropertyChanged("RatsArguments");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the vera arguments.
+        /// </summary>
+        public string RatsEnvironment
+        {
+            get
+            {
+                return this.ratsEnvironment;
+            }
+
+            set
+            {
+                this.ratsEnvironment = value;
+                this.OnPropertyChanged("RatsEnvironment");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the text box.
+        /// </summary>
+        public string RatsExecutable
+        {
+            get
+            {
+                return this.ratsExecutable;
+            }
+
+            set
+            {
+                this.ratsExecutable = value;
+                this.OnPropertyChanged("RatsExecutable");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the reset default command.
+        /// </summary>
+        public CxxResetDefaultsCommand ResetDefaultCommand { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether sonar runner is checked.
+        /// </summary>
+        public bool SonarRunnerIsChecked
+        {
+            get
+            {
+                return this.sonarRunnerIsChecked;
+            }
+
+            set
+            {
+                this.sonarRunnerIsChecked = value;
+                if (value)
+                {
+                    this.MavenIsChecked = false;
+                }
+
+                this.OnPropertyChanged("SonarRunnerIsChecked");
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the sonar runner path.
+        /// </summary>
+        public string SonarRunnerPath
+        {
+            get
+            {
+                return this.sonarRunnerPath;
+            }
+
+            set
+            {
+                this.sonarRunnerPath = value;
+                this.OnPropertyChanged("SonarRunnerPath");
             }
         }
 
@@ -210,336 +578,38 @@ namespace CxxPlugin.Options
         /// </summary>
         public string VeraEnvironment
         {
-            get { return veraEnvironment; }
+            get
+            {
+                return this.veraEnvironment;
+            }
 
             set
             {
-                veraEnvironment = value;
-                OnPropertyChanged("VeraEnvironment");
+                this.veraEnvironment = value;
+                this.OnPropertyChanged("VeraEnvironment");
             }
         }
 
         /// <summary>
         ///     Gets or sets the text box.
         /// </summary>
-        public string CppCheckExecutable
-        {
-            get { return cppCheckExecutable; }
-
-            set
-            {
-                cppCheckExecutable = value;
-                OnPropertyChanged("CppCheckExecutable");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string CppCheckArguments
-        {
-            get { return cppCheckArguments; }
-
-            set
-            {
-                cppCheckArguments = value;
-                OnPropertyChanged("CppCheckArguments");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string CppCheckEnvironment
-        {
-            get { return cppCheckEnvironment; }
-
-            set
-            {
-                cppCheckEnvironment = value;
-                OnPropertyChanged("CppCheckEnvironment");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the text box.
-        /// </summary>
-        public string RatsExecutable
-        {
-            get { return ratsExecutable; }
-
-            set
-            {
-                ratsExecutable = value;
-                OnPropertyChanged("RatsExecutable");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string RatsArguments
-        {
-            get { return ratsArguments; }
-
-            set
-            {
-                ratsArguments = value;
-                OnPropertyChanged("RatsArguments");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string RatsEnvironment
-        {
-            get { return ratsEnvironment; }
-
-            set
-            {
-                ratsEnvironment = value;
-                OnPropertyChanged("RatsEnvironment");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the text box.
-        /// </summary>
-        public string CustomExecutable
-        {
-            get { return customExecutable; }
-
-            set
-            {
-                customExecutable = value;
-                OnPropertyChanged("CustomExecutable");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string CustomArguments
-        {
-            get { return customArguments; }
-
-            set
-            {
-                customArguments = value;
-                OnPropertyChanged("CustomArguments");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string CustomKey
-        {
-            get { return customKey; }
-
-            set
-            {
-                customKey = value;
-                OnPropertyChanged("CustomKey");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string CustomEnvironment
-        {
-            get { return customEnvironment; }
-
-            set
-            {
-                customEnvironment = value;
-                OnPropertyChanged("CustomEnvironment");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the open command.
-        /// </summary>
-        public CxxOpenFileCommand OpenCommand { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the reset default command.
-        /// </summary>
-        public CxxResetDefaultsCommand ResetDefaultCommand { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether sonar runner is checked.
-        /// </summary>
-        public bool SonarRunnerIsChecked
-        {
-            get { return sonarRunnerIsChecked; }
-
-            set
-            {
-                sonarRunnerIsChecked = value;
-                if (value)
-                {
-                    MavenIsChecked = false;
-                }
-
-                OnPropertyChanged("SonarRunnerIsChecked");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether maven is checked.
-        /// </summary>
-        public bool MavenIsChecked
-        {
-            get { return mavenIsChecked; }
-
-            set
-            {
-                mavenIsChecked = value;
-                if (value)
-                {
-                    SonarRunnerIsChecked = false;
-                }
-
-                OnPropertyChanged("MavenIsChecked");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the java binary path.
-        /// </summary>
-        public string JavaBinaryPath
-        {
-            get { return javaBinaryPath; }
-
-            set
-            {
-                javaBinaryPath = value;
-                OnPropertyChanged("JavaBinaryPath");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the sonar runner path.
-        /// </summary>
-        public string SonarRunnerPath
-        {
-            get { return sonarRunnerPath; }
-
-            set
-            {
-                sonarRunnerPath = value;
-                OnPropertyChanged("SonarRunnerPath");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the maven path.
-        /// </summary>
-        public string MavenPath
-        {
-            get { return mavenPath; }
-
-            set
-            {
-                mavenPath = value;
-                OnPropertyChanged("MavenPath");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the properties to runner.
-        /// </summary>
-        public string PropertiesToRunner
-        {
-            get { return propertiesToRunner; }
-
-            set
-            {
-                propertiesToRunner = value;
-                OnPropertyChanged("PropertiesToRunner");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether is debug checked.
-        /// </summary>
-        public bool IsDebugChecked
-        {
-            get { return isDebugChecked; }
-
-            set
-            {
-                isDebugChecked = value;
-                OnPropertyChanged("IsDebugChecked");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the project.
-        /// </summary>
-        public Resource Project
-        {
-            get
-            { 
-                return this.project;
-            }
- 
-            set
-            { 
-                this.project = value;
-                this.OnPropertyChanged("ProjectIsAssociated");
-            }           
-        }
-
-        /// <summary>
-        /// Gets the project is associated.
-        /// </summary>
-        public object ProjectIsAssociated
-        {
-            get
-            { 
-                return this.Project != null;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the excluded plugins.
-        /// </summary>
-        public string ExcludedPlugins
+        public string VeraExecutable
         {
             get
             {
-                return this.excludedPlugins;
+                return this.veraExecutable;
             }
 
             set
             {
-                this.excludedPlugins = value;
-                this.OnPropertyChanged("ExcludedPlugins");
-            }      
+                this.veraExecutable = value;
+                this.OnPropertyChanged("VeraExecutable");
+            }
         }
 
-        /// <summary>
-        ///     The property changed.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
 
-        /// <summary>
-        /// The get user control options.
-        /// </summary>
-        /// <param name="project">
-        /// The project.
-        /// </param>
-        /// <returns>
-        /// The <see cref="UserControl"/>.
-        /// </returns>
-        public UserControl GetUserControlOptions(Resource project)
-        {
-            return cxxControl ?? (cxxControl = new CxxUserControl(this));
-        }
+        #region Public Methods and Operators
 
         /// <summary>
         ///     The get options.
@@ -553,23 +623,23 @@ namespace CxxPlugin.Options
         public Dictionary<string, string> GetOptions()
         {
             var options = new Dictionary<string, string>
-            {
-                { "VeraExecutable", this.VeraExecutable }, 
-                { "VeraArguments", this.VeraArguments }, 
-                { "VeraEnvironment", this.VeraEnvironment }, 
-                { "RatsExecutable", this.RatsExecutable }, 
-                { "RatsArguments", this.RatsArguments }, 
-                { "RatsEnvironment", this.RatsEnvironment }, 
-                { "CppCheckExecutable", this.CppCheckExecutable }, 
-                { "CppCheckArguments", this.CppCheckArguments }, 
-                { "CppCheckEnvironment", this.CppCheckEnvironment }, 
-                { "CustomExecutable", this.CustomExecutable }, 
-                { "CustomArguments", this.CustomArguments }, 
-                { "CustomKey", this.CustomKey }, 
-                { "CustomEnvironment", this.CustomEnvironment },
-                { "JavaBinaryPath", this.JavaBinaryPath }
-            };
-           
+                              {
+                                  { "VeraExecutable", this.VeraExecutable }, 
+                                  { "VeraArguments", this.VeraArguments }, 
+                                  { "VeraEnvironment", this.VeraEnvironment }, 
+                                  { "RatsExecutable", this.RatsExecutable }, 
+                                  { "RatsArguments", this.RatsArguments }, 
+                                  { "RatsEnvironment", this.RatsEnvironment }, 
+                                  { "CppCheckExecutable", this.CppCheckExecutable }, 
+                                  { "CppCheckArguments", this.CppCheckArguments }, 
+                                  { "CppCheckEnvironment", this.CppCheckEnvironment }, 
+                                  { "CustomExecutable", this.CustomExecutable }, 
+                                  { "CustomArguments", this.CustomArguments }, 
+                                  { "CustomKey", this.CustomKey }, 
+                                  { "CustomEnvironment", this.CustomEnvironment }, 
+                                  { "JavaBinaryPath", this.JavaBinaryPath }
+                              };
+
             // add specific solution properties
             if (this.Project == null)
             {
@@ -592,12 +662,12 @@ namespace CxxPlugin.Options
             options.Add(this.Project.Key + ".ExcludedPlugins", this.ExcludedPlugins);
             options.Add(this.Project.Key + ".MavenPath", this.MavenPath);
             options.Add(this.Project.Key + ".SonarRunnerPath", this.SonarRunnerPath);
-            
+
             if (this.propertiesToRunner != null)
             {
                 string[] separator = { "\r\n", ";" };
 
-                var properties = this.propertiesToRunner.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                string[] properties = this.propertiesToRunner.Split(separator, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var elements in properties.Select(property => property.Split('=')))
                 {
@@ -606,6 +676,136 @@ namespace CxxPlugin.Options
             }
 
             return options;
+        }
+
+        /// <summary>
+        /// The get user control options.
+        /// </summary>
+        /// <param name="projectIn">
+        /// The project.
+        /// </param>
+        /// <returns>
+        /// The <see cref="UserControl"/>.
+        /// </returns>
+        public UserControl GetUserControlOptions(Resource projectIn)
+        {
+            return this.cxxControl ?? (this.cxxControl = new CxxUserControl(this));
+        }
+
+        /// <summary>
+        ///     The is enabled.
+        /// </summary>
+        /// <returns>
+        ///     The <see cref="bool" />.
+        /// </returns>
+        public bool IsEnabled()
+        {
+            return true;
+        }
+
+        /// <summary>
+        ///     The reset defaults.
+        /// </summary>
+        public void ResetDefaults()
+        {
+            this.ResetOptions("Vera++");
+            this.ResetOptions("CppCheck");
+            this.ResetOptions("Rats");
+            this.ResetOptions("ExternalSensor");
+            this.ResetOptions("RunnerOptions");
+        }
+
+        /// <summary>
+        /// The reset options.
+        /// </summary>
+        /// <param name="optionsTab">
+        /// The options tab.
+        /// </param>
+        public void ResetOptions(string optionsTab)
+        {
+            string home = Environment.GetEnvironmentVariable("HOME");
+            string xmlpath = home + "\\ts_user.settings";
+            string pathDef = string.Empty;
+            if (File.Exists(xmlpath))
+            {
+                IXmlHelpersService xmlparser = new XmlHelpersService();
+                try
+                {
+                    pathDef = xmlparser.GetUserSRCDir(xmlpath).Replace("$(TSVersion)", "work");
+                }
+                catch (Exception)
+                {
+                    pathDef = string.Empty;
+                }
+            }
+
+            if (optionsTab.Equals("Vera++"))
+            {
+                this.VeraExecutable = string.Empty;
+                this.VeraArguments = string.Empty;
+
+                if (!string.IsNullOrEmpty(pathDef))
+                {
+                    this.VeraExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\vera++\\bin\\vera++.exe";
+                    this.VeraArguments = "-nodup -showrules";
+
+                    string activeDir = Path.GetDirectoryName(this.VeraExecutable);
+                    if (!string.IsNullOrEmpty(activeDir))
+                    {
+                        string rootp = Directory.GetParent(activeDir).ToString();
+                        this.VeraEnvironment = "VERA_ROOT=" + Path.Combine(rootp, "lib", "vera++");
+                    }
+                }
+            }
+
+            if (optionsTab.Equals("CppCheck"))
+            {
+                this.CppCheckExecutable = string.Empty;
+                this.CppCheckArguments = string.Empty;
+
+                if (!string.IsNullOrEmpty(pathDef))
+                {
+                    this.CppCheckExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\cppcheck\\cppcheck.exe";
+                    this.CppCheckArguments = "--inline-suppr --enable=all --xml -D__cplusplus -DNT";
+                }
+            }
+
+            if (optionsTab.Equals("Rats"))
+            {
+                this.RatsExecutable = string.Empty;
+                this.RatsArguments = string.Empty;
+
+                if (!string.IsNullOrEmpty(pathDef))
+                {
+                    this.RatsExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\rats-2.3\\rats.exe";
+                    this.RatsArguments = "--xml";
+                }
+            }
+
+            if (optionsTab.Equals("RunnerOptions"))
+            {
+                this.MavenIsChecked = true;
+                this.MavenPath = pathDef + "\\MSBuild\\BuildTools\\apache-maven-2.2.1\\bin\\mvn.bat";
+                this.ExcludedPlugins = ExcludedPluginsDefaultValue;
+                this.PropertiesToRunner = "SRCDir=" + pathDef
+                                          + ";COMMON=Core\\Common;MODEL=Core\\Model;DRAWINGS=Core\\Drawings;TS=Core\\TeklaStructures;ANALYSIS=Core\\Analysis";
+            }
+
+            if (optionsTab.Equals("ExternalSensor"))
+            {
+                this.CustomExecutable = string.Empty;
+                this.CustomArguments = string.Empty;
+                this.CustomKey = string.Empty;
+                this.CustomEnvironment = string.Empty;
+
+                if (!string.IsNullOrEmpty(pathDef))
+                {
+                    this.CustomExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\Python27\\python.exe";
+                    this.CustomArguments = pathDef + "\\MSBuild\\Sonar\\scripts\\cpplint_mod.py --output=vs7";
+                    this.CustomKey = "cpplint";
+                    this.CustomEnvironment = "UserSRCDir=" + pathDef;
+                }
+            }
         }
 
         /// <summary>
@@ -661,131 +861,23 @@ namespace CxxPlugin.Options
             this.ExcludedPlugins = this.GetOptionIfExists(options, this.Project.Key + ".ExcludedPlugins");
             if (string.IsNullOrEmpty(this.ExcludedPlugins))
             {
-                this.ExcludedPlugins = excludedPluginsDefaultValue;
+                this.ExcludedPlugins = ExcludedPluginsDefaultValue;
             }
 
             this.MavenPath = this.GetOptionIfExists(options, this.Project.Key + ".MavenPath");
             this.SonarRunnerPath = this.GetOptionIfExists(options, this.Project.Key + ".SonarRunnerPath");
 
-            var optionsForProject = this.GetOptionsStartingWith(options, this.Project.Key + ".propertyToRunner.");
-            var props = optionsForProject.Aggregate(string.Empty, (current, option) => current + (option.Key.Replace(this.Project.Key + ".propertyToRunner.", string.Empty) + "=" + option.Value + "\r\n"));
+            Dictionary<string, string> optionsForProject = this.GetOptionsStartingWith(options, this.Project.Key + ".propertyToRunner.");
+            string props = optionsForProject.Aggregate(
+                string.Empty, 
+                (current, option) =>
+                current + (option.Key.Replace(this.Project.Key + ".propertyToRunner.", string.Empty) + "=" + option.Value + "\r\n"));
             this.PropertiesToRunner = props;
         }
 
-        /// <summary>
-        ///     The is enabled.
-        /// </summary>
-        /// <returns>
-        ///     The <see cref="bool" />.
-        /// </returns>
-        public bool IsEnabled()
-        {
-            return true;
-        }
+        #endregion
 
-        /// <summary>
-        ///     The reset defaults.
-        /// </summary>
-        public void ResetDefaults()
-        {
-            this.ResetOptions("Vera++");
-            this.ResetOptions("CppCheck");
-            this.ResetOptions("Rats");
-            this.ResetOptions("ExternalSensor");
-            this.ResetOptions("RunnerOptions");
-        }
-
-        /// <summary>
-        /// The reset options.
-        /// </summary>
-        /// <param name="optionsTab">
-        /// The options tab.
-        /// </param>
-        public void ResetOptions(string optionsTab)
-        {
-            var home = Environment.GetEnvironmentVariable("HOME");
-            var xmlpath = home + "\\ts_user.settings";
-            var pathDef = string.Empty;
-            if (File.Exists(xmlpath))
-            {
-                IXmlHelpersService xmlparser = new XmlHelpersService();
-                try
-                {
-                    pathDef = xmlparser.GetUserSRCDir(xmlpath).Replace("$(TSVersion)", "work");
-                }
-                catch (Exception)
-                {
-                    pathDef = string.Empty;
-                }
-            }
-
-            if (optionsTab.Equals("Vera++"))
-            {
-                this.VeraExecutable = string.Empty;
-                this.VeraArguments = string.Empty;
-
-                if (!string.IsNullOrEmpty(pathDef))
-                {
-                    this.VeraExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\vera++\\bin\\vera++.exe";
-                    this.VeraArguments = "-nodup -showrules";
-
-                    var activeDir = Path.GetDirectoryName(this.VeraExecutable);
-                    if (!string.IsNullOrEmpty(activeDir))
-                    {
-                        var rootp = Directory.GetParent(activeDir).ToString();
-                        this.VeraEnvironment = "VERA_ROOT=" + Path.Combine(rootp, "lib", "vera++");
-                    }
-                }
-            }
-
-            if (optionsTab.Equals("CppCheck"))
-            {
-                this.CppCheckExecutable = string.Empty;
-                this.CppCheckArguments = string.Empty;
-
-                if (!string.IsNullOrEmpty(pathDef))
-                {
-                    this.CppCheckExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\cppcheck\\cppcheck.exe";
-                    this.CppCheckArguments = "--inline-suppr --enable=all --xml -D__cplusplus -DNT";
-                }
-            }
-
-            if (optionsTab.Equals("Rats"))
-            {
-                this.RatsExecutable = string.Empty;
-                this.RatsArguments = string.Empty;
-
-                if (!string.IsNullOrEmpty(pathDef))
-                {
-                    this.RatsExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\rats-2.3\\rats.exe";
-                    this.RatsArguments = "--xml";
-                }
-            }
-
-            if (optionsTab.Equals("RunnerOptions"))
-            {
-                this.MavenIsChecked = true;
-                this.MavenPath = pathDef + "\\MSBuild\\BuildTools\\apache-maven-2.2.1\\bin\\mvn.bat";
-                this.ExcludedPlugins = excludedPluginsDefaultValue;
-                this.PropertiesToRunner = "SRCDir=" + pathDef + ";COMMON=Core\\Common;MODEL=Core\\Model;DRAWINGS=Core\\Drawings;TS=Core\\TeklaStructures;ANALYSIS=Core\\Analysis";
-            }
-
-            if (optionsTab.Equals("ExternalSensor"))
-            {
-                this.CustomExecutable = string.Empty;
-                this.CustomArguments = string.Empty;
-                this.CustomKey = string.Empty;
-                this.CustomEnvironment = string.Empty;
-
-                if (!string.IsNullOrEmpty(pathDef))
-                {
-                    this.CustomExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\Python27\\python.exe";
-                    this.CustomArguments = pathDef + "\\MSBuild\\Sonar\\scripts\\cpplint_mod.py --output=vs7";
-                    this.CustomKey = "cpplint";
-                    this.CustomEnvironment = "UserSRCDir=" + pathDef;
-                }
-            }
-        }
+        #region Methods
 
         /// <summary>
         /// The on property changed.
@@ -795,7 +887,7 @@ namespace CxxPlugin.Options
         /// </param>
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
+            PropertyChangedEventHandler handler = this.PropertyChanged;
             if (handler != null)
             {
                 handler(this, new PropertyChangedEventArgs(propertyName));
@@ -824,9 +916,21 @@ namespace CxxPlugin.Options
             return string.Empty;
         }
 
+        /// <summary>
+        /// The get options starting with.
+        /// </summary>
+        /// <param name="options">
+        /// The options.
+        /// </param>
+        /// <param name="key">
+        /// The key.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Dictionary"/>.
+        /// </returns>
         private Dictionary<string, string> GetOptionsStartingWith(Dictionary<string, string> options, string key)
         {
-            Dictionary<string, string> optionsToReturn = new Dictionary<string, string>();
+            var optionsToReturn = new Dictionary<string, string>();
 
             foreach (var option in options)
             {
@@ -836,15 +940,18 @@ namespace CxxPlugin.Options
                 }
             }
 
-
             return optionsToReturn;
         }
+
+        #endregion
 
         /// <summary>
         ///     The io service.
         /// </summary>
         internal class CxxService : ICxxIoService
         {
+            #region Public Methods and Operators
+
             /// <summary>
             /// The open file dialog.
             /// </summary>
@@ -860,6 +967,8 @@ namespace CxxPlugin.Options
                 openFileDialog.Filter = filter;
                 return openFileDialog.ShowDialog() == DialogResult.OK ? openFileDialog.FileName : string.Empty;
             }
+
+            #endregion
         }
     }
 }

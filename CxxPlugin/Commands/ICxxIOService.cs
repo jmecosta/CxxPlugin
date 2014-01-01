@@ -21,6 +21,9 @@ namespace CxxPlugin.Commands
         /// <summary>
         /// The open file dialog.
         /// </summary>
+        /// <param name="filter">
+        /// The filter.
+        /// </param>
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
