@@ -19,10 +19,10 @@ namespace CxxPlugin
     using System.Globalization;
     using System.IO;
     using System.Windows.Threading;
-    using global::CxxPlugin.LocalExtensions;
-    using global::CxxPlugin.Options;
-    using global::CxxPlugin.ServerExtensions;
     using ExtensionTypes;
+    using LocalExtensions;
+    using Options;
+    using ServerExtensions;
     using VSSonarPlugins;
 
     /// <summary>
@@ -147,21 +147,6 @@ namespace CxxPlugin
         }
 
         /// <summary>
-        /// The get plugin control options.
-        /// </summary>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
-        /// <returns>
-        /// The <see cref="IPluginsOptions"/>.
-        /// </returns>
-        public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration)
-        {
-            ((CxxOptionsController)this.pluginOptions).Project = null;
-            return this.pluginOptions;
-        }
-
-        /// <summary>
         /// The is supported.
         /// </summary>
         /// <param name="configuration">
@@ -230,6 +215,9 @@ namespace CxxPlugin
         /// </param>
         /// <param name="project">
         /// The project.
+        /// </param>
+        /// <param name="sonarVersion">
+        /// The sonar Version.
         /// </param>
         /// <returns>
         /// The <see cref="ILocalAnalyserExtension"/>.
