@@ -5,8 +5,8 @@
   <groupId>tekla.tools</groupId>
   <packaging>pom</packaging>
   
-  <artifactId>CxxPlugin</artifactId>
-  <name>CxxPlugin</name>
+  <artifactId>CxxPluginProj</artifactId>
+  <name>CxxPluginProj</name>
   <version>work</version>
   <url>https://github.com/jmecosta/CxxPlugin</url>
 
