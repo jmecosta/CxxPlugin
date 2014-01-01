@@ -43,7 +43,7 @@
       <HintPath>..\References\Moq.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\VSSonarQubeExtension\references\nunit.framework.dll</HintPath>
+      <HintPath>..\References\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
