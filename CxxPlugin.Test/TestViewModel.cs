@@ -48,7 +48,7 @@ namespace CxxPlugin.Test
                 CustomEnvironment = "CustomEnvironment"
             };
             var data = controller.GetOptions();
-            Assert.AreEqual(13, data.Count);
+            Assert.AreEqual(14, data.Count);
             Assert.AreEqual("VeraArguments", data["VeraArguments"]);
             Assert.AreEqual("VeraExecutable", data["VeraExecutable"]);
             Assert.AreEqual("CppCheckArguments", data["CppCheckArguments"]);
@@ -111,14 +111,17 @@ namespace CxxPlugin.Test
         {
             var serviceStub = new Mock<ICxxIoService>();
             var controller = new CxxOptionsController(serviceStub.Object);
-            serviceStub.Setup(control => control.OpenFileDialog("")).Returns("Executable");
+            serviceStub.Setup(control => control.OpenFileDialog("Vera++ executable|vera++.exe")).Returns("Executable");
+            serviceStub.Setup(control => control.OpenFileDialog("CppCheck executable|cppcheck.exe")).Returns("Executable");
+            serviceStub.Setup(control => control.OpenFileDialog("Custom executable|*.exe")).Returns("Executable");
+            serviceStub.Setup(control => control.OpenFileDialog("Rats executable|rats.exe")).Returns("Executable");
             controller.OpenCommand.Execute("Vera++");
             Assert.AreEqual("Executable", controller.VeraExecutable);
             controller.OpenCommand.Execute("CppCheck");
             Assert.AreEqual("Executable", controller.CppCheckExecutable);
             controller.OpenCommand.Execute("Rats");
             Assert.AreEqual("Executable", controller.RatsExecutable);
-            controller.OpenCommand.Execute("Custom");
+            controller.OpenCommand.Execute("ExternalSensor");
             Assert.AreEqual("Executable", controller.CustomExecutable);
         }
 

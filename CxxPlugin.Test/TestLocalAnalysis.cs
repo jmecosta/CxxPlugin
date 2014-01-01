@@ -34,11 +34,6 @@ namespace CxxPlugin.Test
     [TestFixture]
     public class TestLocalAnalysis
     {
-        public TestLocalAnalysis(IPluginsOptions pluginOptions)
-        {
-            _pluginOptions = pluginOptions;
-        }
-
         /// <summary>
         /// The options.
         /// </summary>
@@ -49,6 +44,9 @@ namespace CxxPlugin.Test
         /// </summary>
         private string fileToAnalyse = "file.cpp";
 
+        /// <summary>
+        /// The _plugin options.
+        /// </summary>
         private IPluginsOptions _pluginOptions;
 
         /// <summary>
@@ -114,13 +112,15 @@ namespace CxxPlugin.Test
             var serviceStub = new Mock<IPlugin>();
             var optionsStub = new Mock<IPluginsOptions>();
             var executorStub = new Mock<ICommandExecution>();
-            serviceStub.Setup(control => control.GetPluginControlOptions(new ConnectionConfiguration(), null)).Returns(optionsStub.Object);
+            var resource = new Resource() { Lang = "c++" };
+            var configuration = new ConnectionConfiguration();
+            serviceStub.Setup(control => control.GetPluginControlOptions(configuration, resource)).Returns(optionsStub.Object);
             optionsStub.Setup(control => control.GetOptions()).Returns(this.options);
 
-            var localextension = new CxxLocalExtension(serviceStub.Object, executorStub.Object, new ConnectionConfiguration(), new Resource(), 4.0);
+            var localextension = new CxxLocalExtension(serviceStub.Object, executorStub.Object, configuration, resource, 4.0);
             localextension.LocalAnalysisCompleted += this.AnalysisCompleted;
-            var vsitem = new VsProjectItem("", this.fileToAnalyse, "", "", "", "");
-            var thread = localextension.GetFileAnalyserThread(vsitem, string.Empty, new Profile(), "", false);
+            var vsitem = new VsProjectItem(string.Empty, this.fileToAnalyse, string.Empty, string.Empty, string.Empty, string.Empty);
+            var thread = localextension.GetFileAnalyserThread(vsitem, string.Empty, new Profile(), string.Empty, false);
             thread.Start();
             thread.Join();
         }
