@@ -868,6 +868,7 @@ namespace CxxPlugin.Options
             this.SonarRunnerPath = this.GetOptionIfExists(options, this.Project.Key + ".SonarRunnerPath");
 
             Dictionary<string, string> optionsForProject = this.GetOptionsStartingWith(options, this.Project.Key + ".propertyToRunner.");
+
             string props = optionsForProject.Aggregate(
                 string.Empty, 
                 (current, option) =>

@@ -11,13 +11,13 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="StylesAndTemplates.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
-			
-		</ResourceDictionary>
+            <options:CxxOptionsController x:Key="CxxOptionsControllerDataSource" d:IsDataSource="True"/>
+        </ResourceDictionary>
 	</UserControl.Resources>
-	<UserControl.DataContext>
-		<Binding Source="{StaticResource CxxOptionsControllerDataSource}"/>
-	</UserControl.DataContext>
-	<Grid>
+    <UserControl.DataContext>
+        <Binding Source="{StaticResource CxxOptionsControllerDataSource}"/>
+    </UserControl.DataContext>
+    <Grid>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="349*"/>
 				</Grid.ColumnDefinitions>		
