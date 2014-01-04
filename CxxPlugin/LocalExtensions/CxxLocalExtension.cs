@@ -313,11 +313,19 @@ namespace CxxPlugin.LocalExtensions
                 }
                 else
                 {
-                    if (this.sonarVersion >= 3.4)
+                    if (this.sonarVersion >= 3.7)
                     {
-                        var reportOfIssues = this.restService.ParseReportOfIssuesOld(Path.Combine(this.solutionPath, ".sonar\\dryRun.json"));
-                        this.issues.AddRange(reportOfIssues);
-                        this.issues.AddRange(localAnalyser.Issues);
+                        this.issues.AddRange(this.restService.ParseDryRunReportOfIssues(Path.Combine(this.solutionPath, @".sonar\dryRun.json")));
+                        this.issues.AddRange(this.restService.ParseReportOfIssues(Path.Combine(this.solutionPath, @".sonar\sonar-report.json")));
+                    }
+                    else
+                    {
+                        if (this.sonarVersion >= 3.4)
+                        {
+                            var reportOfIssues = this.restService.ParseReportOfIssuesOld(Path.Combine(this.solutionPath, ".sonar\\dryRun.json"));
+                            this.issues.AddRange(reportOfIssues);
+                            this.issues.AddRange(localAnalyser.Issues);
+                        }
                     }
                 }
 
