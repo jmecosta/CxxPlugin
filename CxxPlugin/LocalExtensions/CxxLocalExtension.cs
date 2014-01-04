@@ -303,10 +303,23 @@ namespace CxxPlugin.LocalExtensions
             // process issues
             try
             {
-                var reportOfIssues = this.restService.ParseReportOfIssues(Path.Combine(this.solutionPath, "target\\sonar\\sonar-report.json"));
                 this.issues.Clear();
-                this.issues.AddRange(reportOfIssues);
-                this.issues.AddRange(localAnalyser.Issues);
+
+                if (this.sonarVersion >= 4.0)
+                {
+                    var reportOfIssues = this.restService.ParseReportOfIssues(Path.Combine(this.solutionPath, "target\\sonar\\sonar-report.json"));
+                    this.issues.AddRange(reportOfIssues);
+                    this.issues.AddRange(localAnalyser.Issues);
+                }
+                else
+                {
+                    if (this.sonarVersion >= 3.4)
+                    {
+                        var reportOfIssues = this.restService.ParseReportOfIssuesOld(Path.Combine(this.solutionPath, ".sonar\\dryRun.json"));
+                        this.issues.AddRange(reportOfIssues);
+                        this.issues.AddRange(localAnalyser.Issues);
+                    }
+                }
 
                 var tempEvent = this.LocalAnalysisCompleted;
                 if (tempEvent != null)
