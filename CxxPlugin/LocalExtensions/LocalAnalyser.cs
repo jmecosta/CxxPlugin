@@ -426,7 +426,7 @@ namespace CxxPlugin.LocalExtensions
         private string GetArguments(double sonarVersion)
         {
             var args = "sonar:sonar -X -Dsonar.login=" + this.configuration.Username +
-                       " -Dsonar.password=" + this.configuration.Password;
+                       " -Dsonar.password=" + this.configuration.Password + " -Dsonar.host.url=" + this.configuration.Hostname;
 
             if (sonarVersion >= 4.0)
             {
@@ -499,7 +499,12 @@ namespace CxxPlugin.LocalExtensions
         /// </exception>
         private string GetDoubleParent(string path)
         {
-            string data = Directory.GetParent(Directory.GetParent(path).ToString()).ToString();
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new Exception("Path Give in Options was not defined, be sure configuration is correctly set");
+            }
+
+            var data = Directory.GetParent(Directory.GetParent(path).ToString()).ToString();
             if (!Directory.Exists(data))
             {
                 throw new Exception("Directory Not Found: " + path);
@@ -522,7 +527,12 @@ namespace CxxPlugin.LocalExtensions
         /// </exception>
         private string GetParent(string path)
         {
-            string data = Directory.GetParent(path).ToString();
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new Exception("Path Give in Options was not defined, be sure configuration is correctly set");
+            }
+
+            var data = Directory.GetParent(path).ToString();
             if (!Directory.Exists(data))
             {
                 throw new Exception("Directory Not Found: " + path);

@@ -787,8 +787,17 @@ namespace CxxPlugin.Options
                 this.MavenIsChecked = true;
                 this.MavenPath = pathDef + "\\MSBuild\\BuildTools\\apache-maven-2.2.1\\bin\\mvn.bat";
                 this.ExcludedPlugins = ExcludedPluginsDefaultValue;
-                this.PropertiesToRunner = "SRCDir=" + pathDef
-                                          + ";COMMON=Core\\Common;MODEL=Core\\Model;DRAWINGS=Core\\Drawings;TS=Core\\TeklaStructures;ANALYSIS=Core\\Analysis";
+                this.PropertiesToRunner = "SRCDir=" + pathDef + ";" + 
+                                          "COMMON=Core\\Common;" +
+                                          "MODEL=Core\\Model;" +
+                                          "DRAWINGS=Core\\Drawings;"  + 
+                                          "TS=Core\\TeklaStructures;" +
+                                          "ANALYSIS=Core\\Analysis;" + 
+                                          "DIMENSIONING=Core\\Dimensioning;" +
+                                          "REINFORCEMENT=Core\\reinforcement;" +
+                                          "SOLIDS=Core\\Solids;" +
+                                          "CATALOGS=Core\\Catalogs;" +
+                                          "ENVIRONMENT=Core\\Environment";
             }
 
             if (optionsTab.Equals("ExternalSensor"))
@@ -834,6 +843,35 @@ namespace CxxPlugin.Options
             this.CustomEnvironment = this.GetOptionIfExists(options, "CustomEnvironment");
 
             this.JavaBinaryPath = this.GetOptionIfExists(options, "JavaBinaryPath");
+            
+            if (string.IsNullOrEmpty(this.JavaBinaryPath))
+            {
+                var programFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Java");
+
+                if (!string.IsNullOrEmpty(programFiles))
+                {
+                    var fileList = new DirectoryInfo(programFiles).GetFiles("java.exe", SearchOption.AllDirectories);
+                    if (fileList.Length > 0)
+                    {
+                        if (fileList[0].DirectoryName != null)
+                        {
+                            this.JavaBinaryPath = Path.Combine(fileList[0].DirectoryName, fileList[0].Name);
+                        }                        
+                    }
+                }
+                else
+                {
+                    var programFilesX86 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Java");
+                    if (!string.IsNullOrEmpty(programFilesX86))
+                    {
+                        var fileList = new DirectoryInfo(programFilesX86).GetFiles("java.exe", SearchOption.AllDirectories);
+                        if (fileList.Length > 0)
+                        {
+                            this.JavaBinaryPath = fileList[0].Name;
+                        }
+                    }
+                }
+            }
 
             if (this.Project == null)
             {
