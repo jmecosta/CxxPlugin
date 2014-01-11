@@ -253,16 +253,13 @@ namespace CxxPlugin
         /// <param name="configuration">
         /// The configuration.
         /// </param>
-        /// <param name="overwrite">
-        /// The overwrite.
-        /// </param>
         /// <returns>
         /// The <see>
         ///         <cref>Dictionary</cref>
         ///     </see>
         ///     .
         /// </returns>
-        public Dictionary<string, VsLicense> GetLicenses(ConnectionConfiguration configuration, bool overwrite)
+        public Dictionary<string, VsLicense> GetLicenses(ConnectionConfiguration configuration)
         {
             return new Dictionary<string, VsLicense>();
         }
