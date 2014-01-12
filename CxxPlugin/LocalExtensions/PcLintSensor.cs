@@ -16,6 +16,7 @@ namespace CxxPlugin.LocalExtensions
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using global::CxxPlugin.Commands;
 
@@ -141,7 +142,9 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetArguments()
         {
-            return this.pluginOptions.GetOptions()["PcLintArguments"];
+            var parent = Directory.GetParent(this.pluginOptions.GetOptions()["PcLintExecutable"]).ToString();
+
+            return "-\"format=%(%F(%l):%) error : (%t -- %m) : [%n]\"" + "-i\"" + parent + "\" +ffn std.lnt env-vc10.lnt " + this.pluginOptions.GetOptions()["PcLintArguments"];
         }
 
         /// <summary>

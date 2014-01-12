@@ -161,6 +161,21 @@ namespace CxxPlugin.Options
         /// </summary>
         private string veraExecutable;
 
+        /// <summary>
+        /// The pc lint executable.
+        /// </summary>
+        private string pclintExecutable;
+
+        /// <summary>
+        /// The pclint arguments.
+        /// </summary>
+        private string pclintArguments;
+
+        /// <summary>
+        /// The pclint environment.
+        /// </summary>
+        private string pclintEnvironment;
+
         #endregion
 
         #region Constructors and Destructors
@@ -607,6 +622,57 @@ namespace CxxPlugin.Options
             }
         }
 
+        /// <summary>
+        /// Gets or sets the pc lint executable.
+        /// </summary>
+        public string PcLintExecutable
+        {
+            get
+            {
+                return this.pclintExecutable;
+            }
+
+            set
+            {
+                this.pclintExecutable = value;
+                this.OnPropertyChanged("pclintExecutable");
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the pc lint arguments.
+        /// </summary>
+        public string PcLintArguments
+        {
+            get
+            {
+                return this.pclintArguments;
+            }
+
+            set
+            {
+                this.pclintArguments = value;
+                this.OnPropertyChanged("PcLintArguments");
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the pc lint environment.
+        /// </summary>
+        public string PcLintEnvironment
+        {
+            get
+            {
+                return this.pclintEnvironment;
+            }
+
+            set
+            {
+                this.pclintEnvironment = value;
+                this.OnPropertyChanged("PcLintEnvironment");
+            }
+        }
+
         #endregion
 
         #region Public Methods and Operators
@@ -627,6 +693,9 @@ namespace CxxPlugin.Options
                                   { "VeraExecutable", this.VeraExecutable }, 
                                   { "VeraArguments", this.VeraArguments }, 
                                   { "VeraEnvironment", this.VeraEnvironment }, 
+                                  { "PcLintExecutable", this.PcLintExecutable }, 
+                                  { "PcLintArguments", this.PcLintArguments }, 
+                                  { "PcLintEnvironment", this.PcLintEnvironment }, 
                                   { "RatsExecutable", this.RatsExecutable }, 
                                   { "RatsArguments", this.RatsArguments }, 
                                   { "RatsEnvironment", this.RatsEnvironment }, 
@@ -828,6 +897,10 @@ namespace CxxPlugin.Options
             this.VeraExecutable = this.GetOptionIfExists(options, "VeraExecutable");
             this.VeraArguments = this.GetOptionIfExists(options, "VeraArguments");
             this.VeraEnvironment = this.GetOptionIfExists(options, "VeraEnvironment");
+
+            this.PcLintExecutable = this.GetOptionIfExists(options, "PcLintExecutable");
+            this.PcLintArguments = this.GetOptionIfExists(options, "PcLintArguments");
+            this.PcLintEnvironment = this.GetOptionIfExists(options, "PcLintEnvironment");
 
             this.RatsExecutable = this.GetOptionIfExists(options, "RatsExecutable");
             this.RatsArguments = this.GetOptionIfExists(options, "RatsArguments");

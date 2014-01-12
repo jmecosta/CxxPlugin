@@ -162,6 +162,11 @@ namespace CxxPlugin.LocalExtensions
         private bool modifiedLinesOnly;
 
         /// <summary>
+        /// The options.
+        /// </summary>
+        private Dictionary<string, string> options;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CxxLocalExtension"/> class.
         /// </summary>
         /// <param name="commandPlugin">
@@ -186,6 +191,7 @@ namespace CxxPlugin.LocalExtensions
             this.commandPlugin = commandPlugin;
             this.executor = executor;
             this.pluginOptions = commandPlugin.GetPluginControlOptions(connectionConfiguration, resource);
+            this.options = this.pluginOptions.GetOptions();
             this.sonarVersion = sonarVersion;
 
             this.issuesInFile = new List<Issue>();
@@ -195,6 +201,7 @@ namespace CxxPlugin.LocalExtensions
                                    { CppCheckSensor.SKey, new CppCheckSensor(executor, this.pluginOptions) },
                                    { RatsSensor.SKey, new RatsSensor(executor, this.pluginOptions) },
                                    { VeraSensor.SKey, new VeraSensor(executor, this.pluginOptions) },
+                                   { PcLintSensor.SKey, new PcLintSensor(executor, this.pluginOptions) },
                                    { CxxExternalSensor.SKey, new CxxExternalSensor(executor, this.pluginOptions) }
                                };
         }
@@ -259,6 +266,7 @@ namespace CxxPlugin.LocalExtensions
             this.issuesInFile.Clear();
             this.issues.Clear();
             this.executorsLauched = this.sensors.Count;
+            this.options = this.pluginOptions.GetOptions();
             foreach (var sensor in this.sensors)
             {
                 try
@@ -272,12 +280,8 @@ namespace CxxPlugin.LocalExtensions
                 }
                 catch (Exception ex)
                 {
-                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception on Analysing: " + this.filePathToAnalyse + " " + ex.StackTrace);
-                    var tempEvent = this.LocalAnalysisCompleted;
-                    if (tempEvent != null)
-                    {
-                        tempEvent(this, new LocalAnalysisCompletedEventArgs(CxxPlugin.Key, sensor.Key + " Failed To Execute", ex));
-                    }
+                    this.executorsLauched -= 1;
+                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception on Analysis Plugin: " + sensor.Key + " : " + this.filePathToAnalyse + " " + ex.StackTrace);
                 }
             }
         }
@@ -455,6 +459,17 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         private void ProcessSensorsIssues(string key, List<string> sensorReportedLines)
         {
+
+            if (this.options.ContainsKey(this.project.Key + ".IsDebugChecked")
+                && this.options[this.project.Key + ".IsDebugChecked"].Equals("true"))
+            {
+
+                foreach (var line in sensorReportedLines)
+                {
+                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "[" + key + "] : " + line);    
+                }
+            }
+
             lock (this.lockThis)
             {
                 try
