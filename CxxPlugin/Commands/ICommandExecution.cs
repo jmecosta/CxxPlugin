@@ -58,5 +58,13 @@ namespace CxxPlugin.Commands
             DataReceivedEventHandler stderrOutputReceived,
             DataReceivedEventHandler stdoutOutputReceived,
             EventHandler processEnded);
+
+        /// <summary>
+        /// The abort execution.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
+        bool AbortExecution();
     }
 }

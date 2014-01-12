@@ -85,6 +85,11 @@ namespace CxxPlugin.LocalExtensions
         private List<Issue> issuesInFile;
 
         /// <summary>
+        /// The json reports.
+        /// </summary>
+        private List<string> jsonReports; 
+
+        /// <summary>
         ///     The mode.
         /// </summary>
         private AnalysisMode mode;
@@ -195,6 +200,7 @@ namespace CxxPlugin.LocalExtensions
             this.configuration = conf;
 
             this.Issues = new List<Issue>();
+            this.jsonReports = new List<string>();
             this.numberofFilesToAnalyse = 0;
             var environment = this.SetupMavenEnvironment();
             var command = this.options[projectIn.Key + ".MavenPath"];
@@ -259,6 +265,7 @@ namespace CxxPlugin.LocalExtensions
 
             this.numberofFilesToAnalyse = 0;
             this.Issues = new List<Issue>();
+            this.jsonReports = new List<string>();
 
             var environment = this.SetupSonarRunnerEnvironment();
             var command = this.options[projectIn.Key + ".SonarRunnerPath"];
@@ -600,6 +607,12 @@ namespace CxxPlugin.LocalExtensions
             else
             {
                 CxxPlugin.WriteLogMessage(this, this.Loghandler, e.Data);
+
+                if (e.Data.EndsWith(".json"))
+                {
+                    var elems = e.Data.Split(' ');
+                    this.jsonReports.Add(elems[elems.Length-1]);
+                }
             }
 
             if (!this.mode.Equals(AnalysisMode.Full))
@@ -699,5 +712,16 @@ namespace CxxPlugin.LocalExtensions
         }
 
         #endregion
+
+        /// <summary>
+        /// The get reports to parse.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="List"/>.
+        /// </returns>
+        public List<string> GetReportsToParse()
+        {
+            return this.jsonReports;
+        }
     }
 }

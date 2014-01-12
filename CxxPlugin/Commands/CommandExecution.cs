@@ -16,6 +16,7 @@ namespace CxxPlugin.Commands
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Management;
 
     /// <summary>
     /// Implementation of Command Execution
@@ -31,6 +32,8 @@ namespace CxxPlugin.Commands
         /// The command line error.
         /// </summary>
         public readonly List<string> CommandLineError = new List<string>();
+
+        private Process processexec;
 
         /// <summary>
         /// The execute command.
@@ -98,33 +101,100 @@ namespace CxxPlugin.Commands
                 processStartInfo.Verb = "runas";
             }
 
-            var processexec = new Process { StartInfo = processStartInfo };
+            this.processexec = new Process { StartInfo = processStartInfo };
             if (stdoutOutputReceived != null)
             {
-                processexec.OutputDataReceived += stdoutOutputReceived;
+                this.processexec.OutputDataReceived += stdoutOutputReceived;
             }
 
             if (stderrOutputReceived != null)
             {
-                processexec.ErrorDataReceived += stderrOutputReceived;
+                this.processexec.ErrorDataReceived += stderrOutputReceived;
             }
 
             if (processEnded != null)
             {
-                processexec.Exited += processEnded;
+                this.processexec.Exited += processEnded;
             }
 
-            processexec.EnableRaisingEvents = true;
-            processexec.Start();
-            processexec.BeginOutputReadLine();
-            processexec.BeginErrorReadLine();
+            this.processexec.EnableRaisingEvents = true;
+            this.processexec.Start();
+            this.processexec.BeginOutputReadLine();
+            this.processexec.BeginErrorReadLine();
 
             if (processEnded == null)
             {
-                processexec.WaitForExit();
+                this.processexec.WaitForExit();
             }
 
-            return processexec;
+            return this.processexec;
+        }
+
+        /// <summary>
+        /// The abort execution.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
+        public bool AbortExecution()
+        {
+            if (this.processexec == null)
+            {
+                return true;
+            }
+
+            return killProcess(this.processexec.Id);
+        }
+
+        /// <summary>
+        /// The kill process.
+        /// </summary>
+        /// <param name="pid">
+        /// The pid.
+        /// </param>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
+        public static bool killProcess(int pid)
+        {
+            bool didIkillAnybody = false;
+            try
+            {
+                Process[] procs = Process.GetProcesses();
+                for (int i = 0; i < procs.Length; i++)
+                {
+                    if (GetParentProcess(procs[i].Id) == pid)
+                        if (killProcess(procs[i].Id))
+                            didIkillAnybody = true;
+                }
+                try
+                {
+                    Process myProc = Process.GetProcessById(pid);
+                    myProc.Kill();
+                    return true;
+                }
+                catch { }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return didIkillAnybody;
+        }
+
+        /*
+         * get parent process for a given PID
+         */
+
+        private static int GetParentProcess(int Id)
+        {
+            int parentPid = 0;
+            using (ManagementObject mo = new ManagementObject("win32_process.handle='" + Id.ToString() + "'"))
+            {
+                mo.Get();
+                parentPid = Convert.ToInt32(mo["ParentProcessId"]);
+            }
+            return parentPid;
         }
     }
 }

@@ -304,31 +304,45 @@ namespace CxxPlugin.LocalExtensions
             try
             {
                 this.issues.Clear();
-
-                if (this.sonarVersion >= 4.0)
+                var reportsToParse = localAnalyser.GetReportsToParse();
+                foreach (var report in reportsToParse)
                 {
-                    var reportOfIssues = this.restService.ParseReportOfIssues(Path.Combine(this.solutionPath, "target\\sonar\\sonar-report.json"));
-                    this.issues.AddRange(reportOfIssues);
-                    this.issues.AddRange(localAnalyser.Issues);
-                }
-                else
-                {
-                    if (this.sonarVersion >= 3.7)
+                    if (File.Exists(report))
                     {
-                        this.issues.AddRange(this.restService.ParseDryRunReportOfIssues(Path.Combine(this.solutionPath, @".sonar\dryRun.json")));
-                        this.issues.AddRange(this.restService.ParseReportOfIssues(Path.Combine(this.solutionPath, @".sonar\sonar-report.json")));
+                        try
+                        {
+                            this.issues.AddRange(this.restService.ParseReportOfIssues(report));
+                        }
+                        catch (Exception)
+                        {
+                            try
+                            {
+                                this.issues.AddRange(this.restService.ParseDryRunReportOfIssues(report));
+                            }
+                            catch (Exception)
+                            {
+                                try
+                                {
+                                    this.issues.AddRange(this.restService.ParseReportOfIssuesOld(report));
+                                }
+                                catch (Exception)
+                                {
+                                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Cannot Parse Report: Check Contents of: " + report);
+                                }                                
+                            }
+                        }
                     }
                     else
                     {
-                        if (this.sonarVersion >= 3.4)
-                        {
-                            var reportOfIssues = this.restService.ParseReportOfIssuesOld(Path.Combine(this.solutionPath, ".sonar\\dryRun.json"));
-                            this.issues.AddRange(reportOfIssues);
-                            this.issues.AddRange(localAnalyser.Issues);
-                        }
+                        CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Process Json Sonar File Failed, File Not Found: " + report);
                     }
                 }
 
+                if (localAnalyser.Issues != null)
+                {
+                    this.issues.AddRange(localAnalyser.Issues);
+                }
+                
                 var tempEvent = this.LocalAnalysisCompleted;
                 if (tempEvent != null)
                 {
@@ -400,6 +414,20 @@ namespace CxxPlugin.LocalExtensions
             this.mode = AnalysisMode.Full;
             this.solutionPath = solutionpath;
             return new Thread(this.LocalAnalyser);
+        }
+
+        /// <summary>
+        /// The stop all execution.
+        /// </summary>
+        /// <param name="runningThread">
+        /// The running thread.
+        /// </param>
+        public void StopAllExecution(Thread runningThread)
+        {
+            if (this.executor != null)
+            {
+                this.executor.AbortExecution();
+            }
         }
 
         /// <summary>
