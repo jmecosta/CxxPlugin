@@ -112,6 +112,12 @@ namespace CxxPlugin.Commands
                 this.model.RatsExecutable = data;
             }
 
+            if (optionsTab.Equals("PcLint"))
+            {
+                var data = this.service.OpenFileDialog("PcLint executable|*.exe");
+                this.model.PcLintExecutable = data;
+            }
+
             if (optionsTab.Equals("ExternalSensor"))
             {
                 var data = this.service.OpenFileDialog("Custom executable|*.exe");

@@ -94,7 +94,7 @@
 					<TextBox Background="Transparent" Foreground="White" Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" Text="{Binding PcLintExecutable}" VerticalContentAlignment="Center"/>
 					<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding PcLintArguments}" VerticalContentAlignment="Center" Grid.Row="1"/>
 					<TextBox Background="Transparent" Foreground="White" Grid.Column="1" TextWrapping="Wrap" Text="{Binding PcLintEnvironment}" VerticalContentAlignment="Center" Grid.Row="2"/>
-					<Button Background="Transparent" Foreground="White" x:Name="RatsBrowse1" Content="..." Grid.Row="0" Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="PcLint" ToolTip="Open PcLint.exe" Template="{DynamicResource SquareButtonTemplate}"/>
+					<Button Background="Transparent" Foreground="White" x:Name="PcLintBrowse" Content="..." Grid.Row="0" Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="PcLint" ToolTip="Open PcLint.exe" Template="{DynamicResource SquareButtonTemplate}"/>
 					<Button  Background="Transparent" Foreground="White" Content="Reset Defaults" Grid.Row="3" Grid.Column="0" Command="{Binding ResetDefaultCommand}" CommandParameter="PcLint" Template="{DynamicResource SquareButtonTemplate}"/>									
 				</Grid>
 			</Expander>
