@@ -432,7 +432,7 @@ namespace CxxPlugin.LocalExtensions
         /// </exception>
         private string GetArguments(double sonarVersion)
         {
-            var args = "sonar:sonar -X -Dsonar.login=" + this.configuration.Username +
+            var args = "-X -Dsonar.login=" + this.configuration.Username +
                        " -Dsonar.password=" + this.configuration.Password + " -Dsonar.host.url=" + this.configuration.Hostname;
 
             if (sonarVersion >= 4.0)
