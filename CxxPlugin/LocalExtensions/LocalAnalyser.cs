@@ -135,6 +135,7 @@ namespace CxxPlugin.LocalExtensions
             this.profile = profile;
             this.plugin = plugin;
             this.sensors = sensors;
+            this.Abort = false;
         }
 
         #endregion
@@ -205,12 +206,12 @@ namespace CxxPlugin.LocalExtensions
             var environment = this.SetupMavenEnvironment();
             var command = this.options[projectIn.Key + ".MavenPath"];
 
-            var msg = "Maven Started: mvn.bat " + this.GetArguments(sonarVersion).Replace(conf.Password, "xxxx");
+            var msg = "Maven Started: mvn.bat " + " sonar:sonar " + this.GetArguments(sonarVersion).Replace(conf.Password, "xxxx");
             CxxPlugin.WriteLogMessage(this, loghandler, msg);
             executor.ExecuteCommand(
                 rootPath, 
                 command, 
-                this.GetArguments(sonarVersion), 
+                "sonar:sonar " + this.GetArguments(sonarVersion), 
                 environment, 
                 this.ProcessOutputDataReceived, 
                 this.ProcessOutputDataReceived, 
@@ -591,7 +592,7 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         private void ProcessOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (e.Data == null)
+            if (e.Data == null || string.IsNullOrEmpty(e.Data) || this.Abort)
             {
                 return;
             }
@@ -723,5 +724,15 @@ namespace CxxPlugin.LocalExtensions
         {
             return this.jsonReports;
         }
+
+        /// <summary>
+        /// The abort execution.
+        /// </summary>
+        public void AbortExecution()
+        {
+            this.Abort = true;
+        }
+
+        public bool Abort { get; set; }
     }
 }

@@ -167,6 +167,11 @@ namespace CxxPlugin.LocalExtensions
         private Dictionary<string, string> options;
 
         /// <summary>
+        /// The local analyser.
+        /// </summary>
+        private LocalAnalyser localAnalyser;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CxxLocalExtension"/> class.
         /// </summary>
         /// <param name="commandPlugin">
@@ -292,23 +297,38 @@ namespace CxxPlugin.LocalExtensions
         public void LocalAnalyser()
         {
             this.issues.Clear();
-            var localAnalyser = new LocalAnalyser(this.sensors, this.commandPlugin, this.profile);
-            var options = (CxxOptionsController)this.pluginOptions;
+            this.localAnalyser = new LocalAnalyser(this.sensors, this.commandPlugin, this.profile);
+            var optionsForPlugin = (CxxOptionsController)this.pluginOptions;
 
-            if (options.MavenIsChecked)
+            try
             {
-                localAnalyser.RunMavenRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, this.solutionPath, this.project, this.configuration, this.sonarVersion);
+                if (optionsForPlugin.MavenIsChecked)
+                {
+                    this.localAnalyser.RunMavenRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, this.solutionPath, this.project, this.configuration, this.sonarVersion);
+                }
+                else
+                {
+                    this.localAnalyser.RunSonarRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, this.solutionPath, this.project, this.configuration, this.sonarVersion);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                localAnalyser.RunSonarRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, this.solutionPath, this.project, this.configuration, this.sonarVersion);
+                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Local Analysis Exception: " + ex.Message + " \r\n " + ex.StackTrace);
+                var tempEvent = this.LocalAnalysisCompleted;
+                if (tempEvent != null)
+                {
+                    tempEvent(this, new LocalAnalysisCompletedEventArgs(CxxPlugin.Key, string.Empty + " Failed To Execute", ex));
+                }
+
+                return;
             }
+
 
             // process issues
             try
             {
                 this.issues.Clear();
-                var reportsToParse = localAnalyser.GetReportsToParse();
+                var reportsToParse = this.localAnalyser.GetReportsToParse();
                 foreach (var report in reportsToParse)
                 {
                     if (File.Exists(report))
@@ -342,9 +362,9 @@ namespace CxxPlugin.LocalExtensions
                     }
                 }
 
-                if (localAnalyser.Issues != null)
+                if (this.localAnalyser.Issues != null)
                 {
-                    this.issues.AddRange(localAnalyser.Issues);
+                    this.issues.AddRange(this.localAnalyser.Issues);
                 }
                 
                 var tempEvent = this.LocalAnalysisCompleted;
@@ -432,6 +452,11 @@ namespace CxxPlugin.LocalExtensions
             {
                 this.executor.AbortExecution();
             }
+
+            if (this.localAnalyser != null)
+            {
+                this.localAnalyser.AbortExecution();
+            }
         }
 
         /// <summary>
@@ -459,11 +484,9 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         private void ProcessSensorsIssues(string key, List<string> sensorReportedLines)
         {
-
             if (this.options.ContainsKey(this.project.Key + ".IsDebugChecked")
                 && this.options[this.project.Key + ".IsDebugChecked"].Equals("true"))
             {
-
                 foreach (var line in sensorReportedLines)
                 {
                     CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "[" + key + "] : " + line);    
