@@ -38,6 +38,8 @@ namespace CxxPlugin.Test
             {
                 VeraArguments = "VeraArguments",
                 VeraExecutable = "VeraExecutable",
+                PcLintArguments = "PcLintArguments",
+                PcLintExecutable = "PcLintExecutable",
                 CppCheckArguments = "CppCheckArguments",
                 CppCheckExecutable = "CppCheckExecutable",
                 RatsArguments = "RatsArguments",
@@ -48,9 +50,11 @@ namespace CxxPlugin.Test
                 CustomEnvironment = "CustomEnvironment"
             };
             var data = controller.GetOptions();
-            Assert.AreEqual(14, data.Count);
+            Assert.AreEqual(17, data.Count);
             Assert.AreEqual("VeraArguments", data["VeraArguments"]);
             Assert.AreEqual("VeraExecutable", data["VeraExecutable"]);
+            Assert.AreEqual("PcLintArguments", data["PcLintArguments"]);
+            Assert.AreEqual("PcLintExecutable", data["PcLintExecutable"]);
             Assert.AreEqual("CppCheckArguments", data["CppCheckArguments"]);
             Assert.AreEqual("CppCheckExecutable", data["CppCheckExecutable"]);
             Assert.AreEqual("RatsArguments", data["RatsArguments"]);
@@ -75,6 +79,9 @@ namespace CxxPlugin.Test
                 { "VeraArguments", "VeraArguments" },
                 { "VeraExecutable", "VeraExecutable" },
                 { "VeraEnvironment", "VeraEnvironment" },
+                { "PcLintArguments", "PcLintArguments" },
+                { "PcLintExecutable", "PcLintExecutable" },
+                { "PcLintEnvironment", "PcLintEnvironment" },
                 { "RatsArguments", "RatsArguments" },
                 { "RatsExecutable", "RatsExecutable" },
                 { "RatsEnvironment", "RatsEnvironment" },
@@ -88,6 +95,9 @@ namespace CxxPlugin.Test
             };
             controller.SetOptions(options);
 
+            Assert.AreEqual("PcLintArguments", controller.PcLintArguments);
+            Assert.AreEqual("PcLintExecutable", controller.PcLintExecutable);
+            Assert.AreEqual("PcLintEnvironment", controller.PcLintEnvironment);
             Assert.AreEqual("VeraArguments", controller.VeraArguments);
             Assert.AreEqual("VeraExecutable", controller.VeraExecutable);
             Assert.AreEqual("VeraEnvironment", controller.VeraEnvironment);

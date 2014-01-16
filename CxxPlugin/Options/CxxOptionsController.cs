@@ -16,6 +16,7 @@ namespace CxxPlugin.Options
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Windows.Forms;
@@ -923,13 +924,20 @@ namespace CxxPlugin.Options
 
                 if (!string.IsNullOrEmpty(programFiles))
                 {
-                    var fileList = new DirectoryInfo(programFiles).GetFiles("java.exe", SearchOption.AllDirectories);
-                    if (fileList.Length > 0)
+                    try
                     {
-                        if (fileList[0].DirectoryName != null)
+                        var fileList = new DirectoryInfo(programFiles).GetFiles("java.exe", SearchOption.AllDirectories);
+                        if (fileList.Length > 0)
                         {
-                            this.JavaBinaryPath = Path.Combine(fileList[0].DirectoryName, fileList[0].Name);
-                        }                        
+                            if (fileList[0].DirectoryName != null)
+                            {
+                                this.JavaBinaryPath = Path.Combine(fileList[0].DirectoryName, fileList[0].Name);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Cannot Find Java: " + ex.StackTrace);
                     }
                 }
                 else
@@ -937,10 +945,17 @@ namespace CxxPlugin.Options
                     var programFilesX86 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Java");
                     if (!string.IsNullOrEmpty(programFilesX86))
                     {
-                        var fileList = new DirectoryInfo(programFilesX86).GetFiles("java.exe", SearchOption.AllDirectories);
-                        if (fileList.Length > 0)
+                        try
                         {
-                            this.JavaBinaryPath = fileList[0].Name;
+                            var fileList = new DirectoryInfo(programFilesX86).GetFiles("java.exe", SearchOption.AllDirectories);
+                            if (fileList.Length > 0)
+                            {
+                                this.JavaBinaryPath = fileList[0].Name;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("Cannot Find Java: " + ex.StackTrace);
                         }
                     }
                 }
