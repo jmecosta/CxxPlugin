@@ -19,8 +19,16 @@ $(ProFile)\AppData\Local\Microsoft\Visual Studio\11\Extensions
 
 ## Usage
 The plugin supports:
-* Vera, Rats, CppCheck and a external configured Tool.
-
-To configure the plugin, locate the binaries on disk and configure any arguments and environments that the tools will use while they execute. For example for Vera.
+* Vera, Rats, CppCheck, PcLint, a external configured Tool and Sonar Analysis
 
 ![Image](../master/wiki/VeraConfig.png?raw=true)
+
+To configure the plugin, locate the binaries on disk and configure any arguments and environments that the tools will use while they execute. 
+
+**Please ensure that Java, sonar runner or maven are correctly located.**
+
+## Local Analysis
+To run local analysis, a valid sonar project needs to be available in the working directory. Additional properties can be set in the options, these will be passed to as command arguments so they will overwrite the ones defined in the project file
+
+
+
