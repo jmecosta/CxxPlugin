@@ -299,16 +299,21 @@ namespace CxxPlugin.LocalExtensions
             this.issues.Clear();
             this.localAnalyser = new LocalAnalyser(this.sensors, this.commandPlugin, this.profile);
             var optionsForPlugin = (CxxOptionsController)this.pluginOptions;
-
+            var workingDir = this.solutionPath;
+            if (!string.IsNullOrEmpty(optionsForPlugin.ProjectWorkingDir))
+            {
+                workingDir = Path.Combine(this.solutionPath, optionsForPlugin.ProjectWorkingDir);
+            }
+            
             try
             {
                 if (optionsForPlugin.MavenIsChecked)
                 {
-                    this.localAnalyser.RunMavenRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, this.solutionPath, this.project, this.configuration, this.sonarVersion);
+                    this.localAnalyser.RunMavenRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, workingDir, this.project, this.configuration, this.sonarVersion);
                 }
                 else
                 {
-                    this.localAnalyser.RunSonarRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, this.solutionPath, this.project, this.configuration, this.sonarVersion);
+                    this.localAnalyser.RunSonarRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, workingDir, this.project, this.configuration, this.sonarVersion);
                 }
             }
             catch (Exception ex)

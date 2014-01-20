@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:options="clr-namespace:CxxPlugin.Options"
              x:Class="CxxPlugin.Options.CxxUserControl" 
-             mc:Ignorable="d" Background="#FF2D2D30" Foreground="White" Height="400" Width="800">
+             mc:Ignorable="d" Background="#FF2D2D30" Foreground="White" Height="425" Width="800">
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
@@ -153,7 +153,7 @@
 				</Grid>
 			</Expander>
 			<Expander Header="Sonar Analysis" Background="Transparent" Foreground="White">
-				<Grid Background="Transparent" Height="250">
+				<Grid Background="Transparent" Height="275">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="100"/>
 						<ColumnDefinition Width="252*"/>
@@ -167,6 +167,7 @@
 						<RowDefinition Height="25"/>
 						<RowDefinition Height="25"/>
 						<RowDefinition Height="100"/>
+						<RowDefinition Height="25"/>
 					</Grid.RowDefinitions>
 					<Label Grid.Row="0" Content="Java Binary" Background="Transparent" Foreground="White" />
 					<CheckBox IsEnabled="{Binding ProjectIsAssociated}" IsChecked="{Binding SonarRunnerIsChecked}" Background="Transparent" Foreground="White" Content="Sonar Runner" Grid.Row="1"
@@ -187,6 +188,8 @@
 					<ScrollViewer Grid.Row="5" Grid.Column="1"  Grid.RowSpan="2" Grid.ColumnSpan="2" >
                             <TextBox IsEnabled="{Binding ProjectIsAssociated}" TextWrapping="Wrap" VerticalScrollBarVisibility="auto" AcceptsReturn="True" Background="Transparent" Foreground="White" ToolTip="; separated or new line, In the form of Property=Value" Text="{Binding PropertiesToRunner}" />
 					</ScrollViewer>
+					<Label Grid.Row="7" Content="Working Dir" Background="Transparent" Foreground="White" />
+					<TextBox  Grid.Row="7" ToolTip="To be used when the sonar project is not in the root of the solution, relative path to root of Solution Path" Grid.Column="1" Text="{Binding ProjectWorkingDir}" IsEnabled="{Binding ProjectIsAssociated}" Background="Transparent" Foreground="White" TextWrapping="Wrap" VerticalContentAlignment="Center"/>
 				</Grid>
 			</Expander>
 		</StackPanel>

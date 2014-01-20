@@ -207,7 +207,14 @@ namespace CxxPlugin
         public string GetResourceKey(VsProjectItem projectItem, string projectKey)
         {
             var filerelativePath = projectItem.FilePath.Replace(projectItem.SolutionPath + "\\", string.Empty).Replace("\\", "/");
-            return projectKey + ":" + filerelativePath.Trim();
+            var options = (CxxOptionsController)this.pluginOptions;
+            if (string.IsNullOrEmpty(options.ProjectWorkingDir))
+            {
+                return projectKey + ":" + filerelativePath.Trim();
+            }
+
+            var toReplace = options.ProjectWorkingDir.Replace("\\", "/") + "/";
+            return projectKey + ":" + filerelativePath.Replace(toReplace, string.Empty).Trim();
         }
 
         /// <summary>

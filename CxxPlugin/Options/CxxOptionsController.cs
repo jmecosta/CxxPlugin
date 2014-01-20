@@ -177,6 +177,11 @@ namespace CxxPlugin.Options
         /// </summary>
         private string pclintEnvironment;
 
+        /// <summary>
+        /// The project working dir.
+        /// </summary>
+        private string projectWorkingDir;
+
         #endregion
 
         #region Constructors and Destructors
@@ -674,6 +679,23 @@ namespace CxxPlugin.Options
             }
         }
 
+        /// <summary>
+        /// Gets or sets the pc lint environment.
+        /// </summary>
+        public string ProjectWorkingDir
+        {
+            get
+            {
+                return this.projectWorkingDir;
+            }
+
+            set
+            {
+                this.projectWorkingDir = value;
+                this.OnPropertyChanged("ProjectWorkingDir");
+            }
+        }
+
         #endregion
 
         #region Public Methods and Operators
@@ -717,6 +739,10 @@ namespace CxxPlugin.Options
             }
 
             options.Add(this.Project.Key + ".IsDebugChecked", this.IsDebugChecked ? "true" : "false");
+            if (!string.IsNullOrEmpty(this.ProjectWorkingDir))
+            {
+                options.Add(this.Project.Key + ".ProjectWorkingDir", this.ProjectWorkingDir);
+            }
 
             if (this.SonarRunnerIsChecked)
             {
@@ -965,6 +991,8 @@ namespace CxxPlugin.Options
             {
                 return;
             }
+
+            this.ProjectWorkingDir = this.GetOptionIfExists(options, this.Project.Key + ".ProjectWorkingDir");
 
             if (this.GetOptionIfExists(options, this.Project.Key + ".MavenIsChecked").Equals("true"))
             {
