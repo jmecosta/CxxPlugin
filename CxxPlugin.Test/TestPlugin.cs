@@ -70,16 +70,6 @@ namespace CxxPlugin.Test
         /// The test resource key.
         /// </summary>
         [Test]
-        public void TestGetServerExtension()
-        {
-            var plugin = new CxxPlugin();
-            Assert.IsNotNull(plugin.GetServerAnalyserExtension());
-        }
-
-        /// <summary>
-        /// The test resource key.
-        /// </summary>
-        [Test]
         public void TestLanguageIsSupported()
         {
             var plugin = new CxxPlugin();

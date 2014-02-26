@@ -25,7 +25,6 @@ namespace CxxPlugin
 
     using LocalExtensions;
     using Options;
-    using ServerExtensions;
     using VSSonarPlugins;
 
     /// <summary>
@@ -100,20 +99,6 @@ namespace CxxPlugin
                     }
                 }
             });
-        }
-
-        /// <summary>
-        /// The get server analyser extensions.
-        /// </summary>
-        /// <returns>
-        /// The <see>
-        ///     <cref>List</cref>
-        /// </see>
-        ///     .
-        /// </returns>
-        public IServerAnalyserExtension GetServerAnalyserExtension()
-        {
-            return new CxxServerExtension();
         }
 
         /// <summary>
@@ -235,23 +220,6 @@ namespace CxxPlugin
         public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration, Resource project, double sonarVersion)
         {
             return this.IsSupported(configuration, project) ? new CxxLocalExtension(this, new CommandExecution(), configuration, project, sonarVersion) : null;
-        }
-
-        /// <summary>
-        /// The get server analyser extension.
-        /// </summary>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
-        /// <param name="project">
-        /// The project.
-        /// </param>
-        /// <returns>
-        /// The <see cref="IServerAnalyserExtension"/>.
-        /// </returns>
-        public IServerAnalyserExtension GetServerAnalyserExtension(ConnectionConfiguration configuration, Resource project)
-        {
-            return new CxxServerExtension();
         }
 
         /// <summary>

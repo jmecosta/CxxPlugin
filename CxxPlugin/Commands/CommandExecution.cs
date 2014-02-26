@@ -173,9 +173,11 @@ namespace CxxPlugin.Commands
                     myProc.Kill();
                     return true;
                 }
-                catch { }
+                catch
+                {
+                }
             }
-            catch (Exception ex)
+            catch
             {
             }
 

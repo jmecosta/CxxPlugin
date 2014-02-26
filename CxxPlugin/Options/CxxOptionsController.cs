@@ -767,7 +767,7 @@ namespace CxxPlugin.Options
 
                 foreach (var elements in properties.Select(property => property.Split('=')))
                 {
-                    options.Add(this.Project.Key + ".propertyToRunner." + elements[0], elements[1]);
+                    options.Add(this.Project.Key + ".propertyToRunner." + elements[0].Trim(), elements[1].Trim());
                 }
             }
 
@@ -819,21 +819,7 @@ namespace CxxPlugin.Options
         /// </param>
         public void ResetOptions(string optionsTab)
         {
-            string home = Environment.GetEnvironmentVariable("HOME");
-            string xmlpath = home + "\\ts_user.settings";
-            string pathDef = string.Empty;
-            if (File.Exists(xmlpath))
-            {
-                IXmlHelpersService xmlparser = new XmlHelpersService();
-                try
-                {
-                    pathDef = xmlparser.GetUserSRCDir(xmlpath).Replace("$(TSVersion)", "work");
-                }
-                catch (Exception)
-                {
-                    pathDef = string.Empty;
-                }
-            }
+            string pathDef = "C:\\Tekla\\BuildTools";
 
             if (optionsTab.Equals("Vera++"))
             {
@@ -842,7 +828,7 @@ namespace CxxPlugin.Options
 
                 if (!string.IsNullOrEmpty(pathDef))
                 {
-                    this.VeraExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\vera++\\bin\\vera++.exe";
+                    this.VeraExecutable = pathDef + "\\vera++\\bin\\vera++.exe";
                     this.VeraArguments = "-nodup -showrules";
 
                     string activeDir = Path.GetDirectoryName(this.VeraExecutable);
@@ -861,7 +847,7 @@ namespace CxxPlugin.Options
 
                 if (!string.IsNullOrEmpty(pathDef))
                 {
-                    this.CppCheckExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\cppcheck\\cppcheck.exe";
+                    this.CppCheckExecutable = pathDef + "\\cppcheck\\cppcheck.exe";
                     this.CppCheckArguments = "--inline-suppr --enable=all --xml -D__cplusplus -DNT";
                 }
             }
@@ -873,7 +859,7 @@ namespace CxxPlugin.Options
 
                 if (!string.IsNullOrEmpty(pathDef))
                 {
-                    this.RatsExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\rats-2.3\\rats.exe";
+                    this.RatsExecutable = pathDef + "\\rats-2.3\\rats.exe";
                     this.RatsArguments = "--xml";
                 }
             }
@@ -881,19 +867,12 @@ namespace CxxPlugin.Options
             if (optionsTab.Equals("RunnerOptions"))
             {
                 this.MavenIsChecked = true;
-                this.MavenPath = pathDef + "\\MSBuild\\BuildTools\\apache-maven-2.2.1\\bin\\mvn.bat";
+                this.MavenPath = pathDef + "\\Maven\\bin\\mvn.bat";
                 this.ExcludedPlugins = ExcludedPluginsDefaultValue;
-                this.PropertiesToRunner = "SRCDir=" + pathDef + ";" + 
-                                          "COMMON=Core\\Common;" +
-                                          "MODEL=Core\\Model;" +
-                                          "DRAWINGS=Core\\Drawings;"  + 
-                                          "TS=Core\\TeklaStructures;" +
-                                          "ANALYSIS=Core\\Analysis;" + 
-                                          "DIMENSIONING=Core\\Dimensioning;" +
-                                          "REINFORCEMENT=Core\\reinforcement;" +
-                                          "SOLIDS=Core\\Solids;" +
-                                          "CATALOGS=Core\\Catalogs;" +
-                                          "ENVIRONMENT=Core\\Environment";
+                if (File.Exists(pathDef + "\\Cpplint\\settingsForSonar.cfg"))
+                {
+                    this.PropertiesToRunner = File.ReadAllText(pathDef + "\\Cpplint\\settingsForSonar.cfg");
+                }
             }
 
             if (optionsTab.Equals("ExternalSensor"))
@@ -905,10 +884,9 @@ namespace CxxPlugin.Options
 
                 if (!string.IsNullOrEmpty(pathDef))
                 {
-                    this.CustomExecutable = pathDef + "\\MSBuild\\Sonar\\apps\\Python27\\python.exe";
-                    this.CustomArguments = pathDef + "\\MSBuild\\Sonar\\scripts\\cpplint_mod.py --output=vs7";
+                    this.CustomExecutable = pathDef + "\\Python\\python.exe";
+                    this.CustomArguments = pathDef + "\\CppLint\\cpplint_mod.py --output=vs7";
                     this.CustomKey = "cpplint";
-                    this.CustomEnvironment = "UserSRCDir=" + pathDef;
                 }
             }
         }

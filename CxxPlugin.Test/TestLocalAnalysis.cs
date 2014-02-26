@@ -45,11 +45,6 @@ namespace CxxPlugin.Test
         private string fileToAnalyse = "file.cpp";
 
         /// <summary>
-        /// The _plugin options.
-        /// </summary>
-        private IPluginsOptions _pluginOptions;
-
-        /// <summary>
         /// The set up.
         /// </summary>
         [SetUp]
