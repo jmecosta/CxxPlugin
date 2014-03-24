@@ -106,13 +106,12 @@ namespace CxxPlugin.Test
         {            
             var serviceStub = new Mock<IPlugin>();
             var optionsStub = new Mock<IPluginsOptions>();
-            var executorStub = new Mock<ICommandExecution>();
             var resource = new Resource() { Lang = "c++" };
             var configuration = new ConnectionConfiguration();
-            serviceStub.Setup(control => control.GetPluginControlOptions(configuration, resource)).Returns(optionsStub.Object);
+            serviceStub.Setup(control => control.GetPluginControlOptions(configuration)).Returns(optionsStub.Object);
             optionsStub.Setup(control => control.GetOptions()).Returns(this.options);
 
-            var localextension = new CxxLocalExtension(serviceStub.Object, executorStub.Object, configuration, resource, 4.0);
+            var localextension = new CxxLocalExtension(serviceStub.Object, configuration, resource);
             localextension.LocalAnalysisCompleted += this.AnalysisCompleted;
             var vsitem = new VsProjectItem(string.Empty, this.fileToAnalyse, string.Empty, string.Empty, string.Empty, string.Empty);
             var thread = localextension.GetFileAnalyserThread(vsitem, string.Empty, new Profile(), string.Empty, false);
@@ -122,7 +121,7 @@ namespace CxxPlugin.Test
 
         private void AnalysisCompleted(object sender, System.EventArgs e)
         {
-            var args = e as LocalAnalysisCompletedEventArgs;
+            var args = e as LocalAnalysisEventArgs;
             Assert.IsNull(args.Ex);
         }
     }

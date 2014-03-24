@@ -23,6 +23,8 @@ namespace CxxPlugin.LocalExtensions
 
     using ExtensionTypes;
 
+    using Microsoft.FSharp.Collections;
+
     using VSSonarPlugins;
 
     /// <summary>
@@ -48,14 +50,11 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         /// Initializes a new instance of the <see cref="CxxExternalSensor"/> class.
         /// </summary>
-        /// <param name="ctrl">
-        /// The ctrl.
-        /// </param>
         /// <param name="pluginOptions">
         /// The plugin Options.
         /// </param>
-        public CxxExternalSensor(ICommandExecution ctrl, IPluginsOptions pluginOptions)
-            : base(SKey, ctrl, true)
+        public CxxExternalSensor(IPluginsOptions pluginOptions)
+            : base(SKey, false)
         {
             this.pluginOptions = pluginOptions;
             this.OtherKey = this.pluginOptions.GetOptions()["CustomKey"];
@@ -65,16 +64,16 @@ namespace CxxPlugin.LocalExtensions
         /// The get violations.
         /// </summary>
         /// <param name="lines">
-        /// The lines.
+        ///     The lines.
         /// </param>
         /// <returns>
         /// The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.
         /// </returns>
-        public override List<Issue> GetViolations(List<string> lines)
+        public override List<Issue> GetViolations(FSharpList<string> lines)
         {
             var violations = new List<Issue>();
 
-            if (lines == null || lines.Count == 0)
+            if (lines == null || lines.Length == 0)
             {
                 return violations;
             }
@@ -128,9 +127,16 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public override Dictionary<string, string> GetEnvironment()
+        public override FSharpMap<string, string> GetEnvironment()
         {
-            return VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["CustomEnvironment"]);
+            var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["CustomEnvironment"]);
+            var map = new FSharpMap<string, string>(new List<Tuple<string, string>>());
+            foreach (var elem in data)
+            {
+                map.Add(elem.Key, elem.Value);
+            }
+
+            return map;
         }
 
         /// <summary>

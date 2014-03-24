@@ -14,6 +14,7 @@
 
 namespace CxxPlugin.LocalExtensions
 {
+    using System;
     using System.Collections.Generic;
 
     using global::CxxPlugin.Commands;
@@ -21,6 +22,8 @@ namespace CxxPlugin.LocalExtensions
     using ExtensionHelpers;
 
     using ExtensionTypes;
+
+    using Microsoft.FSharp.Collections;
 
     using RestSharp;
     using RestSharp.Deserializers;
@@ -51,8 +54,8 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="pluginsOptions">
         /// The plugins options.
         /// </param>
-        public RatsSensor(ICommandExecution processCtrlIn, IPluginsOptions pluginsOptions)
-            : base(SKey, processCtrlIn, false)
+        public RatsSensor(IPluginsOptions pluginsOptions)
+            : base(SKey, true)
         {
             this.pluginOptions = pluginsOptions;
         }
@@ -61,16 +64,16 @@ namespace CxxPlugin.LocalExtensions
         /// The get violations.
         /// </summary>
         /// <param name="lines">
-        /// The lines.
+        ///     The lines.
         /// </param>
         /// <returns>
         /// The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.
         /// </returns>
-        public override List<Issue> GetViolations(List<string> lines)
+        public override List<Issue> GetViolations(FSharpList<string> lines)
         {
             var violations = new List<Issue>();
 
-            if (lines == null || lines.Count == 0)
+            if (lines == null || lines.Length == 0)
             {
                 return violations;
             }
@@ -113,9 +116,16 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public override Dictionary<string, string> GetEnvironment()
+        public override FSharpMap<string, string> GetEnvironment()
         {
-            return VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["RatsEnvironment"]);
+            var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["RatsEnvironment"]);
+            var map = new FSharpMap<string, string>(new List<Tuple<string, string>>());
+            foreach (var elem in data)
+            {
+                map.Add(elem.Key, elem.Value);
+            }
+
+            return map;
         }
 
         /// <summary>

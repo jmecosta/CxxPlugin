@@ -123,24 +123,6 @@ namespace CxxPlugin.Commands
                 var data = this.service.OpenFileDialog("Custom executable|*.exe");
                 this.model.CustomExecutable = data;
             }
-
-            if (optionsTab.Equals("JavaBinary"))
-            {
-                var data = this.service.OpenFileDialog("Java Executable|java.exe");
-                this.model.JavaBinaryPath = data;
-            }
-
-            if (optionsTab.Equals("SonarRunnerBinary"))
-            {
-                var data = this.service.OpenFileDialog("SonarRunner Executable|sonar-runner.bat");
-                this.model.SonarRunnerPath = data;
-            }
-
-            if (optionsTab.Equals("MavenBinary"))
-            {
-                var data = this.service.OpenFileDialog("SonarRunner Executable|mvn.bat");
-                this.model.MavenPath = data;
-            }
         }
     }
 }

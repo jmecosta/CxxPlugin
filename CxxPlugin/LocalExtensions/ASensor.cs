@@ -23,6 +23,10 @@ namespace CxxPlugin.LocalExtensions
 
     using ExtensionTypes;
 
+    using Microsoft.FSharp.Collections;
+
+    using MSBuild.Tekla.Tasks.Executor;
+
     /// <summary>
     /// The Sensor interface.
     /// </summary>
@@ -37,11 +41,6 @@ namespace CxxPlugin.LocalExtensions
         /// The use stdout.
         /// </summary>
         protected readonly bool UseStdout;
-
-        /// <summary>
-        /// The executor.
-        /// </summary>
-        protected readonly ICommandExecution ProcessCtrl;
 
         /// <summary>
         /// The CommandLineOuput.
@@ -70,39 +69,47 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="useStdout">
         /// The use Stdout.
         /// </param>
-        protected ASensor(string repositoryKey, ICommandExecution ctrl, bool useStdout)
+        protected ASensor(string repositoryKey, bool useStdout)
         {
             this.RepositoryKey = repositoryKey;
-            this.ProcessCtrl = ctrl;
             this.UseStdout = useStdout;
         }
-   
+
         /// <summary>
         /// The launch sensor.
         /// </summary>
         /// <param name="caller">
-        /// The caller.
+        ///     The caller.
         /// </param>
         /// <param name="logger">
-        /// The logger.
+        ///     The logger.
         /// </param>
         /// <param name="filePath">
-        /// The file Path.
+        ///     The file Path.
         /// </param>
+        /// <param name="executor"></param>
         /// <param name="callBackHandlerIn">
-        /// The call back handler in.
+        ///     The call back handler in.
         /// </param>
         /// <returns>
         /// The <see cref="Process"/>.
         /// </returns>
-        public virtual Process LaunchSensor(object caller, EventHandler logger, string filePath, Action<string, List<string>> callBackHandlerIn)
+        public virtual FSharpList<string> LaunchSensor(
+            object caller,
+            EventHandler logger,
+            string filePath,
+            ICommandExecutor executor)
         {
-            this.callBackHandler = callBackHandlerIn;
-            this.commandLineError = new List<string>();
-            this.commandLineOuput = new List<string>();
-            var commandline = "[" + Directory.GetParent(filePath) + "] : " + this.GetCommand() + " " + this.GetArguments() + " " + filePath;
+            var commandline = "[" + Directory.GetParent(filePath) + "] : " + this.GetCommand() + " "
+                              + this.GetArguments() + " " + filePath;
             CxxPlugin.WriteLogMessage(caller, logger, commandline);
-            return this.ProcessCtrl.ExecuteCommand(Directory.GetParent(filePath).ToString(), this.GetCommand(), this.GetArguments() + " " + filePath, this.GetEnvironment(), this.ProcessOutputDataReceived, this.ProcessErrorDataReceived, this.EventHandlerFunction);
+            executor.ExecuteCommand(
+                this.GetCommand(),
+                this.GetArguments() + " " + filePath,
+                this.GetEnvironment(),
+                string.Empty);
+
+            return this.UseStdout ? executor.GetStdOut : executor.GetStdError;
         }
 
         /// <summary>
@@ -120,12 +127,12 @@ namespace CxxPlugin.LocalExtensions
         /// The get violations.
         /// </summary>
         /// <param name="lines">
-        /// The lines.
+        ///     The lines.
         /// </param>
         /// <returns>
         /// The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.
         /// </returns>
-        public abstract List<Issue> GetViolations(List<string> lines);
+        public abstract List<Issue> GetViolations(FSharpList<string> lines);
 
         /// <summary>
         /// The get environment.
@@ -136,7 +143,7 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public abstract Dictionary<string, string> GetEnvironment();
+        public abstract FSharpMap<string, string> GetEnvironment();
 
         /// <summary>
         /// The get command.

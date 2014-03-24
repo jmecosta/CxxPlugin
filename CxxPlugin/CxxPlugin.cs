@@ -65,6 +65,43 @@ namespace CxxPlugin
         }
 
         /// <summary>
+        /// The is supported.
+        /// </summary>
+        /// <param name="resource">
+        /// The resource.
+        /// </param>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
+        public static bool IsSupported(string resource)
+        {
+            if (resource.EndsWith(".cpp", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".cc", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".c", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".h", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".hpp", true, CultureInfo.CurrentCulture))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// The is supported.
+        /// </summary>
+        /// <param name="resource">
+        /// The resource.
+        /// </param>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
+        public static bool IsSupported(Resource resource)
+        {
+            return resource != null && resource.Lang.Equals("c++");
+        }
+
+        /// <summary>
         /// The write log message.
         /// </summary>
         /// <param name="e">
@@ -85,7 +122,7 @@ namespace CxxPlugin
                 var tempEvent = handler;
                 if (tempEvent != null)
                 {
-                    tempEvent(e, new LocalAnalysisCompletedEventArgs(Key, message, null));
+                    tempEvent(e, new LocalAnalysisEventArgs(Key, message, null));
                 }
                 else
                 {
@@ -115,49 +152,9 @@ namespace CxxPlugin
             return Key;
         }
 
-        /// <summary>
-        /// The get plugin control options.
-        /// </summary>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
-        /// <param name="project">
-        /// The project.
-        /// </param>
-        /// <returns>
-        /// The <see cref="IPluginsOptions"/>.
-        /// </returns>
-        public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration, Resource project)
+        public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration)
         {
-            ((CxxOptionsController)this.pluginOptions).Project = this.IsSupported(configuration, project) ? project : null;
-
             return this.pluginOptions;
-        }
-
-        /// <summary>
-        /// The is supported.
-        /// </summary>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
-        /// <param name="resource">
-        /// The resource.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool IsSupported(ConnectionConfiguration configuration, string resource)
-        {
-            if (resource.EndsWith(".cpp", true, CultureInfo.CurrentCulture)
-                || resource.EndsWith(".cc", true, CultureInfo.CurrentCulture)
-                || resource.EndsWith(".c", true, CultureInfo.CurrentCulture)
-                || resource.EndsWith(".h", true, CultureInfo.CurrentCulture)
-                || resource.EndsWith(".hpp", true, CultureInfo.CurrentCulture))
-            {
-                return true;
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -175,6 +172,20 @@ namespace CxxPlugin
         public bool IsSupported(ConnectionConfiguration configuration, Resource resource)
         {
             return resource != null && resource.Lang.Equals("c++");
+        }
+
+        /// <summary>
+        /// The is supported.
+        /// </summary>
+        /// <param name="fileToAnalyse">
+        /// The file to analyse.
+        /// </param>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
+        public bool IsSupported(VsProjectItem fileToAnalyse)
+        {
+            return IsSupported(fileToAnalyse.FileName);
         }
 
         /// <summary>
@@ -217,9 +228,9 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="ILocalAnalyserExtension"/>.
         /// </returns>
-        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration, Resource project, double sonarVersion)
+        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration, Resource project)
         {
-            return this.IsSupported(configuration, project) ? new CxxLocalExtension(this, new CommandExecution(), configuration, project, sonarVersion) : null;
+            return new CxxLocalExtension(this, configuration, project);
         }
 
         /// <summary>

@@ -16,7 +16,6 @@ namespace CxxPlugin.Options
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Windows.Forms;
@@ -24,8 +23,6 @@ namespace CxxPlugin.Options
     using global::CxxPlugin.Commands;
 
     using ExtensionTypes;
-
-    using SonarRestService;
 
     using VSSonarPlugins;
 
@@ -36,15 +33,6 @@ namespace CxxPlugin.Options
     /// </summary>
     public class CxxOptionsController : INotifyPropertyChanged, IPluginsOptions
     {
-        #region Constants
-
-        /// <summary>
-        /// The excluded plugins default value.
-        /// </summary>
-        private const string ExcludedPluginsDefaultValue = "devcockpit,pdfreport,report,scmactivity,views,jira,scmstats";
-
-        #endregion
-
         #region Fields
 
         /// <summary>
@@ -88,31 +76,6 @@ namespace CxxPlugin.Options
         private UserControl cxxControl;
 
         /// <summary>
-        ///     The excluded plugins.
-        /// </summary>
-        private string excludedPlugins;
-
-        /// <summary>
-        ///     The is debug checked.
-        /// </summary>
-        private bool isDebugChecked;
-
-        /// <summary>
-        ///     The java binary path.
-        /// </summary>
-        private string javaBinaryPath;
-
-        /// <summary>
-        ///     The maven is checked.
-        /// </summary>
-        private bool mavenIsChecked;
-
-        /// <summary>
-        ///     The maven path.
-        /// </summary>
-        private string mavenPath;
-
-        /// <summary>
         ///     The project.
         /// </summary>
         private Resource project;
@@ -136,16 +99,6 @@ namespace CxxPlugin.Options
         ///     The rats executable.
         /// </summary>
         private string ratsExecutable;
-
-        /// <summary>
-        ///     The sonar runner is checked.
-        /// </summary>
-        private bool sonarRunnerIsChecked;
-
-        /// <summary>
-        ///     The sonar runner path.
-        /// </summary>
-        private string sonarRunnerPath;
 
         /// <summary>
         ///     The vera arguments.
@@ -194,7 +147,6 @@ namespace CxxPlugin.Options
             this.cxxControl = null;
             this.OpenCommand = new CxxOpenFileCommand(this, new CxxService());
             this.ResetDefaultCommand = new CxxResetDefaultsCommand(this);
-            this.ExcludedPlugins = ExcludedPluginsDefaultValue;
         }
 
         /// <summary>
@@ -343,96 +295,6 @@ namespace CxxPlugin.Options
         }
 
         /// <summary>
-        ///     Gets or sets the excluded plugins.
-        /// </summary>
-        public string ExcludedPlugins
-        {
-            get
-            {
-                return this.excludedPlugins;
-            }
-
-            set
-            {
-                this.excludedPlugins = value;
-                this.OnPropertyChanged("ExcludedPlugins");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether is debug checked.
-        /// </summary>
-        public bool IsDebugChecked
-        {
-            get
-            {
-                return this.isDebugChecked;
-            }
-
-            set
-            {
-                this.isDebugChecked = value;
-                this.OnPropertyChanged("IsDebugChecked");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the java binary path.
-        /// </summary>
-        public string JavaBinaryPath
-        {
-            get
-            {
-                return this.javaBinaryPath;
-            }
-
-            set
-            {
-                this.javaBinaryPath = value;
-                this.OnPropertyChanged("JavaBinaryPath");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether maven is checked.
-        /// </summary>
-        public bool MavenIsChecked
-        {
-            get
-            {
-                return this.mavenIsChecked;
-            }
-
-            set
-            {
-                this.mavenIsChecked = value;
-                if (value)
-                {
-                    this.SonarRunnerIsChecked = false;
-                }
-
-                this.OnPropertyChanged("MavenIsChecked");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the maven path.
-        /// </summary>
-        public string MavenPath
-        {
-            get
-            {
-                return this.mavenPath;
-            }
-
-            set
-            {
-                this.mavenPath = value;
-                this.OnPropertyChanged("MavenPath");
-            }
-        }
-
-        /// <summary>
         ///     Gets or sets the open command.
         /// </summary>
         public CxxOpenFileCommand OpenCommand { get; set; }
@@ -457,11 +319,21 @@ namespace CxxPlugin.Options
         /// <summary>
         ///     Gets the project is associated.
         /// </summary>
-        public object ProjectIsAssociated
+        public bool ProjectIsAssociated
         {
             get
             {
-                return this.Project != null;
+                if (this.Project == null)
+                {
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(this.Project.Lang))
+                {
+                    return true;
+                }
+
+                return CxxPlugin.IsSupported(this.Project);
             }
         }
 
@@ -537,45 +409,6 @@ namespace CxxPlugin.Options
         ///     Gets or sets the reset default command.
         /// </summary>
         public CxxResetDefaultsCommand ResetDefaultCommand { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether sonar runner is checked.
-        /// </summary>
-        public bool SonarRunnerIsChecked
-        {
-            get
-            {
-                return this.sonarRunnerIsChecked;
-            }
-
-            set
-            {
-                this.sonarRunnerIsChecked = value;
-                if (value)
-                {
-                    this.MavenIsChecked = false;
-                }
-
-                this.OnPropertyChanged("SonarRunnerIsChecked");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the sonar runner path.
-        /// </summary>
-        public string SonarRunnerPath
-        {
-            get
-            {
-                return this.sonarRunnerPath;
-            }
-
-            set
-            {
-                this.sonarRunnerPath = value;
-                this.OnPropertyChanged("SonarRunnerPath");
-            }
-        }
 
         /// <summary>
         ///     Gets or sets the vera arguments.
@@ -728,8 +561,7 @@ namespace CxxPlugin.Options
                                   { "CustomExecutable", this.CustomExecutable }, 
                                   { "CustomArguments", this.CustomArguments }, 
                                   { "CustomKey", this.CustomKey }, 
-                                  { "CustomEnvironment", this.CustomEnvironment }, 
-                                  { "JavaBinaryPath", this.JavaBinaryPath }
+                                  { "CustomEnvironment", this.CustomEnvironment }
                               };
 
             // add specific solution properties
@@ -738,26 +570,10 @@ namespace CxxPlugin.Options
                 return options;
             }
 
-            options.Add(this.Project.Key + ".IsDebugChecked", this.IsDebugChecked ? "true" : "false");
             if (!string.IsNullOrEmpty(this.ProjectWorkingDir))
             {
                 options.Add(this.Project.Key + ".ProjectWorkingDir", this.ProjectWorkingDir);
             }
-
-            if (this.SonarRunnerIsChecked)
-            {
-                options.Add(this.Project.Key + ".MavenIsChecked", "false");
-                options.Add(this.Project.Key + ".SonarRunnerIsChecked", "true");
-            }
-            else
-            {
-                options.Add(this.Project.Key + ".MavenIsChecked", "true");
-                options.Add(this.Project.Key + ".SonarRunnerIsChecked", "false");
-            }
-
-            options.Add(this.Project.Key + ".ExcludedPlugins", this.ExcludedPlugins);
-            options.Add(this.Project.Key + ".MavenPath", this.MavenPath);
-            options.Add(this.Project.Key + ".SonarRunnerPath", this.SonarRunnerPath);
 
             if (this.propertiesToRunner != null)
             {
@@ -785,6 +601,7 @@ namespace CxxPlugin.Options
         /// </returns>
         public UserControl GetUserControlOptions(Resource projectIn)
         {
+            this.Project = projectIn;
             return this.cxxControl ?? (this.cxxControl = new CxxUserControl(this));
         }
 
@@ -819,16 +636,16 @@ namespace CxxPlugin.Options
         /// </param>
         public void ResetOptions(string optionsTab)
         {
-            string pathDef = "C:\\Tekla\\BuildTools";
+            const string PathDef = "C:\\Tekla\\BuildTools";
 
             if (optionsTab.Equals("Vera++"))
             {
                 this.VeraExecutable = string.Empty;
                 this.VeraArguments = string.Empty;
 
-                if (!string.IsNullOrEmpty(pathDef))
+                if (!string.IsNullOrEmpty(PathDef))
                 {
-                    this.VeraExecutable = pathDef + "\\vera++\\bin\\vera++.exe";
+                    this.VeraExecutable = PathDef + "\\vera++\\bin\\vera++.exe";
                     this.VeraArguments = "-nodup -showrules";
 
                     string activeDir = Path.GetDirectoryName(this.VeraExecutable);
@@ -845,9 +662,9 @@ namespace CxxPlugin.Options
                 this.CppCheckExecutable = string.Empty;
                 this.CppCheckArguments = string.Empty;
 
-                if (!string.IsNullOrEmpty(pathDef))
+                if (!string.IsNullOrEmpty(PathDef))
                 {
-                    this.CppCheckExecutable = pathDef + "\\cppcheck\\cppcheck.exe";
+                    this.CppCheckExecutable = PathDef + "\\cppcheck\\cppcheck.exe";
                     this.CppCheckArguments = "--inline-suppr --enable=all --xml -D__cplusplus -DNT";
                 }
             }
@@ -857,21 +674,18 @@ namespace CxxPlugin.Options
                 this.RatsExecutable = string.Empty;
                 this.RatsArguments = string.Empty;
 
-                if (!string.IsNullOrEmpty(pathDef))
+                if (!string.IsNullOrEmpty(PathDef))
                 {
-                    this.RatsExecutable = pathDef + "\\rats-2.3\\rats.exe";
+                    this.RatsExecutable = PathDef + "\\rats-2.3\\rats.exe";
                     this.RatsArguments = "--xml";
                 }
             }
 
             if (optionsTab.Equals("RunnerOptions"))
             {
-                this.MavenIsChecked = true;
-                this.MavenPath = pathDef + "\\Maven\\bin\\mvn.bat";
-                this.ExcludedPlugins = ExcludedPluginsDefaultValue;
-                if (File.Exists(pathDef + "\\Cpplint\\settingsForSonar.cfg"))
+                if (File.Exists(PathDef + "\\Cpplint\\settingsForSonar.cfg"))
                 {
-                    this.PropertiesToRunner = File.ReadAllText(pathDef + "\\Cpplint\\settingsForSonar.cfg");
+                    this.PropertiesToRunner = File.ReadAllText(PathDef + "\\Cpplint\\settingsForSonar.cfg");
                 }
             }
 
@@ -882,10 +696,10 @@ namespace CxxPlugin.Options
                 this.CustomKey = string.Empty;
                 this.CustomEnvironment = string.Empty;
 
-                if (!string.IsNullOrEmpty(pathDef))
+                if (!string.IsNullOrEmpty(PathDef))
                 {
-                    this.CustomExecutable = pathDef + "\\Python\\python.exe";
-                    this.CustomArguments = pathDef + "\\CppLint\\cpplint_mod.py --output=vs7";
+                    this.CustomExecutable = PathDef + "\\Python\\python.exe";
+                    this.CustomArguments = PathDef + "\\CppLint\\cpplint_mod.py --output=vs7";
                     this.CustomKey = "cpplint";
                 }
             }
@@ -919,85 +733,13 @@ namespace CxxPlugin.Options
             this.CustomArguments = this.GetOptionIfExists(options, "CustomArguments");
             this.CustomKey = this.GetOptionIfExists(options, "CustomKey");
             this.CustomEnvironment = this.GetOptionIfExists(options, "CustomEnvironment");
-
-            this.JavaBinaryPath = this.GetOptionIfExists(options, "JavaBinaryPath");
-            
-            if (string.IsNullOrEmpty(this.JavaBinaryPath))
-            {
-                var programFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Java");
-
-                if (!string.IsNullOrEmpty(programFiles))
-                {
-                    try
-                    {
-                        var fileList = new DirectoryInfo(programFiles).GetFiles("java.exe", SearchOption.AllDirectories);
-                        if (fileList.Length > 0)
-                        {
-                            if (fileList[0].DirectoryName != null)
-                            {
-                                this.JavaBinaryPath = Path.Combine(fileList[0].DirectoryName, fileList[0].Name);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("Cannot Find Java: " + ex.StackTrace);
-                    }
-                }
-                else
-                {
-                    var programFilesX86 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Java");
-                    if (!string.IsNullOrEmpty(programFilesX86))
-                    {
-                        try
-                        {
-                            var fileList = new DirectoryInfo(programFilesX86).GetFiles("java.exe", SearchOption.AllDirectories);
-                            if (fileList.Length > 0)
-                            {
-                                this.JavaBinaryPath = fileList[0].Name;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine("Cannot Find Java: " + ex.StackTrace);
-                        }
-                    }
-                }
-            }
-
+          
             if (this.Project == null)
             {
                 return;
             }
 
             this.ProjectWorkingDir = this.GetOptionIfExists(options, this.Project.Key + ".ProjectWorkingDir");
-
-            if (this.GetOptionIfExists(options, this.Project.Key + ".MavenIsChecked").Equals("true"))
-            {
-                this.MavenIsChecked = true;
-            }
-            else
-            {
-                this.SonarRunnerIsChecked = true;
-            }
-
-            if (this.GetOptionIfExists(options, this.Project.Key + ".IsDebugChecked").Equals("true"))
-            {
-                this.IsDebugChecked = true;
-            }
-            else
-            {
-                this.IsDebugChecked = false;
-            }
-
-            this.ExcludedPlugins = this.GetOptionIfExists(options, this.Project.Key + ".ExcludedPlugins");
-            if (string.IsNullOrEmpty(this.ExcludedPlugins))
-            {
-                this.ExcludedPlugins = ExcludedPluginsDefaultValue;
-            }
-
-            this.MavenPath = this.GetOptionIfExists(options, this.Project.Key + ".MavenPath");
-            this.SonarRunnerPath = this.GetOptionIfExists(options, this.Project.Key + ".SonarRunnerPath");
 
             Dictionary<string, string> optionsForProject = this.GetOptionsStartingWith(options, this.Project.Key + ".propertyToRunner.");
 
@@ -1059,21 +801,14 @@ namespace CxxPlugin.Options
         /// The key.
         /// </param>
         /// <returns>
-        /// The <see cref="Dictionary"/>.
+        /// The <see>
+        ///         <cref>Dictionary</cref>
+        ///     </see>
+        ///     .
         /// </returns>
         private Dictionary<string, string> GetOptionsStartingWith(Dictionary<string, string> options, string key)
         {
-            var optionsToReturn = new Dictionary<string, string>();
-
-            foreach (var option in options)
-            {
-                if (option.Key.StartsWith(key))
-                {
-                    optionsToReturn.Add(option.Key, option.Value);
-                }
-            }
-
-            return optionsToReturn;
+            return options.Where(option => option.Key.StartsWith(key)).ToDictionary(option => option.Key, option => option.Value);
         }
 
         #endregion
@@ -1096,8 +831,7 @@ namespace CxxPlugin.Options
             /// </returns>
             public string OpenFileDialog(string filter)
             {
-                var openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = filter;
+                var openFileDialog = new OpenFileDialog { Filter = filter };
                 return openFileDialog.ShowDialog() == DialogResult.OK ? openFileDialog.FileName : string.Empty;
             }
 

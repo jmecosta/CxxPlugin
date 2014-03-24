@@ -1,175 +1,113 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CxxLocalExtension.cs" company="Copyright © 2013 Tekla Corporation. Tekla is a Trimble Company">
-//     Copyright (C) 2013 [Jorge Costa, Jorge.Costa@tekla.com]
+// <copyright file="CxxLocalExtension.cs" company="">
+//   
 // </copyright>
+// <summary>
+//   The cxx server extension.
+// </summary>
 // --------------------------------------------------------------------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
-// as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. 
-// You should have received a copy of the GNU Lesser General Public License along with this program; if not, write to the Free
-// Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-// --------------------------------------------------------------------------------------------------------------------
-
 namespace CxxPlugin.LocalExtensions
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Security.Permissions;
     using System.Threading;
 
-    using global::CxxPlugin.Commands;
-    using global::CxxPlugin.Options;
-
     using ExtensionHelpers;
 
     using ExtensionTypes;
+
+    using Microsoft.FSharp.Collections;
+
+    using MSBuild.Tekla.Tasks.Executor;
 
     using SonarRestService;
 
     using VSSonarPlugins;
 
     /// <summary>
-    /// The analysis mode.
-    /// </summary>
-    public enum AnalysisMode
-    {
-        /// <summary>
-        /// The incremental.
-        /// </summary>
-        Incremental,
-
-        /// <summary>
-        /// The preview.
-        /// </summary>
-        Preview,
-
-        /// <summary>
-        /// The full.
-        /// </summary>
-        Full,
-    }
-
-    /// <summary>
-    /// The cxx server extension.
+    ///     The cxx server extension.
     /// </summary>
     [ComVisible(false)]
-    [HostProtection(SecurityAction.LinkDemand, Synchronization = true,
-        ExternalThreading = true)]
+    [HostProtection(SecurityAction.LinkDemand, Synchronization = true, ExternalThreading = true)]
     public class CxxLocalExtension : WaitHandle, ILocalAnalyserExtension
     {
-        /// <summary>
-        /// The sensors.
-        /// </summary>
-        private readonly Dictionary<string, ASensor> sensors;
+        #region Fields
 
         /// <summary>
-        /// The lock this.
+        ///     The command plugin.
         /// </summary>
-        private readonly object lockThis = new object();
+        private readonly IPlugin commandPlugin;
 
         /// <summary>
-        /// The executor.
-        /// </summary>
-        private readonly ICommandExecution executor;
-
-        /// <summary>
-        /// The project.
-        /// </summary>
-        private readonly Resource project;
-
-        /// <summary>
-        /// The configuration.
-        /// </summary>
-        private readonly ConnectionConfiguration configuration;
-
-        /// <summary>
-        /// The plugin options.
-        /// </summary>
-        private readonly IPluginsOptions pluginOptions;
-
-        /// <summary>
-        /// The rest service.
-        /// </summary>
-        private readonly ISonarRestService restService = new SonarRestService(new JsonSonarConnector());
-
-        /// <summary>
-        /// The issues.
+        ///     The issues.
         /// </summary>
         private readonly List<Issue> issues;
 
         /// <summary>
-        /// The issues in file.
+        ///     The lock this.
         /// </summary>
-        private readonly List<Issue> issuesInFile;
+        private readonly object lockThis = new object();
 
         /// <summary>
-        /// Gets or sets the sonar version.
+        ///     The plugin options.
         /// </summary>
-        private readonly double sonarVersion;
+        private readonly IPluginsOptions pluginOptions;
 
         /// <summary>
-        /// The executors lauched.
+        ///     The project.
         /// </summary>
-        private int executorsLauched;
+        private readonly Resource project;
 
         /// <summary>
-        /// The file path to analyse.
+        ///     The rest service.
+        /// </summary>
+        private readonly ISonarRestService restService = new SonarRestService(new JsonSonarConnector());
+
+        /// <summary>
+        ///     The sensors.
+        /// </summary>
+        private readonly Dictionary<string, ASensor> sensors;
+
+        /// <summary>
+        ///     The file path to analyse.
         /// </summary>
         private string filePathToAnalyse;
 
         /// <summary>
-        /// The command plugin.
-        /// </summary>
-        private IPlugin commandPlugin;
-
-        /// <summary>
-        /// The project key.
-        /// </summary>
-        private string projectKey;
-
-        /// <summary>
-        /// The project item.
-        /// </summary>
-        private VsProjectItem projectItem;
-
-        /// <summary>
-        /// The solution path.
-        /// </summary>
-        private string solutionPath;
-
-        /// <summary>
-        /// The mode.
-        /// </summary>
-        private AnalysisMode mode;
-
-        /// <summary>
-        /// The profileIn.
-        /// </summary>
-        private Profile profile;
-
-        /// <summary>
-        /// The source in server.
-        /// </summary>
-        private string sourceInServer;
-
-        /// <summary>
-        /// The modified lines only.
+        ///     The modified lines only.
         /// </summary>
         private bool modifiedLinesOnly;
 
         /// <summary>
-        /// The options.
+        ///     The options.
         /// </summary>
         private Dictionary<string, string> options;
 
         /// <summary>
-        /// The local analyser.
+        ///     The profileIn.
         /// </summary>
-        private LocalAnalyser localAnalyser;
+        private Profile profile;
+
+        /// <summary>
+        ///     The project item.
+        /// </summary>
+        private VsProjectItem projectItem;
+
+        /// <summary>
+        ///     The source in server.
+        /// </summary>
+        private string sourceInServer;
+
+        #endregion
+
+        #region Constructors and Destructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CxxLocalExtension"/> class.
@@ -177,54 +115,150 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="commandPlugin">
         /// The command plugin.
         /// </param>
-        /// <param name="executor">
-        /// The executor.
-        /// </param>
         /// <param name="connectionConfiguration">
         /// The connection Configuration.
         /// </param>
         /// <param name="resource">
         /// The resource.
         /// </param>
-        /// <param name="sonarVersion">
-        /// The sonar Version.
-        /// </param>
-        public CxxLocalExtension(IPlugin commandPlugin, ICommandExecution executor, ConnectionConfiguration connectionConfiguration, Resource resource, double sonarVersion)
+        public CxxLocalExtension(
+            IPlugin commandPlugin, 
+            ConnectionConfiguration connectionConfiguration, 
+            Resource resource)
         {
-            this.configuration = connectionConfiguration;
             this.project = resource;
             this.commandPlugin = commandPlugin;
-            this.executor = executor;
-            this.pluginOptions = commandPlugin.GetPluginControlOptions(connectionConfiguration, resource);
+            this.pluginOptions = commandPlugin.GetPluginControlOptions(connectionConfiguration);
             this.options = this.pluginOptions.GetOptions();
-            this.sonarVersion = sonarVersion;
 
-            this.issuesInFile = new List<Issue>();
+            new List<Issue>();
             this.issues = new List<Issue>();
             this.sensors = new Dictionary<string, ASensor>
                                {
-                                   { CppCheckSensor.SKey, new CppCheckSensor(executor, this.pluginOptions) },
-                                   { RatsSensor.SKey, new RatsSensor(executor, this.pluginOptions) },
-                                   { VeraSensor.SKey, new VeraSensor(executor, this.pluginOptions) },
-                                   { PcLintSensor.SKey, new PcLintSensor(executor, this.pluginOptions) },
-                                   { CxxExternalSensor.SKey, new CxxExternalSensor(executor, this.pluginOptions) }
+                                   {
+                                       CppCheckSensor.SKey, 
+                                       new CppCheckSensor(this.pluginOptions)
+                                   }, 
+                                   { RatsSensor.SKey, new RatsSensor(this.pluginOptions) }, 
+                                   { VeraSensor.SKey, new VeraSensor(this.pluginOptions) }, 
+                                   {
+                                       PcLintSensor.SKey, new PcLintSensor(this.pluginOptions)
+                                   }, 
+                                   {
+                                       CxxExternalSensor.SKey, 
+                                       new CxxExternalSensor(this.pluginOptions)
+                                   }
                                };
         }
 
         /// <summary>
-        /// The local analysis completed.
+        /// Initializes a new instance of the <see cref="CxxLocalExtension"/> class.
+        /// </summary>
+        /// <param name="cxxPlugin">
+        /// The cxx plugin.
+        /// </param>
+        /// <param name="associatedProject">
+        /// The associated project.
+        /// </param>
+        public CxxLocalExtension(IPlugin cxxPlugin, Resource associatedProject)
+        {
+            this.commandPlugin = cxxPlugin;
+            this.pluginOptions = cxxPlugin.GetPluginControlOptions(new ConnectionConfiguration());
+            this.options = this.pluginOptions.GetOptions();
+            this.project = associatedProject;
+
+            new List<Issue>();
+            this.issues = new List<Issue>();
+            this.sensors = new Dictionary<string, ASensor>
+                               {
+                                   {
+                                       CppCheckSensor.SKey, 
+                                       new CppCheckSensor(this.pluginOptions)
+                                   }, 
+                                   { RatsSensor.SKey, new RatsSensor(this.pluginOptions) }, 
+                                   { VeraSensor.SKey, new VeraSensor(this.pluginOptions) }, 
+                                   {
+                                       PcLintSensor.SKey, new PcLintSensor(this.pluginOptions)
+                                   }, 
+                                   {
+                                       CxxExternalSensor.SKey, 
+                                       new CxxExternalSensor(this.pluginOptions)
+                                   }
+                               };
+        }
+
+        #endregion
+
+        #region Public Events
+
+        /// <summary>
+        ///     The local analysis completed.
         /// </summary>
         public event EventHandler LocalAnalysisCompleted;
 
         /// <summary>
-        /// The std out event.
+        ///     The std err event.
+        /// </summary>
+        public event EventHandler StdErrEvent;
+
+        /// <summary>
+        ///     The std out event.
         /// </summary>
         public event EventHandler StdOutEvent;
 
+        #endregion
+
+        #region Public Methods and Operators
+
         /// <summary>
-        /// The std err event.
+        /// The execute analysis on file.
         /// </summary>
-        public event EventHandler StdErrEvent;
+        /// <param name="itemInView">
+        /// The item In View.
+        /// </param>
+        /// <param name="externlProfile">
+        /// The externl profile.
+        /// </param>
+        /// <param name="project">
+        /// The project.
+        /// </param>
+        /// <returns>
+        /// The <see>
+        ///         <cref>List</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
+        public List<Issue> ExecuteAnalysisOnFile(VsProjectItem itemInView, Profile externlProfile, Resource project)
+        {
+            var threads = new List<Thread>();
+            var allIssues = new List<Issue>();
+            this.options = this.pluginOptions.GetOptions();
+
+            foreach (var sensor in this.sensors)
+            {
+                CxxPlugin.WriteLogMessage(
+                    this, 
+                    this.StdOutEvent, 
+                    "Launching  Analysis on: " + sensor.Key + " " + itemInView.FilePath);
+                threads.Add(
+                    this.RunSensorThread(
+                        this.StdOutEvent, 
+                        itemInView, 
+                        sensor, 
+                        project, 
+                        externlProfile, 
+                        false, 
+                        string.Empty, 
+                        allIssues));
+            }
+
+            foreach (Thread thread in threads)
+            {
+                thread.Join();
+            }
+
+            return allIssues;
+        }
 
         /// <summary>
         /// The launch local analysis.
@@ -247,202 +281,168 @@ namespace CxxPlugin.LocalExtensions
         /// <returns>
         /// The <see cref="Thread"/>.
         /// </returns>
-        public Thread GetFileAnalyserThread(VsProjectItem file, string projectKeyIn, Profile profileIn, string fileSourceInServer, bool onModifiedLinesOnly)
+        public Thread GetFileAnalyserThread(
+            VsProjectItem file, 
+            string projectKeyIn, 
+            Profile profileIn, 
+            string fileSourceInServer, 
+            bool onModifiedLinesOnly)
         {
             this.sourceInServer = fileSourceInServer;
             this.modifiedLinesOnly = onModifiedLinesOnly;
             this.profile = profileIn;
             this.filePathToAnalyse = file.FilePath;
             this.projectItem = file;
-            this.projectKey = projectKeyIn;
-            return new Thread(this.LocalFileAnalyser);       
+            return new Thread(this.LocalFileAnalyserExternalThread);
         }
 
         /// <summary>
-        /// The local File analyser.
+        ///     The get issues.
         /// </summary>
-        public void LocalFileAnalyser()
+        /// <returns>
+        ///     The
+        ///     <see>
+        ///         <cref>List</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
+        public List<Issue> GetIssues()
         {
-            if (this.executorsLauched > 0)
+            return this.issues;
+        }
+
+        /// <summary>
+        /// The get supported issues.
+        /// </summary>
+        /// <param name="inputIssues">
+        /// The issues.
+        /// </param>
+        /// <returns>
+        /// The <see>
+        ///         <cref>List</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
+        public List<Issue> GetSupportedIssues(List<Issue> inputIssues)
+        {
+            return this.GetIssuesFromJsonReports(inputIssues);
+        }
+
+        /// <summary>
+        /// The get local analysis paramenters.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="ICollection"/>.
+        /// </returns>
+        public List<SonarQubeProperties> GetLocalAnalysisParamenters()
+        {
+            var collection = new List<SonarQubeProperties>();
+            foreach (var option in this.options)
             {
-                return;
+                if (option.Key.StartsWith(this.project.Key + ".propertyToRunner."))
+                {
+                    collection.Add(
+                        new SonarQubeProperties
+                            {
+                                Key =
+                                    option.Key.Replace(
+                                        this.project.Key + ".propertyToRunner.", 
+                                        string.Empty), 
+                                Value = option.Value, 
+                                ValueInServer = option.Value
+                            });
+                }
             }
 
-            this.issuesInFile.Clear();
+            return collection;
+        }
+
+        /// <summary>
+        ///     The local File analyser.
+        /// </summary>
+        public void LocalFileAnalyserExternalThread()
+        {
+            var threads = new List<Thread>();
+            var issuesForFile = new List<Issue>();
             this.issues.Clear();
-            this.executorsLauched = this.sensors.Count;
             this.options = this.pluginOptions.GetOptions();
+
             foreach (var sensor in this.sensors)
             {
-                try
-                {
-                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Launching  Analysis on: " + sensor.Key + " " + this.filePathToAnalyse);
-                    var process = sensor.Value.LaunchSensor(this, this.StdOutEvent, this.filePathToAnalyse, this.ProcessSensorsIssues);
-                    if (process.HasExited && process.ExitCode != 0)
-                    {
-                        CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Analysis Failed: " + sensor.Key + " " + this.filePathToAnalyse + " Error Code: " + process.ExitCode);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.executorsLauched -= 1;
-                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception on Analysis Plugin: " + sensor.Key + " : " + this.filePathToAnalyse + " " + ex.StackTrace);
-                }
+                CxxPlugin.WriteLogMessage(
+                    this, 
+                    this.StdOutEvent, 
+                    "Launching  Analysis on: " + sensor.Key + " " + this.filePathToAnalyse);
+                threads.Add(
+                    this.RunSensorThread(
+                        this.StdOutEvent, 
+                        this.projectItem, 
+                        sensor, 
+                        this.project, 
+                        this.profile, 
+                        this.modifiedLinesOnly, 
+                        this.sourceInServer, 
+                        issuesForFile));
+            }
+
+            foreach (Thread thread in threads)
+            {
+                thread.Join();
+            }
+
+            EventHandler tempEvent = this.LocalAnalysisCompleted;
+            if (tempEvent != null)
+            {
+                tempEvent(this, new LocalAnalysisEventArgs(CxxPlugin.Key, string.Empty, null));
             }
         }
 
         /// <summary>
-        /// The local analyser.
+        /// The run sensor thread.
         /// </summary>
-        public void LocalAnalyser()
-        {
-            this.issues.Clear();
-            this.localAnalyser = new LocalAnalyser(this.sensors, this.commandPlugin, this.profile);
-            var optionsForPlugin = (CxxOptionsController)this.pluginOptions;
-            var workingDir = this.solutionPath;
-            if (!string.IsNullOrEmpty(optionsForPlugin.ProjectWorkingDir))
-            {
-                workingDir = Path.Combine(this.solutionPath, optionsForPlugin.ProjectWorkingDir);
-            }
-            
-            try
-            {
-                if (optionsForPlugin.MavenIsChecked)
-                {
-                    this.localAnalyser.RunMavenRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, workingDir, this.project, this.configuration, this.sonarVersion);
-                }
-                else
-                {
-                    this.localAnalyser.RunSonarRunner(this.mode, this.executor, this.pluginOptions, this.StdOutEvent, workingDir, this.project, this.configuration, this.sonarVersion);
-                }
-            }
-            catch (Exception ex)
-            {
-                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Local Analysis Exception: " + ex.Message + " \r\n " + ex.StackTrace);
-                var tempEvent = this.LocalAnalysisCompleted;
-                if (tempEvent != null)
-                {
-                    tempEvent(this, new LocalAnalysisCompletedEventArgs(CxxPlugin.Key, string.Empty + " Failed To Execute", ex));
-                }
-
-                return;
-            }
-
-
-            // process issues
-            try
-            {
-                this.issues.Clear();
-                var reportsToParse = this.localAnalyser.GetReportsToParse();
-                foreach (var report in reportsToParse)
-                {
-                    if (File.Exists(report))
-                    {
-                        try
-                        {
-                            this.issues.AddRange(this.restService.ParseReportOfIssues(report));
-                        }
-                        catch (Exception)
-                        {
-                            try
-                            {
-                                this.issues.AddRange(this.restService.ParseDryRunReportOfIssues(report));
-                            }
-                            catch (Exception)
-                            {
-                                try
-                                {
-                                    this.issues.AddRange(this.restService.ParseReportOfIssuesOld(report));
-                                }
-                                catch (Exception)
-                                {
-                                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Cannot Parse Report: Check Contents of: " + report);
-                                }                                
-                            }
-                        }
-                    }
-                    else
-                    {
-                        CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Process Json Sonar File Failed, File Not Found: " + report);
-                    }
-                }
-
-                if (this.localAnalyser.Issues != null)
-                {
-                    this.issues.AddRange(this.localAnalyser.Issues);
-                }
-                
-                var tempEvent = this.LocalAnalysisCompleted;
-                if (tempEvent != null)
-                {
-                    tempEvent(this, new LocalAnalysisCompletedEventArgs(CxxPlugin.Key, string.Empty, null));
-                }
-            }
-            catch (Exception ex)
-            {
-                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception on Analysis: " + ex.Message + " " + ex.StackTrace);
-                var tempEvent = this.LocalAnalysisCompleted;
-                if (tempEvent != null)
-                {
-                    tempEvent(this, new LocalAnalysisCompletedEventArgs(CxxPlugin.Key, string.Empty + " Failed To Execute", ex));
-                }
-            }
-        }
-
-        /// <summary>
-        /// The get incremental analyser thread.
-        /// </summary>
-        /// <param name="solutionpath">
-        /// The solutionpath.
+        /// <param name="output">
+        /// The output.
+        /// </param>
+        /// <param name="file">
+        /// The file.
+        /// </param>
+        /// <param name="sensor">
+        /// The sensor.
+        /// </param>
+        /// <param name="projectIn">
+        /// The project in.
         /// </param>
         /// <param name="profileIn">
-        /// The profile In.
+        /// The profile in.
+        /// </param>
+        /// <param name="changedlines">
+        /// The changedlines.
+        /// </param>
+        /// <param name="sourceRef">
+        /// The source ref.
+        /// </param>
+        /// <param name="issuesToReturn">
+        /// The issues to return.
         /// </param>
         /// <returns>
         /// The <see cref="Thread"/>.
         /// </returns>
-        public Thread GetIncrementalAnalyserThread(string solutionpath, Profile profileIn)
+        public Thread RunSensorThread(
+            EventHandler output, 
+            VsProjectItem file, 
+            KeyValuePair<string, ASensor> sensor, 
+            Resource projectIn, 
+            Profile profileIn, 
+            bool changedlines, 
+            string sourceRef, 
+            List<Issue> issuesToReturn)
         {
-            this.profile = profileIn;
-            this.mode = AnalysisMode.Incremental;
-            this.solutionPath = solutionpath;
-            return new Thread(this.LocalAnalyser);
-        }
-
-        /// <summary>
-        /// The get preview analyser thread.
-        /// </summary>
-        /// <param name="solutionpath">
-        /// The solutionpath.
-        /// </param>
-        /// <param name="profileIn">
-        /// The profile In.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Thread"/>.
-        /// </returns>
-        public Thread GetPreviewAnalyserThread(string solutionpath, Profile profileIn)
-        {
-            this.profile = profileIn;
-            this.mode = AnalysisMode.Preview;
-            this.solutionPath = solutionpath;
-            return new Thread(this.LocalAnalyser);
-        }
-
-        /// <summary>
-        /// The get analyser thread.
-        /// </summary>
-        /// <param name="solutionpath">
-        /// The solutionpath.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Thread"/>.
-        /// </returns>
-        public Thread GetAnalyserThread(string solutionpath)
-        {
-            this.mode = AnalysisMode.Full;
-            this.solutionPath = solutionpath;
-            return new Thread(this.LocalAnalyser);
+            var t =
+                new Thread(
+                    () =>
+                    this.RunSensor(output, file, sensor, projectIn, profileIn, changedlines, sourceRef, issuesToReturn));
+            t.Start();
+            return t;
         }
 
         /// <summary>
@@ -453,29 +453,41 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         public void StopAllExecution(Thread runningThread)
         {
-            if (this.executor != null)
-            {
-                this.executor.AbortExecution();
-            }
+        }
 
-            if (this.localAnalyser != null)
-            {
-                this.localAnalyser.AbortExecution();
-            }
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// The get issues from json reports.
+        /// </summary>
+        /// <param name="issuestoParse">
+        /// The issuesto parse.
+        /// </param>
+        /// <returns>
+        /// The <see>
+        ///         <cref>List</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
+        private List<Issue> GetIssuesFromJsonReports(IEnumerable<Issue> issuestoParse)
+        {
+            return issuestoParse.Where(this.IsIssueSupported).ToList();
         }
 
         /// <summary>
-        /// The get issues.
+        /// The is issue supported.
         /// </summary>
+        /// <param name="issue">
+        /// The issue.
+        /// </param>
         /// <returns>
-        /// The <see>
-        ///     <cref>List</cref>
-        /// </see>
-        ///     .
+        /// The <see cref="bool"/>.
         /// </returns>
-        public List<Issue> GetIssues()
+        private bool IsIssueSupported(Issue issue)
         {
-            return this.issues;
+            return CxxPlugin.IsSupported(issue.Component);
         }
 
         /// <summary>
@@ -487,77 +499,163 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="sensorReportedLines">
         /// The sensor reported lines.
         /// </param>
-        private void ProcessSensorsIssues(string key, List<string> sensorReportedLines)
+        /// <param name="itemInView">
+        /// The item in view.
+        /// </param>
+        /// <param name="projectIn">
+        /// The project in.
+        /// </param>
+        /// <param name="profileIn">
+        /// The profile in.
+        /// </param>
+        /// <param name="modfiedLines">
+        /// The modfied lines.
+        /// </param>
+        /// <param name="fileSourceRef">
+        /// The file source ref.
+        /// </param>
+        /// <param name="issuesToReturn">
+        /// The issues to return.
+        /// </param>
+        private void ProcessSensorsIssues(
+            string key, 
+            FSharpList<string> sensorReportedLines, 
+            VsProjectItem itemInView, 
+            Resource projectIn, 
+            Profile profileIn, 
+            bool modfiedLines, 
+            string fileSourceRef, 
+            List<Issue> issuesToReturn)
         {
-            if (this.options.ContainsKey(this.project.Key + ".IsDebugChecked")
-                && this.options[this.project.Key + ".IsDebugChecked"].Equals("true"))
+            var issuesPerTool = new List<Issue>();
+
+            if (this.options.ContainsKey(projectIn.Key + ".IsDebugChecked")
+                && this.options[projectIn.Key + ".IsDebugChecked"].Equals("true"))
             {
-                foreach (var line in sensorReportedLines)
+                foreach (string line in sensorReportedLines)
                 {
-                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "[" + key + "] : " + line);    
+                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "[" + key + "] : " + line);
                 }
+            }
+
+            try
+            {
+                List<Issue> issuesInTool = this.sensors[key].GetViolations(sensorReportedLines);
+                foreach (Issue issue in issuesInTool)
+                {
+                    string path1 = Path.GetFullPath(itemInView.FilePath);
+                    string path2 = issue.Component;
+                    if (path1.Equals(path2))
+                    {
+                        issue.Component = this.commandPlugin.GetResourceKey(itemInView, projectIn.Key);
+                        Rule ruleInProfile = Profile.IsRuleEnabled(profileIn, issue.Rule);
+                        if (ruleInProfile != null)
+                        {
+                            issue.Severity = ruleInProfile.Severity;
+                            issuesPerTool.Add(issue);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception: " + key + " " + ex.StackTrace);
             }
 
             lock (this.lockThis)
             {
                 try
                 {
-                    var issuesInTool = this.sensors[key].GetViolations(sensorReportedLines);
-                    foreach (var issue in issuesInTool)
+                    if (modfiedLines)
                     {
-                        var path1 = Path.GetFullPath(this.projectItem.FilePath); 
-                        var path2 = issue.Component;
-                        if (path1.Equals(path2))
+                        if (fileSourceRef != null)
                         {
-                            issue.Component = this.commandPlugin.GetResourceKey(this.projectItem, this.projectKey);
-                            var ruleInProfile = Profile.IsRuleEnabled(this.profile, issue.Rule);
-                            if (ruleInProfile != null)
-                            {
-                                issue.Severity = ruleInProfile.Severity;
-                                this.issuesInFile.Add(issue);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception: " + key + " " + ex.StackTrace);
-                }
-                
-                this.executorsLauched--;
-                if (this.executorsLauched == 0)
-                {
-                    try
-                    {
-                        if (this.modifiedLinesOnly)
-                        {
-                            if (this.sourceInServer != null)
-                            {
-                                var diffReport = VsSonarUtils.GetDifferenceReport(this.filePathToAnalyse, this.sourceInServer, false);
-                                this.issues.AddRange(VsSonarUtils.GetIssuesInModifiedLinesOnly(this.issuesInFile, diffReport));
-                            }
-                            else
-                            {
-                                this.issues.AddRange(this.issuesInFile);
-                            }
+                            ArrayList diffReport = VsSonarUtils.GetDifferenceReport(
+                                itemInView.FilePath, 
+                                fileSourceRef, 
+                                false);
+                            issuesToReturn.AddRange(
+                                VsSonarUtils.GetIssuesInModifiedLinesOnly(issuesPerTool, diffReport));
                         }
                         else
                         {
-                            this.issues.AddRange(this.issuesInFile);
+                            issuesToReturn.AddRange(issuesPerTool);
                         }
                     }
-                    catch (Exception)
+                    else
                     {
-                        this.issues.AddRange(this.issuesInFile);
+                        issuesToReturn.AddRange(issuesPerTool);
                     }
-
-                    var tempEvent = this.LocalAnalysisCompleted;
-                    if (tempEvent != null)
-                    {
-                        tempEvent(this, new LocalAnalysisCompletedEventArgs(CxxPlugin.Key, string.Empty, null));
-                    }
+                }
+                catch (Exception)
+                {
+                    issuesToReturn.AddRange(issuesPerTool);
                 }
             }
         }
+
+        /// <summary>
+        /// The run sensor.
+        /// </summary>
+        /// <param name="output">
+        /// The output.
+        /// </param>
+        /// <param name="file">
+        /// The file.
+        /// </param>
+        /// <param name="sensor">
+        /// The sensor.
+        /// </param>
+        /// <param name="projectIn">
+        /// The project in.
+        /// </param>
+        /// <param name="profileIn">
+        /// The profile in.
+        /// </param>
+        /// <param name="changedlines">
+        /// The changedlines.
+        /// </param>
+        /// <param name="sourceRef">
+        /// The source ref.
+        /// </param>
+        /// <param name="issuesToReturn">
+        /// The issues to return.
+        /// </param>
+        private void RunSensor(
+            EventHandler output, 
+            VsProjectItem file, 
+            KeyValuePair<string, ASensor> sensor, 
+            Resource projectIn, 
+            Profile profileIn, 
+            bool changedlines, 
+            string sourceRef, 
+            List<Issue> issuesToReturn)
+        {
+            ICommandExecutor exec = new CommandExecutor(null, 10);
+            try
+            {
+                FSharpList<string> lines = sensor.Value.LaunchSensor(this, output, file.FilePath, exec);
+                this.ProcessSensorsIssues(
+                    sensor.Key, 
+                    lines, 
+                    file, 
+                    projectIn, 
+                    profileIn, 
+                    changedlines, 
+                    sourceRef, 
+                    issuesToReturn);
+            }
+            catch (Exception ex)
+            {
+                CxxPlugin.WriteLogMessage(
+                    this, 
+                    this.StdOutEvent, 
+                    sensor.Key + " : Exception on Analysis Plugin : " + this.filePathToAnalyse + " " + ex.StackTrace);
+                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, sensor.Key + " : StdError: " + exec.GetStdError);
+                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, sensor.Key + " : StdOut: " + exec.GetStdError);
+            }
+        }
+
+        #endregion
     }
 }

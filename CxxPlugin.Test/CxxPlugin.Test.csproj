@@ -39,7 +39,10 @@
       <SpecificVersion>True</SpecificVersion>
       <HintPath>..\References\ExtensionTypes.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.TeamFoundation.Controls, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\FSharp.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\References\Moq.dll</HintPath>
     </Reference>

@@ -23,9 +23,31 @@ namespace CxxPlugin.Test
     using global::CxxPlugin.Commands;
     using global::CxxPlugin.LocalExtensions;
 
+    using Microsoft.FSharp.Collections;
+
     using Moq;
 
     using NUnit.Framework;
+
+    public static class Interop
+    {
+        public static FSharpList<T> ToFSharpList<T>(this IList<T> input)
+        {
+            return CreateFSharpList(input, 0);
+        }
+
+        private static FSharpList<T> CreateFSharpList<T>(IList<T> input, int index)
+        {
+            if (index >= input.Count)
+            {
+                return FSharpList<T>.Empty;
+            }
+            else
+            {
+                return FSharpList<T>.Cons(input[index], CreateFSharpList(input, index + 1));
+            }
+        }
+    }
 
     /// <summary>
     /// The test server extension.
@@ -76,12 +98,11 @@ namespace CxxPlugin.Test
         [Test]
         public void TestCppCheckGetViolations()
         {
-            var lines = new List<string>(File.ReadAllLines(Path.Combine(this.sampleDataPath, "cppcheck-result-0.xml")));
-            var serviceStub = new Mock<ICommandExecution>();
+            var lines = File.ReadAllLines(Path.Combine(this.sampleDataPath, "cppcheck-result-0.xml"));
             var pluginOptions = new Mock<IPluginsOptions>();
             pluginOptions.Setup(control => control.GetOptions()).Returns(this.options);
-            var cppcheckSensor = new CppCheckSensor(serviceStub.Object, pluginOptions.Object);
-            var violations = cppcheckSensor.GetViolations(lines);
+            var cppcheckSensor = new CppCheckSensor(pluginOptions.Object);
+            var violations = cppcheckSensor.GetViolations(Interop.ToFSharpList(lines));
             Assert.IsNotNull(violations);
             Assert.AreEqual(9, violations.Count);
         }
@@ -93,11 +114,10 @@ namespace CxxPlugin.Test
         public void TestCpplintGetViolations()
         {
             var lines = new List<string>(File.ReadAllLines(Path.Combine(this.sampleDataPath, "cpplint-result-0.txt")));
-            var serviceStub = new Mock<ICommandExecution>();
             var pluginOptions = new Mock<IPluginsOptions>();
             pluginOptions.Setup(control => control.GetOptions()).Returns(this.options);
-            var sensor = new CxxExternalSensor(serviceStub.Object, pluginOptions.Object);
-            var violations = sensor.GetViolations(lines);
+            var sensor = new CxxExternalSensor(pluginOptions.Object);
+            var violations = sensor.GetViolations(Interop.ToFSharpList(lines));
             Assert.IsNotNull(violations);
             Assert.AreEqual(11, violations.Count);
             Assert.AreEqual("cxxexternal.cpplint.whitespace/comments-0", violations[0].Rule);
@@ -111,11 +131,10 @@ namespace CxxPlugin.Test
         public void TestRatsGetViolations()
         {
             var lines = new List<string>(File.ReadAllLines(Path.Combine(this.sampleDataPath, "rats-result-0.xml")));
-            var serviceStub = new Mock<ICommandExecution>();
             var pluginOptions = new Mock<IPluginsOptions>();
             pluginOptions.Setup(control => control.GetOptions()).Returns(this.options);
-            var ratsSensor = new RatsSensor(serviceStub.Object, pluginOptions.Object);
-            var violations = ratsSensor.GetViolations(new List<string>(lines));
+            var ratsSensor = new RatsSensor(pluginOptions.Object);
+            var violations = ratsSensor.GetViolations(Interop.ToFSharpList(lines));
             Assert.IsNotNull(violations);
             Assert.AreEqual(35, violations.Count);
         }
@@ -127,11 +146,10 @@ namespace CxxPlugin.Test
         public void TestVeraGetViolations()
         {
             var lines = new List<string>(File.ReadAllLines(Path.Combine(this.sampleDataPath, "vera++-result-0.txt")));
-            var serviceStub = new Mock<ICommandExecution>();
             var pluginOptions = new Mock<IPluginsOptions>();
             pluginOptions.Setup(control => control.GetOptions()).Returns(this.options);
-            var sensor = new VeraSensor(serviceStub.Object, pluginOptions.Object);
-            var violations = sensor.GetViolations(lines);
+            var sensor = new VeraSensor(pluginOptions.Object);
+            var violations = sensor.GetViolations(Interop.ToFSharpList(lines));
             Assert.IsNotNull(violations);
             Assert.AreEqual(39, violations.Count);
         }

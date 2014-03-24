@@ -51,8 +51,7 @@ namespace CxxPlugin.Test
 
             win.Content =
                 plugin.GetPluginControlOptions(
-                    new ConnectionConfiguration("http://sonar", "jocs1", "jocs1"),
-                    new Resource { Key = "test.test:project" }).GetUserControlOptions(new Resource { Key = "sds.salsd.sd:sadsa" });
+                    new ConnectionConfiguration("http://sonar", "jocs1", "jocs1"));
             win.ShowDialog();
         }
 
@@ -73,10 +72,10 @@ namespace CxxPlugin.Test
         public void TestLanguageIsSupported()
         {
             var plugin = new CxxPlugin();
-            Assert.IsTrue(plugin.IsSupported(new ConnectionConfiguration(), "file.cpp"));
-            Assert.IsTrue(plugin.IsSupported(new ConnectionConfiguration(), "file.h"));
-            Assert.IsTrue(plugin.IsSupported(new ConnectionConfiguration(), "file.cc"));
-            Assert.IsFalse(plugin.IsSupported(new ConnectionConfiguration(), "file.cs"));
+            Assert.IsTrue(CxxPlugin.IsSupported("file.cpp"));
+            Assert.IsTrue(CxxPlugin.IsSupported("file.h"));
+            Assert.IsTrue(CxxPlugin.IsSupported("file.cc"));
+            Assert.IsFalse(CxxPlugin.IsSupported("file.cs"));
         }
     }
 }
