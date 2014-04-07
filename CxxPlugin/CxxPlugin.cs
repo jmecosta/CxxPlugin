@@ -263,5 +263,16 @@ namespace CxxPlugin
         {
             return string.Empty;
         }
+
+        public PluginDescription GetPluginDescription()
+        {
+            return new PluginDescription()
+            {
+                Description = "cxx Plugin",
+                Enabled = true,
+                Name = "cxx Plugin",
+                SupportedExtensions = "cpp,cc,hpp,h,h,c"
+            };
+        }
     }
 }
