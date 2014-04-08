@@ -264,15 +264,32 @@ namespace CxxPlugin
             return string.Empty;
         }
 
-        public PluginDescription GetPluginDescription()
+        public PluginDescription GetPluginDescription(IVsEnvironmentHelper vsinter)
         {
-            return new PluginDescription()
+            var isEnabled = vsinter.ReadOptionFromApplicationData(GlobalIds.PluginEnabledControlId, "CxxPlugin");
+
+            var desc = new PluginDescription()
             {
-                Description = "cxx Plugin",
+                Description = "Cxx OpenSource Plugin",
                 Enabled = true,
-                Name = "cxx Plugin",
+                Name = "CxxPlugin",
                 SupportedExtensions = "cpp,cc,hpp,h,h,c"
             };
+
+            if (string.IsNullOrEmpty(isEnabled))
+            {
+                desc.Enabled = true;
+            }
+            else if (isEnabled.Equals("true", StringComparison.CurrentCultureIgnoreCase))
+            {
+                desc.Enabled = true;
+            }
+            else
+            {
+                desc.Enabled = false;
+            }
+
+            return desc;
         }
     }
 }
