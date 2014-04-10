@@ -97,13 +97,7 @@ namespace CxxPlugin.LocalExtensions
         {
             var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["CppCheckEnvironment"]);
 
-            var map = new FSharpMap<string, string>(new List<Tuple<string, string>>());
-            foreach (var elem in data)
-            {
-                map.Add(elem.Key, elem.Value);
-            }
-
-            return map;
+            return ConvertCsMapToFSharpMap(data);
         }
 
         /// <summary>

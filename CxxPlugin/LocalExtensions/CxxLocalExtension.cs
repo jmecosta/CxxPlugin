@@ -363,7 +363,6 @@ namespace CxxPlugin.LocalExtensions
         public void LocalFileAnalyserExternalThread()
         {
             var threads = new List<Thread>();
-            var issuesForFile = new List<Issue>();
             this.issues.Clear();
             this.options = this.pluginOptions.GetOptions();
 
@@ -381,8 +380,8 @@ namespace CxxPlugin.LocalExtensions
                         this.project, 
                         this.profile, 
                         this.modifiedLinesOnly, 
-                        this.sourceInServer, 
-                        issuesForFile));
+                        this.sourceInServer,
+                        this.issues));
             }
 
             foreach (Thread thread in threads)

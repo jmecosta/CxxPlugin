@@ -119,13 +119,7 @@ namespace CxxPlugin.LocalExtensions
         public override FSharpMap<string, string> GetEnvironment()
         {
             var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["RatsEnvironment"]);
-            var map = new FSharpMap<string, string>(new List<Tuple<string, string>>());
-            foreach (var elem in data)
-            {
-                map.Add(elem.Key, elem.Value);
-            }
-
-            return map;
+            return ConvertCsMapToFSharpMap(data);
         }
 
         /// <summary>

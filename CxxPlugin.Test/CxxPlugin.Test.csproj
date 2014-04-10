@@ -76,6 +76,7 @@
     <Compile Include="TestParsingOfSensors.cs" />
     <Compile Include="TestPlugin.cs" />
     <Compile Include="TestServerExtension.cs" />
+    <Compile Include="TestASensor.cs" />
     <Compile Include="TestViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -208,5 +208,16 @@ namespace CxxPlugin.LocalExtensions
         {
             this.callBackHandler(this.RepositoryKey, this.UseStdout ? this.commandLineOuput : this.commandLineError);
         }
+
+        public static FSharpMap<string, string> ConvertCsMapToFSharpMap(Dictionary<string, string> data)
+        {
+            var map = new FSharpMap<string, string>(new List<Tuple<string, string>>());
+            foreach (var elem in data)
+            {
+               map = map.Add(elem.Key, elem.Value);
+            }
+
+            return map;
+        }
     }
 }
