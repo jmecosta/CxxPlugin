@@ -152,6 +152,11 @@ namespace CxxPlugin
             return Key;
         }
 
+        public string GetLanguageKey()
+        {
+            return "c++";
+        }
+
         public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration)
         {
             return this.pluginOptions;

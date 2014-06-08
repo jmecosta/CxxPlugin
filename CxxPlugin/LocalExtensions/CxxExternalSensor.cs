@@ -35,7 +35,7 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         /// The s key.
         /// </summary>
-        public const string SKey = "cxxexternal";
+        public const string SKey = "other";
 
         /// <summary>
         /// The other key.
