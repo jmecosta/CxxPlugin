@@ -202,11 +202,21 @@ namespace CxxPlugin
         /// <param name="projectKey">
         /// The project key.
         /// </param>
+        /// <param name="safeGeneration"></param>
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        public string GetResourceKey(VsProjectItem projectItem, string projectKey)
+        public string GetResourceKey(VsProjectItem projectItem, string projectKey, bool safeGeneration)
         {
+
+            if (safeGeneration && projectItem.ProjectName != null)
+            {
+                var filePath = projectItem.FilePath.Replace("\\", "/");
+                var path = Directory.GetParent(projectItem.ProjectFilePath).ToString().Replace("\\", "/");
+                var file = filePath.Replace(path + "/", "");
+                return projectKey + ":" + projectItem.ProjectName + ":" + file;
+            }
+
             var filerelativePath = projectItem.FilePath.Replace(projectItem.SolutionPath + "\\", string.Empty).Replace("\\", "/");
             var options = (CxxOptionsController)this.pluginOptions;
             if (string.IsNullOrEmpty(options.ProjectWorkingDir))
@@ -233,9 +243,9 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="ILocalAnalyserExtension"/>.
         /// </returns>
-        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration, Resource project)
+        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration)
         {
-            return new CxxLocalExtension(this, configuration, project);
+            return new CxxLocalExtension(this, configuration);
         }
 
         /// <summary>

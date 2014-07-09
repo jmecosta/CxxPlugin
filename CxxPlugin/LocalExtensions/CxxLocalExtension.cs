@@ -61,11 +61,6 @@ namespace CxxPlugin.LocalExtensions
         private readonly IPluginsOptions pluginOptions;
 
         /// <summary>
-        ///     The project.
-        /// </summary>
-        private readonly Resource project;
-
-        /// <summary>
         ///     The rest service.
         /// </summary>
         private readonly ISonarRestService restService = new SonarRestService(new JsonSonarConnector());
@@ -105,6 +100,8 @@ namespace CxxPlugin.LocalExtensions
         /// </summary>
         private string sourceInServer;
 
+        private Resource project;
+
         #endregion
 
         #region Constructors and Destructors
@@ -118,15 +115,8 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="connectionConfiguration">
         /// The connection Configuration.
         /// </param>
-        /// <param name="resource">
-        /// The resource.
-        /// </param>
-        public CxxLocalExtension(
-            IPlugin commandPlugin, 
-            ConnectionConfiguration connectionConfiguration, 
-            Resource resource)
+        public CxxLocalExtension(IPlugin commandPlugin, ConnectionConfiguration connectionConfiguration)
         {
-            this.project = resource;
             this.commandPlugin = commandPlugin;
             this.pluginOptions = commandPlugin.GetPluginControlOptions(connectionConfiguration);
             this.options = this.pluginOptions.GetOptions();
@@ -157,17 +147,12 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="cxxPlugin">
         /// The cxx plugin.
         /// </param>
-        /// <param name="associatedProject">
-        /// The associated project.
-        /// </param>
-        public CxxLocalExtension(IPlugin cxxPlugin, Resource associatedProject)
+        public CxxLocalExtension(IPlugin cxxPlugin)
         {
             this.commandPlugin = cxxPlugin;
             this.pluginOptions = cxxPlugin.GetPluginControlOptions(new ConnectionConfiguration());
             this.options = this.pluginOptions.GetOptions();
-            this.project = associatedProject;
 
-            new List<Issue>();
             this.issues = new List<Issue>();
             this.sensors = new Dictionary<string, ASensor>
                                {
@@ -266,8 +251,8 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="file">
         /// The file.
         /// </param>
-        /// <param name="projectKeyIn">
-        /// The project Key.
+        /// <param name="projectIn">
+        /// The project In.
         /// </param>
         /// <param name="profileIn">
         /// The profileIn.
@@ -283,7 +268,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public Thread GetFileAnalyserThread(
             VsProjectItem file, 
-            string projectKeyIn, 
+            Resource projectIn, 
             Profile profileIn, 
             string fileSourceInServer, 
             bool onModifiedLinesOnly)
@@ -293,6 +278,7 @@ namespace CxxPlugin.LocalExtensions
             this.profile = profileIn;
             this.filePathToAnalyse = file.FilePath;
             this.projectItem = file;
+            this.project = projectIn;
             return new Thread(this.LocalFileAnalyserExternalThread);
         }
 
@@ -331,22 +317,25 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         /// The get local analysis paramenters.
         /// </summary>
+        /// <param name="project">
+        /// The project.
+        /// </param>
         /// <returns>
         /// The <see cref="ICollection"/>.
         /// </returns>
-        public List<SonarQubeProperties> GetLocalAnalysisParamenters()
+        public List<SonarQubeProperties> GetLocalAnalysisParamenters(Resource project)
         {
             var collection = new List<SonarQubeProperties>();
             foreach (var option in this.options)
             {
-                if (option.Key.StartsWith(this.project.Key + ".propertyToRunner."))
+                if (option.Key.StartsWith(project.Key + ".propertyToRunner."))
                 {
                     collection.Add(
                         new SonarQubeProperties
                             {
                                 Key =
                                     option.Key.Replace(
-                                        this.project.Key + ".propertyToRunner.", 
+                                        project.Key + ".propertyToRunner.", 
                                         string.Empty), 
                                 Value = option.Value, 
                                 ValueInServer = option.Value
@@ -546,7 +535,8 @@ namespace CxxPlugin.LocalExtensions
                     string path2 = issue.Component;
                     if (path1.Equals(path2))
                     {
-                        issue.Component = this.commandPlugin.GetResourceKey(itemInView, projectIn.Key);
+                        issue.Component = this.commandPlugin.GetResourceKey(itemInView, projectIn.Key, false);
+                        issue.ComponentSafe = this.commandPlugin.GetResourceKey(itemInView, projectIn.Key, true);
                         Rule ruleInProfile = Profile.IsRuleEnabled(profileIn, issue.Rule);
                         if (ruleInProfile != null)
                         {

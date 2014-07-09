@@ -111,10 +111,10 @@ namespace CxxPlugin.Test
             serviceStub.Setup(control => control.GetPluginControlOptions(configuration)).Returns(optionsStub.Object);
             optionsStub.Setup(control => control.GetOptions()).Returns(this.options);
 
-            var localextension = new CxxLocalExtension(serviceStub.Object, configuration, resource);
+            var localextension = new CxxLocalExtension(serviceStub.Object, configuration);
             localextension.LocalAnalysisCompleted += this.AnalysisCompleted;
             var vsitem = new VsProjectItem(string.Empty, this.fileToAnalyse, string.Empty, string.Empty, string.Empty, string.Empty);
-            var thread = localextension.GetFileAnalyserThread(vsitem, string.Empty, new Profile(), string.Empty, false);
+            var thread = localextension.GetFileAnalyserThread(vsitem, resource, new Profile(), string.Empty, false);
             thread.Start();
             thread.Join();
         }
