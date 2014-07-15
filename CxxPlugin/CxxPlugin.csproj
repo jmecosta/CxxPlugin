@@ -121,4 +121,9 @@
     <Folder Include="ServerExtensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildFolder)\AssemblyPatcherTask.targets" />
+  <PropertyGroup>
+    <PackageFiles>$(OutputPath)$(AssemblyName).dll</PackageFiles>
+  </PropertyGroup>   
+  <Import Project="$(MSBuildFolder)\CreatePlugin.targets" />  
 </Project>
