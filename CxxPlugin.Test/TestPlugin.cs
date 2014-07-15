@@ -47,7 +47,7 @@ namespace CxxPlugin.Test
         private void CreateMainIssueWindow()
         {
             var win = new Window();
-            IPlugin plugin = new CxxPlugin();
+            IAnalysisPlugin plugin = new CxxPlugin() as IAnalysisPlugin;
 
             win.Content =
                 plugin.GetPluginControlOptions(

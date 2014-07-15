@@ -103,8 +103,8 @@ namespace CxxPlugin.Test
         /// </summary>
         [Test]
         public void RunsLocalAnalysisWithDummyFile()
-        {            
-            var serviceStub = new Mock<IPlugin>();
+        {
+            var serviceStub = new Mock<IAnalysisPlugin>();
             var optionsStub = new Mock<IPluginsOptions>();
             var resource = new Resource() { Lang = "c++" };
             var configuration = new ConnectionConfiguration();

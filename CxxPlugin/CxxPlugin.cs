@@ -1,15 +1,10 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CxxPlugin.cs" company="Copyright © 2013 Tekla Corporation. Tekla is a Trimble Company">
-//     Copyright (C) 2013 [Jorge Costa, Jorge.Costa@tekla.com]
+// <copyright file="CxxPlugin.cs" company="">
+//   
 // </copyright>
-// --------------------------------------------------------------------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
-// as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. 
-// You should have received a copy of the GNU Lesser General Public License along with this program; if not, write to the Free
-// Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+// <summary>
+//   The cpp plugin.
+// </summary>
 // --------------------------------------------------------------------------------------------------------------------
 namespace CxxPlugin
 {
@@ -18,43 +13,56 @@ namespace CxxPlugin
     using System.ComponentModel.Composition;
     using System.Globalization;
     using System.IO;
+    using System.Reflection;
     using System.Windows.Threading;
+
+    using global::CxxPlugin.LocalExtensions;
+
+    using global::CxxPlugin.Options;
+
     using ExtensionTypes;
 
-    using global::CxxPlugin.Commands;
-
-    using LocalExtensions;
-    using Options;
     using VSSonarPlugins;
 
     /// <summary>
-    /// The cpp plugin.
+    ///     The cpp plugin.
     /// </summary>
     [Export(typeof(IPlugin))]
-    public class CxxPlugin : IPlugin
+    public class CxxPlugin : IAnalysisPlugin
     {
+        #region Static Fields
+
         /// <summary>
-        /// The key.
+        ///     The key.
         /// </summary>
         public static readonly string Key = "CxxPlugin";
 
         /// <summary>
-        /// The lock that log.
+        ///     The lock that log.
         /// </summary>
         private static readonly object LockThatLog = new object();
 
         /// <summary>
-        /// The path.
+        ///     The path.
         /// </summary>
-        private static readonly string LogPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\VSSonarExtension\\CxxPlugin.log";
+        private static readonly string LogPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                                                 + "\\VSSonarExtension\\CxxPlugin.log";
+
+        #endregion
+
+        #region Fields
 
         /// <summary>
-        /// The plugin options.
+        ///     The plugin options.
         /// </summary>
         private readonly IPluginsOptions pluginOptions = new CxxOptionsController();
 
+        #endregion
+
+        #region Constructors and Destructors
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="CxxPlugin"/> class.
+        ///     Initializes a new instance of the <see cref="CxxPlugin" /> class.
         /// </summary>
         public CxxPlugin()
         {
@@ -63,6 +71,10 @@ namespace CxxPlugin
                 File.Delete(LogPath);
             }
         }
+
+        #endregion
+
+        #region Public Methods and Operators
 
         /// <summary>
         /// The is supported.
@@ -75,10 +87,8 @@ namespace CxxPlugin
         /// </returns>
         public static bool IsSupported(string resource)
         {
-            if (resource.EndsWith(".cpp", true, CultureInfo.CurrentCulture)
-                || resource.EndsWith(".cc", true, CultureInfo.CurrentCulture)
-                || resource.EndsWith(".c", true, CultureInfo.CurrentCulture)
-                || resource.EndsWith(".h", true, CultureInfo.CurrentCulture)
+            if (resource.EndsWith(".cpp", true, CultureInfo.CurrentCulture) || resource.EndsWith(".cc", true, CultureInfo.CurrentCulture)
+                || resource.EndsWith(".c", true, CultureInfo.CurrentCulture) || resource.EndsWith(".h", true, CultureInfo.CurrentCulture)
                 || resource.EndsWith(".hpp", true, CultureInfo.CurrentCulture))
             {
                 return true;
@@ -115,27 +125,53 @@ namespace CxxPlugin
         /// </param>
         public static void WriteLogMessage(object e, EventHandler handler, string message)
         {
-            var dispatcher = Dispatcher.CurrentDispatcher;
+            Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
 
-            dispatcher.Invoke(() =>
-            {
-                var tempEvent = handler;
-                if (tempEvent != null)
-                {
-                    tempEvent(e, new LocalAnalysisEventArgs(Key, message, null));
-                }
-                else
-                {
-                    lock (LockThatLog)
+            dispatcher.Invoke(
+                () =>
                     {
-                        using (var w = File.AppendText(LogPath))
+                        EventHandler tempEvent = handler;
+                        if (tempEvent != null)
                         {
-                            var op = w as TextWriter;
-                            op.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + " : " + message);
+                            tempEvent(e, new LocalAnalysisEventArgs(Key, message, null));
                         }
-                    }
-                }
-            });
+                        else
+                        {
+                            lock (LockThatLog)
+                            {
+                                using (StreamWriter w = File.AppendText(LogPath))
+                                {
+                                    var op = w as TextWriter;
+                                    op.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + " : " + message);
+                                }
+                            }
+                        }
+                    });
+        }
+
+        /// <summary>
+        /// The generate token id.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public string GenerateTokenId(ConnectionConfiguration configuration)
+        {
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// The get assembly path.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public string GetAssemblyPath()
+        {
+            return Assembly.GetExecutingAssembly().Location;
         }
 
         /// <summary>
@@ -152,14 +188,145 @@ namespace CxxPlugin
             return Key;
         }
 
+        /// <summary>
+        /// The get language key.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
         public string GetLanguageKey()
         {
             return "c++";
         }
 
+        /// <summary>
+        /// The get licenses.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// The
+        ///     <see>
+        ///         <cref>Dictionary</cref>
+        ///     </see>
+        ///     .
+        /// </returns>
+        public Dictionary<string, VsLicense> GetLicenses(ConnectionConfiguration configuration)
+        {
+            return new Dictionary<string, VsLicense>();
+        }
+
+        /// <summary>
+        /// The get local analysis extension.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// The <see cref="ILocalAnalyserExtension"/>.
+        /// </returns>
+        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration)
+        {
+            return new CxxLocalExtension(this as IAnalysisPlugin, configuration);
+        }
+
+        /// <summary>
+        /// The get plugin control options.
+        /// </summary>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// The <see cref="IPluginsOptions"/>.
+        /// </returns>
         public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration)
         {
             return this.pluginOptions;
+        }
+
+        /// <summary>
+        /// The get plugin description.
+        /// </summary>
+        /// <param name="vsinter">
+        /// The vsinter.
+        /// </param>
+        /// <returns>
+        /// The <see cref="PluginDescription"/>.
+        /// </returns>
+        public PluginDescription GetPluginDescription(IVsEnvironmentHelper vsinter)
+        {
+            string isEnabled = vsinter.ReadOptionFromApplicationData(GlobalIds.PluginEnabledControlId, "CxxPlugin");
+
+            var desc = new PluginDescription
+                           {
+                               Description = "Cxx OpenSource Plugin", 
+                               Enabled = true, 
+                               Name = "CxxPlugin", 
+                               SupportedExtensions = "cpp,cc,hpp,h,h,c", 
+                               Version = this.GetVersion()
+                           };
+
+            if (string.IsNullOrEmpty(isEnabled))
+            {
+                desc.Enabled = true;
+            }
+            else if (isEnabled.Equals("true", StringComparison.CurrentCultureIgnoreCase))
+            {
+                desc.Enabled = true;
+            }
+            else
+            {
+                desc.Enabled = false;
+            }
+
+            return desc;
+        }
+
+        /// <summary>
+        /// The get resource key.
+        /// </summary>
+        /// <param name="projectItem">
+        /// The project item.
+        /// </param>
+        /// <param name="projectKey">
+        /// The project key.
+        /// </param>
+        /// <param name="safeGeneration">
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public string GetResourceKey(VsProjectItem projectItem, string projectKey, bool safeGeneration)
+        {
+            if (safeGeneration && projectItem.ProjectName != null)
+            {
+                string filePath = projectItem.FilePath.Replace("\\", "/");
+                string path = Directory.GetParent(projectItem.ProjectFilePath).ToString().Replace("\\", "/");
+                string file = filePath.Replace(path + "/", string.Empty);
+                return projectKey + ":" + projectItem.ProjectName + ":" + file;
+            }
+
+            string filerelativePath = projectItem.FilePath.Replace(projectItem.SolutionPath + "\\", string.Empty).Replace("\\", "/");
+            var options = (CxxOptionsController)this.pluginOptions;
+            if (string.IsNullOrEmpty(options.ProjectWorkingDir))
+            {
+                return projectKey + ":" + filerelativePath.Trim();
+            }
+
+            string toReplace = options.ProjectWorkingDir.Replace("\\", "/") + "/";
+            return projectKey + ":" + filerelativePath.Replace(toReplace, string.Empty).Trim();
+        }
+
+        /// <summary>
+        /// The get version.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public string GetVersion()
+        {
+            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
         /// <summary>
@@ -193,118 +360,6 @@ namespace CxxPlugin
             return IsSupported(fileToAnalyse.FileName);
         }
 
-        /// <summary>
-        /// The get resource key.
-        /// </summary>
-        /// <param name="projectItem">
-        /// The project item.
-        /// </param>
-        /// <param name="projectKey">
-        /// The project key.
-        /// </param>
-        /// <param name="safeGeneration"></param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        public string GetResourceKey(VsProjectItem projectItem, string projectKey, bool safeGeneration)
-        {
-
-            if (safeGeneration && projectItem.ProjectName != null)
-            {
-                var filePath = projectItem.FilePath.Replace("\\", "/");
-                var path = Directory.GetParent(projectItem.ProjectFilePath).ToString().Replace("\\", "/");
-                var file = filePath.Replace(path + "/", "");
-                return projectKey + ":" + projectItem.ProjectName + ":" + file;
-            }
-
-            var filerelativePath = projectItem.FilePath.Replace(projectItem.SolutionPath + "\\", string.Empty).Replace("\\", "/");
-            var options = (CxxOptionsController)this.pluginOptions;
-            if (string.IsNullOrEmpty(options.ProjectWorkingDir))
-            {
-                return projectKey + ":" + filerelativePath.Trim();
-            }
-
-            var toReplace = options.ProjectWorkingDir.Replace("\\", "/") + "/";
-            return projectKey + ":" + filerelativePath.Replace(toReplace, string.Empty).Trim();
-        }
-
-        /// <summary>
-        /// The get local analysis extension.
-        /// </summary>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
-        /// <param name="project">
-        /// The project.
-        /// </param>
-        /// <param name="sonarVersion">
-        /// The sonar Version.
-        /// </param>
-        /// <returns>
-        /// The <see cref="ILocalAnalyserExtension"/>.
-        /// </returns>
-        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration)
-        {
-            return new CxxLocalExtension(this, configuration);
-        }
-
-        /// <summary>
-        /// The get licenses.
-        /// </summary>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
-        /// <returns>
-        /// The <see>
-        ///         <cref>Dictionary</cref>
-        ///     </see>
-        ///     .
-        /// </returns>
-        public Dictionary<string, VsLicense> GetLicenses(ConnectionConfiguration configuration)
-        {
-            return new Dictionary<string, VsLicense>();
-        }
-
-        /// <summary>
-        /// The generate token id.
-        /// </summary>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        public string GenerateTokenId(ConnectionConfiguration configuration)
-        {
-            return string.Empty;
-        }
-
-        public PluginDescription GetPluginDescription(IVsEnvironmentHelper vsinter)
-        {
-            var isEnabled = vsinter.ReadOptionFromApplicationData(GlobalIds.PluginEnabledControlId, "CxxPlugin");
-
-            var desc = new PluginDescription()
-            {
-                Description = "Cxx OpenSource Plugin",
-                Enabled = true,
-                Name = "CxxPlugin",
-                SupportedExtensions = "cpp,cc,hpp,h,h,c"
-            };
-
-            if (string.IsNullOrEmpty(isEnabled))
-            {
-                desc.Enabled = true;
-            }
-            else if (isEnabled.Equals("true", StringComparison.CurrentCultureIgnoreCase))
-            {
-                desc.Enabled = true;
-            }
-            else
-            {
-                desc.Enabled = false;
-            }
-
-            return desc;
-        }
+        #endregion
     }
 }

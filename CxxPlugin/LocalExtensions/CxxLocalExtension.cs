@@ -11,8 +11,6 @@ namespace CxxPlugin.LocalExtensions
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
@@ -26,8 +24,6 @@ namespace CxxPlugin.LocalExtensions
     using Microsoft.FSharp.Collections;
 
     using MSBuild.Tekla.Tasks.Executor;
-
-    using SonarRestService;
 
     using VSSonarPlugins;
 
@@ -43,7 +39,7 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         ///     The command plugin.
         /// </summary>
-        private readonly IPlugin commandPlugin;
+        private readonly IAnalysisPlugin commandPlugin;
 
         /// <summary>
         ///     The issues.
@@ -59,11 +55,6 @@ namespace CxxPlugin.LocalExtensions
         ///     The plugin options.
         /// </summary>
         private readonly IPluginsOptions pluginOptions;
-
-        /// <summary>
-        ///     The rest service.
-        /// </summary>
-        private readonly ISonarRestService restService = new SonarRestService(new JsonSonarConnector());
 
         /// <summary>
         ///     The sensors.
@@ -100,6 +91,9 @@ namespace CxxPlugin.LocalExtensions
         /// </summary>
         private string sourceInServer;
 
+        /// <summary>
+        /// The project.
+        /// </summary>
         private Resource project;
 
         #endregion
@@ -115,13 +109,12 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="connectionConfiguration">
         /// The connection Configuration.
         /// </param>
-        public CxxLocalExtension(IPlugin commandPlugin, ConnectionConfiguration connectionConfiguration)
+        public CxxLocalExtension(IAnalysisPlugin commandPlugin, ConnectionConfiguration connectionConfiguration)
         {
             this.commandPlugin = commandPlugin;
             this.pluginOptions = commandPlugin.GetPluginControlOptions(connectionConfiguration);
             this.options = this.pluginOptions.GetOptions();
 
-            new List<Issue>();
             this.issues = new List<Issue>();
             this.sensors = new Dictionary<string, ASensor>
                                {
@@ -147,7 +140,7 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="cxxPlugin">
         /// The cxx plugin.
         /// </param>
-        public CxxLocalExtension(IPlugin cxxPlugin)
+        public CxxLocalExtension(IAnalysisPlugin cxxPlugin)
         {
             this.commandPlugin = cxxPlugin;
             this.pluginOptions = cxxPlugin.GetPluginControlOptions(new ConnectionConfiguration());
@@ -204,7 +197,7 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="externlProfile">
         /// The externl profile.
         /// </param>
-        /// <param name="project">
+        /// <param name="projectIn">
         /// The project.
         /// </param>
         /// <returns>
@@ -213,7 +206,7 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public List<Issue> ExecuteAnalysisOnFile(VsProjectItem itemInView, Profile externlProfile, Resource project)
+        public List<Issue> ExecuteAnalysisOnFile(VsProjectItem itemInView, Profile externlProfile, Resource projectIn)
         {
             var threads = new List<Thread>();
             var allIssues = new List<Issue>();
@@ -229,8 +222,8 @@ namespace CxxPlugin.LocalExtensions
                     this.RunSensorThread(
                         this.StdOutEvent, 
                         itemInView, 
-                        sensor, 
-                        project, 
+                        sensor,
+                        projectIn, 
                         externlProfile, 
                         false, 
                         string.Empty, 
@@ -317,25 +310,25 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         /// The get local analysis paramenters.
         /// </summary>
-        /// <param name="project">
+        /// <param name="projectIn">
         /// The project.
         /// </param>
         /// <returns>
         /// The <see cref="ICollection"/>.
         /// </returns>
-        public List<SonarQubeProperties> GetLocalAnalysisParamenters(Resource project)
+        public List<SonarQubeProperties> GetLocalAnalysisParamenters(Resource projectIn)
         {
             var collection = new List<SonarQubeProperties>();
             foreach (var option in this.options)
             {
-                if (option.Key.StartsWith(project.Key + ".propertyToRunner."))
+                if (option.Key.StartsWith(projectIn.Key + ".propertyToRunner."))
                 {
                     collection.Add(
                         new SonarQubeProperties
                             {
                                 Key =
                                     option.Key.Replace(
-                                        project.Key + ".propertyToRunner.", 
+                                        projectIn.Key + ".propertyToRunner.", 
                                         string.Empty), 
                                 Value = option.Value, 
                                 ValueInServer = option.Value
