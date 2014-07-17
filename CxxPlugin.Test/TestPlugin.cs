@@ -32,7 +32,7 @@ namespace CxxPlugin.Test
         /// <summary>
         ///     The run main window.
         /// </summary>
-        [Test]
+        //[Test]
         public void RunMainWindow()
         {
             var t = new Thread(this.CreateMainIssueWindow);

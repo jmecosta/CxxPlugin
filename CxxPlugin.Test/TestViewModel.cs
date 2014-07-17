@@ -50,7 +50,7 @@ namespace CxxPlugin.Test
                 CustomEnvironment = "CustomEnvironment"
             };
             var data = controller.GetOptions();
-            Assert.AreEqual(17, data.Count);
+            Assert.AreEqual(16, data.Count);
             Assert.AreEqual("VeraArguments", data["VeraArguments"]);
             Assert.AreEqual("VeraExecutable", data["VeraExecutable"]);
             Assert.AreEqual("PcLintArguments", data["PcLintArguments"]);
@@ -144,7 +144,7 @@ namespace CxxPlugin.Test
             var serviceStub = new Mock<ICxxIoService>();
             var controller = new CxxOptionsController(serviceStub.Object);
             controller.ResetDefaults();
-            Assert.AreEqual(string.Empty, controller.VeraExecutable);            
+            Assert.AreEqual("C:\\Tekla\\BuildTools\\vera++\\bin\\vera++.exe", controller.VeraExecutable);            
         }
     }
 }

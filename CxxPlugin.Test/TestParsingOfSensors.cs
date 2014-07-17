@@ -120,7 +120,7 @@ namespace CxxPlugin.Test
             var violations = sensor.GetViolations(Interop.ToFSharpList(lines));
             Assert.IsNotNull(violations);
             Assert.AreEqual(11, violations.Count);
-            Assert.AreEqual("cxxexternal.cpplint.whitespace/comments-0", violations[0].Rule);
+            Assert.AreEqual("other.cpplint.whitespace/comments-0", violations[0].Rule);
             Assert.AreEqual("Warning : At least two spaces is best between code and comments", violations[0].Message);
         }
 
