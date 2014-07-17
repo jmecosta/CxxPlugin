@@ -7,8 +7,8 @@
         <ReferencesFolder        Condition="'$(ReferencesFolder)'==''">$(MSBuildThisFileDirectory)references</ReferencesFolder>
         <MSBuildFolder           Condition="'$(MSBuildFolder)'==''">$(MSBuildThisFileDirectory)Msbuild</MSBuildFolder>
         
-        <GallioPath              Condition="'$(GallioPath)'==''">$(MSBuildThisFileDirectory)references\Gallio</GallioPath>
-        <OpenCoverPath           Condition="'$(OpenCoverPath)'==''">$(MSBuildThisFileDirectory)references\OpenCover</OpenCoverPath>
+        <GallioPath              Condition="'$(GallioPath)'==''">$(MSBuildThisFileDirectory)Msbuild\Gallio</GallioPath>
+        <OpenCoverPath           Condition="'$(OpenCoverPath)'==''">$(MSBuildThisFileDirectory)Msbuild\OpenCover</OpenCoverPath>
         
         <!-- Version settings -->
         <MajorVersionNumber           Condition="'$(MajorVersionNumber)'==''">1</MajorVersionNumber>
@@ -16,7 +16,7 @@
         <BuildNumber                  Condition="'$(BuildNumber)'==''">3</BuildNumber>
         <RevisionNumber               Condition="'$(RevisionNumber)'==''">1</RevisionNumber>
         <AssemblyPatcherTaskOn        Condition="'$(AssemblyPatcherTaskOn)'==''">false</AssemblyPatcherTaskOn>
-        <CreateTrial                  Condition="'$(CreateTrial)'==''">false</CreateTrial>
+        <UnitTestsDisabled            Condition="'$(UnitTestsDisabled)'==''">false</UnitTestsDisabled>
     </PropertyGroup>    
 
     
