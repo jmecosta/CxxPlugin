@@ -94,9 +94,17 @@ namespace CxxPlugin.LocalExtensions
                                                 Rule = this.RepositoryKey + "." + result.Type,
                                                 Line = line.Value,
                                                 Message = result.Message,
-                                                Severity = result.Severity,
                                                 Component = file.Name
                                             };
+
+                            try
+                            {
+                                entry.Severity = (Severity)Enum.Parse(typeof(Severity), result.Severity);
+                            }
+                            catch (Exception ex)
+                            {
+                                entry.Severity  = Severity.UNDEFINED;
+                            }
 
                             violations.Add(entry);
                         }

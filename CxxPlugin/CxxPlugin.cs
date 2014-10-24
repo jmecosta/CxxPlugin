@@ -158,7 +158,7 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        public string GenerateTokenId(ConnectionConfiguration configuration)
+        public string GenerateTokenId(ISonarConfiguration configuration)
         {
             return string.Empty;
         }
@@ -183,7 +183,7 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        public string GetKey(ConnectionConfiguration configuration)
+        public string GetKey(ISonarConfiguration configuration)
         {
             return Key;
         }
@@ -212,7 +212,7 @@ namespace CxxPlugin
         ///     </see>
         ///     .
         /// </returns>
-        public Dictionary<string, VsLicense> GetLicenses(ConnectionConfiguration configuration)
+        public Dictionary<string, VsLicense> GetLicenses(ISonarConfiguration configuration)
         {
             return new Dictionary<string, VsLicense>();
         }
@@ -226,7 +226,7 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="ILocalAnalyserExtension"/>.
         /// </returns>
-        public ILocalAnalyserExtension GetLocalAnalysisExtension(ConnectionConfiguration configuration)
+        public ILocalAnalyserExtension GetLocalAnalysisExtension(ISonarConfiguration configuration)
         {
             return new CxxLocalExtension(this as IAnalysisPlugin, configuration);
         }
@@ -240,7 +240,7 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="IPluginsOptions"/>.
         /// </returns>
-        public IPluginsOptions GetPluginControlOptions(ConnectionConfiguration configuration)
+        public IPluginsOptions GetPluginControlOptions(ISonarConfiguration configuration)
         {
             return this.pluginOptions;
         }
@@ -293,6 +293,7 @@ namespace CxxPlugin
         /// The project key.
         /// </param>
         /// <param name="safeGeneration">
+        /// The safe generation.
         /// </param>
         /// <returns>
         /// The <see cref="string"/>.
@@ -341,7 +342,7 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="bool"/>.
         /// </returns>
-        public bool IsSupported(ConnectionConfiguration configuration, Resource resource)
+        public bool IsSupported(ISonarConfiguration configuration, Resource resource)
         {
             return resource != null && resource.Lang.Equals("c++");
         }

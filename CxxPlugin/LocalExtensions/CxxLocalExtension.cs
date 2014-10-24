@@ -109,7 +109,7 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="connectionConfiguration">
         /// The connection Configuration.
         /// </param>
-        public CxxLocalExtension(IAnalysisPlugin commandPlugin, ConnectionConfiguration connectionConfiguration)
+        public CxxLocalExtension(IAnalysisPlugin commandPlugin, ISonarConfiguration connectionConfiguration)
         {
             this.commandPlugin = commandPlugin;
             this.pluginOptions = commandPlugin.GetPluginControlOptions(connectionConfiguration);
@@ -552,10 +552,9 @@ namespace CxxPlugin.LocalExtensions
                     {
                         if (fileSourceRef != null)
                         {
-                            ArrayList diffReport = VsSonarUtils.GetDifferenceReport(
+                            ArrayList diffReport = VsSonarUtils.GetSourceDiffFromStrings(
                                 itemInView.FilePath, 
-                                fileSourceRef, 
-                                false);
+                                fileSourceRef);
                             issuesToReturn.AddRange(
                                 VsSonarUtils.GetIssuesInModifiedLinesOnly(issuesPerTool, diffReport));
                         }

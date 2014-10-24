@@ -36,6 +36,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DifferenceEngine">
+      <HintPath>..\References\DifferenceEngine.dll</HintPath>
+    </Reference>
     <Reference Include="Executor">
       <HintPath>..\References\Executor.dll</HintPath>
     </Reference>
@@ -124,6 +127,6 @@
   <Import Project="$(MSBuildFolder)\AssemblyPatcherTask.targets" />
   <PropertyGroup>
     <PackageFiles>$(OutputPath)$(AssemblyName).dll</PackageFiles>
-  </PropertyGroup>   
-  <Import Project="$(MSBuildFolder)\CreatePlugin.targets" />  
+  </PropertyGroup>
+  <Import Project="$(MSBuildFolder)\CreatePlugin.targets" />
 </Project>
