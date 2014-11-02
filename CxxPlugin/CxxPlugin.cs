@@ -254,7 +254,7 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="PluginDescription"/>.
         /// </returns>
-        public PluginDescription GetPluginDescription(IVsEnvironmentHelper vsinter)
+        public PluginDescription GetPluginDescription(IConfigurationHelper vsinter)
         {
             string isEnabled = vsinter.ReadOptionFromApplicationData(GlobalIds.PluginEnabledControlId, "CxxPlugin");
 
