@@ -39,8 +39,8 @@
     <Reference Include="DifferenceEngine">
       <HintPath>..\References\DifferenceEngine.dll</HintPath>
     </Reference>
-    <Reference Include="Executor">
-      <HintPath>..\References\Executor.dll</HintPath>
+    <Reference Include="CommandExecutor">
+      <HintPath>..\References\CommandExecutor.dll</HintPath>
     </Reference>
     <Reference Include="ExtensionHelpers, Version=$(VSSonarExtensionVersion), Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

@@ -29,7 +29,7 @@ namespace CxxPlugin.LocalExtensions
 
     using Microsoft.FSharp.Collections;
 
-    using MSBuild.Tekla.Tasks.Executor;
+    using CommandExecutor;
 
     using VSSonarPlugins;
 
