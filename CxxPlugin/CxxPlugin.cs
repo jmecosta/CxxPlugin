@@ -76,6 +76,15 @@ namespace CxxPlugin
             {
                 File.Delete(LogPath);
             }
+
+            this.Desc = new PluginDescription
+            {
+                Description = "Cxx OpenSource Plugin",
+                Name = "CxxPlugin",
+                SupportedExtensions = "cpp,cc,hpp,h,h,c",
+                Version = this.GetVersion(),
+                AssemblyPath = this.GetAssemblyPath()
+            };
         }
 
         #endregion
@@ -260,33 +269,9 @@ namespace CxxPlugin
         /// <returns>
         /// The <see cref="PluginDescription"/>.
         /// </returns>
-        public PluginDescription GetPluginDescription(IConfigurationHelper vsinter)
+        public PluginDescription GetPluginDescription()
         {
-            string isEnabled = vsinter.ReadOptionFromApplicationData(GlobalIds.PluginEnabledControlId, "CxxPlugin");
-
-            var desc = new PluginDescription
-                           {
-                               Description = "Cxx OpenSource Plugin", 
-                               Enabled = true, 
-                               Name = "CxxPlugin", 
-                               SupportedExtensions = "cpp,cc,hpp,h,h,c", 
-                               Version = this.GetVersion()
-                           };
-
-            if (string.IsNullOrEmpty(isEnabled))
-            {
-                desc.Enabled = true;
-            }
-            else if (isEnabled.Equals("true", StringComparison.CurrentCultureIgnoreCase))
-            {
-                desc.Enabled = true;
-            }
-            else
-            {
-                desc.Enabled = false;
-            }
-
-            return desc;
+            return this.Desc;
         }
 
         /// <summary>
@@ -368,5 +353,7 @@ namespace CxxPlugin
         }
 
         #endregion
+
+        public PluginDescription Desc { get; set; }
     }
 }
