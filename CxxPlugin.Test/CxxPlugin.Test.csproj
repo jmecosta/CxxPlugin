@@ -37,11 +37,9 @@
   <ItemGroup>
     <Reference Include="ExtensionTypes, Version=$(VSSonarExtensionVersion), Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>True</SpecificVersion>
-      <HintPath>..\References\ExtensionTypes.dll</HintPath>
+      <HintPath>..\References\$(FSharpFolder)\ExtensionTypes.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\FSharp.Core.dll</HintPath>
+    <Reference Include="FSharp.Core">
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\References\Moq.dll</HintPath>
@@ -56,7 +54,7 @@
     </Reference>
     <Reference Include="SonarRestService, Version=$(VSSonarExtensionVersion), Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>True</SpecificVersion>
-      <HintPath>..\References\SonarRestService.dll</HintPath>
+      <HintPath>..\References\$(FSharpFolder)\SonarRestService.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,7 +65,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="VSSonarPlugins, Version=$(VSSonarExtensionVersion), Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>True</SpecificVersion>
-      <HintPath>..\References\VSSonarPlugins.dll</HintPath>
+      <HintPath>..\References\$(FSharpFolder)\VSSonarPlugins.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
