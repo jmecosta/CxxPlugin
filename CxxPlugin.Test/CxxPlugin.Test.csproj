@@ -10,7 +10,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CxxPlugin.Test</RootNamespace>
     <AssemblyName>CxxPlugin.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
@@ -19,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>$(PluginsOutputPath)test\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>$(PluginsOutputPath)test\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -39,7 +38,8 @@
       <SpecificVersion>True</SpecificVersion>
       <HintPath>..\References\$(FSharpFolder)\ExtensionTypes.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.Core">
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion)">
+        <SpecificVersion>True</SpecificVersion>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\References\Moq.dll</HintPath>
