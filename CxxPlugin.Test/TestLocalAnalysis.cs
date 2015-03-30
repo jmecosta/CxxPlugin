@@ -27,6 +27,7 @@ namespace CxxPlugin.Test
     using NUnit.Framework;
 
     using VSSonarPlugins;
+    using VSSonarPlugins.Types;
 
     /// <summary>
     /// The test server extension.
@@ -96,27 +97,6 @@ namespace CxxPlugin.Test
             File.Delete("vera++.exe");
             File.Delete("rats.exe");
             File.Delete("python.exe");
-        }
-
-        /// <summary>
-        /// The test resource key.
-        /// </summary>
-        [Test]
-        public void RunsLocalAnalysisWithDummyFile()
-        {
-            var serviceStub = new Mock<IAnalysisPlugin>();
-            var optionsStub = new Mock<IPluginsOptions>();
-            var resource = new Resource() { Lang = "c++" };
-            var configuration = new ConnectionConfiguration();
-            serviceStub.Setup(control => control.GetPluginControlOptions(configuration)).Returns(optionsStub.Object);
-            optionsStub.Setup(control => control.GetOptions()).Returns(this.options);
-
-            var localextension = new CxxLocalExtension(serviceStub.Object, configuration);
-            localextension.LocalAnalysisCompleted += this.AnalysisCompleted;
-            var vsitem = new VsProjectItem(string.Empty, this.fileToAnalyse, string.Empty, string.Empty, string.Empty, string.Empty);
-            var thread = localextension.GetFileAnalyserThread(vsitem, resource, new Profile(), string.Empty, false);
-            thread.Start();
-            thread.Join();
         }
 
         private void AnalysisCompleted(object sender, System.EventArgs e)

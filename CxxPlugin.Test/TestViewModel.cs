@@ -32,91 +32,6 @@ namespace CxxPlugin.Test
         /// The test window.
         /// </summary>
         [Test]
-        public void TestRetriveProperties()
-        {
-            var controller = new CxxOptionsController
-            {
-                VeraArguments = "VeraArguments",
-                VeraExecutable = "VeraExecutable",
-                PcLintArguments = "PcLintArguments",
-                PcLintExecutable = "PcLintExecutable",
-                CppCheckArguments = "CppCheckArguments",
-                CppCheckExecutable = "CppCheckExecutable",
-                RatsArguments = "RatsArguments",
-                RatsExecutable = "RatsExecutable",
-                CustomExecutable = "CustomExecutable",
-                CustomArguments = "CustomArguments",
-                CustomKey = "CustomKey",
-                CustomEnvironment = "CustomEnvironment"
-            };
-            var data = controller.GetOptions();
-            Assert.AreEqual(16, data.Count);
-            Assert.AreEqual("VeraArguments", data["VeraArguments"]);
-            Assert.AreEqual("VeraExecutable", data["VeraExecutable"]);
-            Assert.AreEqual("PcLintArguments", data["PcLintArguments"]);
-            Assert.AreEqual("PcLintExecutable", data["PcLintExecutable"]);
-            Assert.AreEqual("CppCheckArguments", data["CppCheckArguments"]);
-            Assert.AreEqual("CppCheckExecutable", data["CppCheckExecutable"]);
-            Assert.AreEqual("RatsArguments", data["RatsArguments"]);
-            Assert.AreEqual("RatsExecutable", data["RatsExecutable"]);
-            Assert.AreEqual("CustomArguments", data["CustomArguments"]);
-            Assert.AreEqual("CustomExecutable", data["CustomExecutable"]);
-            Assert.AreEqual("CustomKey", data["CustomKey"]);
-            Assert.AreEqual("CustomEnvironment", data["CustomEnvironment"]);
-            Assert.IsTrue(controller.IsEnabled());
-        }
-
-        /// <summary>
-        /// The test window.
-        /// </summary>
-        [Test]
-        public void TestSetProperties()
-        {
-            var serviceStub = new Mock<ICxxIoService>();
-            var controller = new CxxOptionsController(serviceStub.Object);
-            var options = new Dictionary<string, string>
-            {
-                { "VeraArguments", "VeraArguments" },
-                { "VeraExecutable", "VeraExecutable" },
-                { "VeraEnvironment", "VeraEnvironment" },
-                { "PcLintArguments", "PcLintArguments" },
-                { "PcLintExecutable", "PcLintExecutable" },
-                { "PcLintEnvironment", "PcLintEnvironment" },
-                { "RatsArguments", "RatsArguments" },
-                { "RatsExecutable", "RatsExecutable" },
-                { "RatsEnvironment", "RatsEnvironment" },
-                { "CppCheckArguments", "CppCheckArguments" },
-                { "CppCheckExecutable", "CppCheckExecutable" },
-                { "CppCheckEnvironment", "CppCheckEnvironment" },
-                { "CustomArguments", "CustomArguments" },
-                { "CustomExecutable", "CustomExecutable" },
-                { "CustomKey", "CustomKey" },
-                { "CustomEnvironment", "CustomEnvironment" }
-            };
-            controller.SetOptions(options);
-
-            Assert.AreEqual("PcLintArguments", controller.PcLintArguments);
-            Assert.AreEqual("PcLintExecutable", controller.PcLintExecutable);
-            Assert.AreEqual("PcLintEnvironment", controller.PcLintEnvironment);
-            Assert.AreEqual("VeraArguments", controller.VeraArguments);
-            Assert.AreEqual("VeraExecutable", controller.VeraExecutable);
-            Assert.AreEqual("VeraEnvironment", controller.VeraEnvironment);
-            Assert.AreEqual("RatsArguments", controller.RatsArguments);
-            Assert.AreEqual("RatsExecutable", controller.RatsExecutable);
-            Assert.AreEqual("RatsEnvironment", controller.RatsEnvironment);
-            Assert.AreEqual("CppCheckArguments", controller.CppCheckArguments);
-            Assert.AreEqual("CppCheckExecutable", controller.CppCheckExecutable);
-            Assert.AreEqual("CppCheckEnvironment", controller.CppCheckEnvironment);
-            Assert.AreEqual("CustomArguments", controller.CustomArguments);
-            Assert.AreEqual("CustomExecutable", controller.CustomExecutable);
-            Assert.AreEqual("CustomKey", controller.CustomKey);
-            Assert.AreEqual("CustomEnvironment", controller.CustomEnvironment);
-        }
-
-        /// <summary>
-        /// The test window.
-        /// </summary>
-        [Test]
         public void TestExecutionOfCommand()
         {
             var serviceStub = new Mock<ICxxIoService>();
@@ -133,18 +48,6 @@ namespace CxxPlugin.Test
             Assert.AreEqual("Executable", controller.RatsExecutable);
             controller.OpenCommand.Execute("ExternalSensor");
             Assert.AreEqual("Executable", controller.CustomExecutable);
-        }
-
-        /// <summary>
-        /// The test window.
-        /// </summary>
-        [Test]
-        public void TestResetDefaultOptions()
-        {
-            var serviceStub = new Mock<ICxxIoService>();
-            var controller = new CxxOptionsController(serviceStub.Object);
-            controller.ResetDefaults();
-            Assert.AreEqual("C:\\Tekla\\BuildTools\\vera++\\bin\\vera++.exe", controller.VeraExecutable);            
         }
     }
 }

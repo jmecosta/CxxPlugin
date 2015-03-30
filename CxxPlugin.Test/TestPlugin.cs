@@ -22,6 +22,7 @@ namespace CxxPlugin.Test
     using NUnit.Framework;
 
     using VSSonarPlugins;
+    using VSSonarPlugins.Types;
 
     /// <summary>
     /// The test server extension.
@@ -50,7 +51,7 @@ namespace CxxPlugin.Test
             IAnalysisPlugin plugin = new CxxPlugin() as IAnalysisPlugin;
 
             win.Content =
-                plugin.GetPluginControlOptions(
+                plugin.GetPluginControlOptions(null,
                     new ConnectionConfiguration("http://sonar", "jocs1", "jocs1"));
             win.ShowDialog();
         }

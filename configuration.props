@@ -15,7 +15,7 @@
         <BuildNumber                  Condition="'$(BuildNumber)'==''">0</BuildNumber>
         <RevisionNumber               Condition="'$(RevisionNumber)'==''">0</RevisionNumber>
         <AssemblyPatcherTaskOn        Condition="'$(AssemblyPatcherTaskOn)'==''">false</AssemblyPatcherTaskOn>
-        <UnitTestsDisabled            Condition="'$(UnitTestsDisabled)'==''">false</UnitTestsDisabled>
+        <UnitTestsDisabled            Condition="'$(UnitTestsDisabled)'==''">true</UnitTestsDisabled>
 
         <VSVersion Condition="'$(VSVersion)'==''">$(VisualStudioVersion)</VSVersion>
         
