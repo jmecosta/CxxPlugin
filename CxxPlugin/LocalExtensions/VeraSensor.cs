@@ -19,13 +19,16 @@ namespace CxxPlugin.LocalExtensions
 
     using global::CxxPlugin.Commands;
 
-    using ExtensionHelpers;
+    
 
-    using ExtensionTypes;
+    
 
     using Microsoft.FSharp.Collections;
 
     using VSSonarPlugins;
+    using VSSonarPlugins.Types;
+    using SonarRestService;
+    using VSSonarPlugins.Helpers;
 
     /// <summary>
     /// The vera sensor.
@@ -38,11 +41,6 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "vera++";
 
         /// <summary>
-        /// The plugin options.
-        /// </summary>
-        private readonly IPluginsOptions pluginOptions;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="VeraSensor"/> class.
         /// </summary>
         /// <param name="ctrl">
@@ -51,10 +49,12 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="pluginsOptions">
         /// The plugins Options.
         /// </param>
-        public VeraSensor(IPluginsOptions pluginsOptions)
-            : base(SKey, false)
+        public VeraSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
+            : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            this.pluginOptions = pluginsOptions;
+            WriteProperty("VeraEnvironment", @"VERA_ROOT=C:\Tekla\buildtools\vera++\lib\vera++", true, true);
+            WriteProperty("VeraExecutable", @"C:\Tekla\buildtools\vera++\bin\vera++.exe", true, true);
+            WriteProperty("VeraArguments", "-nodup -showrules", true, true);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override FSharpMap<string, string> GetEnvironment()
         {
-            var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["VeraEnvironment"]);
+            var data = VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("VeraEnvironment"));
 
             return ConvertCsMapToFSharpMap(data);
         }
@@ -129,7 +129,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetCommand()
         {
-            return this.pluginOptions.GetOptions()["VeraExecutable"];
+            return ReadGetProperty("VeraExecutable");
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetArguments()
         {
-            return this.pluginOptions.GetOptions()["VeraArguments"];
+            return ReadGetProperty("VeraArguments");
         }
     }
 }

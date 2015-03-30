@@ -1,144 +1,45 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CxxOptionsController.cs" company="Copyright © 2014 jmecsoftware">
-//     Copyright (C) 2014 [jmecsoftware, jmecsoftware2014@tekla.com]
+//   Copyright (C) 2014 [jmecsoftware, jmecsoftware2014@tekla.com]
 // </copyright>
+// <summary>
+//   The dummy options controller.
+// </summary>
 // --------------------------------------------------------------------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
-// as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. 
-// You should have received a copy of the GNU Lesser General Public License along with this program; if not, write to the Free
-// Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-// --------------------------------------------------------------------------------------------------------------------
-
 namespace CxxPlugin.Options
 {
     using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.IO;
-    using System.Linq;
-    using System.Windows.Forms;
+    using System.Windows.Controls;
+    using System.Windows.Media;
 
     using global::CxxPlugin.Commands;
 
-    using ExtensionTypes;
+    using PropertyChanged;
 
     using VSSonarPlugins;
-
-    using UserControl = System.Windows.Controls.UserControl;
+    using VSSonarPlugins.Types;
 
     /// <summary>
     ///     The dummy options controller.
     /// </summary>
-    public class CxxOptionsController : INotifyPropertyChanged, IPluginsOptions
+    [ImplementPropertyChanged]
+    public class CxxOptionsController : IPluginControlOption
     {
+        #region Public Events
+
+        /// <summary>
+        ///     The configuration.
+        /// </summary>
+        private readonly IConfigurationHelper configuration;
+
+        #endregion
+
         #region Fields
-
-        /// <summary>
-        ///     The cpp check arguments.
-        /// </summary>
-        private string cppCheckArguments;
-
-        /// <summary>
-        ///     The cpp check environments.
-        /// </summary>
-        private string cppCheckEnvironment;
-
-        /// <summary>
-        ///     The cpp check executable.
-        /// </summary>
-        private string cppCheckExecutable;
-
-        /// <summary>
-        ///     The custom arguments.
-        /// </summary>
-        private string customArguments;
-
-        /// <summary>
-        ///     The custom environment.
-        /// </summary>
-        private string customEnvironment;
-
-        /// <summary>
-        ///     The custom executable.
-        /// </summary>
-        private string customExecutable;
-
-        /// <summary>
-        ///     The custom key.
-        /// </summary>
-        private string customKey;
 
         /// <summary>
         ///     The dummy control.
         /// </summary>
         private UserControl cxxControl;
-
-        /// <summary>
-        ///     The project.
-        /// </summary>
-        private Resource project;
-
-        /// <summary>
-        ///     The properties to runner.
-        /// </summary>
-        private string propertiesToRunner;
-
-        /// <summary>
-        ///     The rats arguments.
-        /// </summary>
-        private string ratsArguments;
-
-        /// <summary>
-        ///     The rats environment.
-        /// </summary>
-        private string ratsEnvironment;
-
-        /// <summary>
-        ///     The rats executable.
-        /// </summary>
-        private string ratsExecutable;
-
-        /// <summary>
-        ///     The vera arguments.
-        /// </summary>
-        private string veraArguments;
-
-        /// <summary>
-        ///     The vera environment.
-        /// </summary>
-        private string veraEnvironment;
-
-        /// <summary>
-        ///     The vera executable.
-        /// </summary>
-        private string veraExecutable;
-
-        /// <summary>
-        /// The pc lint executable.
-        /// </summary>
-        private string pclintExecutable;
-
-        /// <summary>
-        /// The pclint arguments.
-        /// </summary>
-        private string pclintArguments;
-
-        /// <summary>
-        /// The pclint environment.
-        /// </summary>
-        private string pclintEnvironment;
-
-        /// <summary>
-        /// The project working dir.
-        /// </summary>
-        private string projectWorkingDir;
-
-        #endregion
-
-        #region Constructors and Destructors
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CxxOptionsController" /> class.
@@ -147,459 +48,118 @@ namespace CxxPlugin.Options
         {
             this.cxxControl = null;
             this.OpenCommand = new CxxOpenFileCommand(this, new CxxService());
-            this.ResetDefaultCommand = new CxxResetDefaultsCommand(this);
+            this.ForeGroundColor = Colors.Black;
+            this.BackGroundColor = Colors.White;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CxxOptionsController"/> class.
-        /// </summary>
-        /// <param name="service">
-        /// The service.
-        /// </param>
+        /// <summary>Initializes a new instance of the <see cref="CxxOptionsController"/> class.</summary>
+        /// <param name="configurationHelper">The configuration helper.</param>
+        public CxxOptionsController(IConfigurationHelper configurationHelper)
+        {
+            this.configuration = configurationHelper;
+            this.cxxControl = null;
+            this.OpenCommand = new CxxOpenFileCommand(this, new CxxService());
+            this.ForeGroundColor = Colors.Black;
+            this.BackGroundColor = Colors.White;
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="CxxOptionsController"/> class.</summary>
+        /// <param name="service">The service.</param>
         public CxxOptionsController(ICxxIoService service)
         {
             this.cxxControl = null;
-            this.OpenCommand = service != null ? new CxxOpenFileCommand(this, service) : new CxxOpenFileCommand(this, new CxxService());
-            this.ResetDefaultCommand = new CxxResetDefaultsCommand(this);
+            this.OpenCommand = service != null
+                                   ? new CxxOpenFileCommand(this, service)
+                                   : new CxxOpenFileCommand(this, new CxxService());
+
+            this.ForeGroundColor = Colors.Black;
+            this.BackGroundColor = Colors.White;
         }
-
-        #endregion
-
-        #region Public Events
-
-        /// <summary>
-        ///     The property changed.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
         #region Public Properties
 
         /// <summary>
-        ///     Gets or sets the vera arguments.
+        ///     Gets or sets the fore ground color.
         /// </summary>
-        public string CppCheckArguments
-        {
-            get
-            {
-                return this.cppCheckArguments;
-            }
-
-            set
-            {
-                this.cppCheckArguments = value;
-                this.OnPropertyChanged("CppCheckArguments");
-            }
-        }
+        public Color ForeGroundColor { get; set; }
 
         /// <summary>
-        ///     Gets or sets the vera arguments.
+        ///     Gets or sets the back ground color.
         /// </summary>
-        public string CppCheckEnvironment
-        {
-            get
-            {
-                return this.cppCheckEnvironment;
-            }
+        public Color BackGroundColor { get; set; }
 
-            set
-            {
-                this.cppCheckEnvironment = value;
-                this.OnPropertyChanged("CppCheckEnvironment");
-            }
-        }
+        /// <summary>Gets or sets the cpp check arguments.</summary>
+        public string CppCheckArguments { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the text box.
-        /// </summary>
-        public string CppCheckExecutable
-        {
-            get
-            {
-                return this.cppCheckExecutable;
-            }
+        /// <summary>Gets or sets the cpp check environment.</summary>
+        public string CppCheckEnvironment { get; set; }
 
-            set
-            {
-                this.cppCheckExecutable = value;
-                this.OnPropertyChanged("CppCheckExecutable");
-            }
-        }
+        /// <summary>Gets or sets the cpp check executable.</summary>
+        public string CppCheckExecutable { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string CustomArguments
-        {
-            get
-            {
-                return this.customArguments;
-            }
+        /// <summary>Gets or sets the custom arguments.</summary>
+        public string CustomArguments { get; set; }
 
-            set
-            {
-                this.customArguments = value;
-                this.OnPropertyChanged("CustomArguments");
-            }
-        }
+        /// <summary>Gets or sets the custom environment.</summary>
+        public string CustomEnvironment { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string CustomEnvironment
-        {
-            get
-            {
-                return this.customEnvironment;
-            }
+        /// <summary>Gets or sets the custom executable.</summary>
+        public string CustomExecutable { get; set; }
 
-            set
-            {
-                this.customEnvironment = value;
-                this.OnPropertyChanged("CustomEnvironment");
-            }
-        }
+        /// <summary>Gets or sets the custom key.</summary>
+        public string CustomKey { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the text box.
-        /// </summary>
-        public string CustomExecutable
-        {
-            get
-            {
-                return this.customExecutable;
-            }
-
-            set
-            {
-                this.customExecutable = value;
-                this.OnPropertyChanged("CustomExecutable");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string CustomKey
-        {
-            get
-            {
-                return this.customKey;
-            }
-
-            set
-            {
-                this.customKey = value;
-                this.OnPropertyChanged("CustomKey");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the open command.
-        /// </summary>
+        /// <summary>Gets or sets the open command.</summary>
         public CxxOpenFileCommand OpenCommand { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the project.
-        /// </summary>
-        public Resource Project
-        {
-            get
-            {
-                return this.project;
-            }
+        /// <summary>Gets or sets the project.</summary>
+        public Resource Project { get; set; }
 
-            set
-            {
-                this.project = value;
-                this.OnPropertyChanged("ProjectIsAssociated");
-            }
-        }
+        /// <summary>Gets or sets the properties to runner.</summary>
+        public string PropertiesToRunner { get; set; }
 
-        /// <summary>
-        ///     Gets the project is associated.
-        /// </summary>
-        public bool ProjectIsAssociated
-        {
-            get
-            {
-                if (this.Project == null)
-                {
-                    return false;
-                }
+        /// <summary>Gets or sets the rats environment.</summary>
+        public string RatsEnvironment { get; set; }
 
-                if (string.IsNullOrEmpty(this.Project.Lang))
-                {
-                    return true;
-                }
+        /// <summary>Gets or sets the rats executable.</summary>
+        public string RatsExecutable { get; set; }
 
-                return CxxPlugin.IsSupported(this.Project);
-            }
-        }
+        /// <summary>Gets or sets the rats arguments.</summary>
+        public string RatsArguments { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the properties to runner.
-        /// </summary>
-        public string PropertiesToRunner
-        {
-            get
-            {
-                return this.propertiesToRunner;
-            }
+        /// <summary>Gets or sets the vera arguments.</summary>
+        public string VeraArguments { get; set; }
 
-            set
-            {
-                this.propertiesToRunner = value;
-                this.OnPropertyChanged("PropertiesToRunner");
-            }
-        }
+        /// <summary>Gets or sets the vera environment.</summary>
+        public string VeraEnvironment { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string RatsArguments
-        {
-            get
-            {
-                return this.ratsArguments;
-            }
+        /// <summary>Gets or sets the vera executable.</summary>
+        public string VeraExecutable { get; set; }
 
-            set
-            {
-                this.ratsArguments = value;
-                this.OnPropertyChanged("RatsArguments");
-            }
-        }
+        /// <summary>Gets or sets the pc lint executable.</summary>
+        public string PcLintExecutable { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string RatsEnvironment
-        {
-            get
-            {
-                return this.ratsEnvironment;
-            }
+        /// <summary>Gets or sets the pc lint arguments.</summary>
+        public string PcLintArguments { get; set; }
 
-            set
-            {
-                this.ratsEnvironment = value;
-                this.OnPropertyChanged("RatsEnvironment");
-            }
-        }
+        /// <summary>Gets or sets the pc lint environment.</summary>
+        public string PcLintEnvironment { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the text box.
-        /// </summary>
-        public string RatsExecutable
-        {
-            get
-            {
-                return this.ratsExecutable;
-            }
+        /// <summary>Gets or sets the project working dir.</summary>
+        public string ProjectWorkingDir { get; set; }
 
-            set
-            {
-                this.ratsExecutable = value;
-                this.OnPropertyChanged("RatsExecutable");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the reset default command.
-        /// </summary>
-        public CxxResetDefaultsCommand ResetDefaultCommand { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string VeraArguments
-        {
-            get
-            {
-                return this.veraArguments;
-            }
-
-            set
-            {
-                this.veraArguments = value;
-                this.OnPropertyChanged("VeraArguments");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the vera arguments.
-        /// </summary>
-        public string VeraEnvironment
-        {
-            get
-            {
-                return this.veraEnvironment;
-            }
-
-            set
-            {
-                this.veraEnvironment = value;
-                this.OnPropertyChanged("VeraEnvironment");
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the text box.
-        /// </summary>
-        public string VeraExecutable
-        {
-            get
-            {
-                return this.veraExecutable;
-            }
-
-            set
-            {
-                this.veraExecutable = value;
-                this.OnPropertyChanged("VeraExecutable");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the pc lint executable.
-        /// </summary>
-        public string PcLintExecutable
-        {
-            get
-            {
-                return this.pclintExecutable;
-            }
-
-            set
-            {
-                this.pclintExecutable = value;
-                this.OnPropertyChanged("pclintExecutable");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the pc lint arguments.
-        /// </summary>
-        public string PcLintArguments
-        {
-            get
-            {
-                return this.pclintArguments;
-            }
-
-            set
-            {
-                this.pclintArguments = value;
-                this.OnPropertyChanged("PcLintArguments");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the pc lint environment.
-        /// </summary>
-        public string PcLintEnvironment
-        {
-            get
-            {
-                return this.pclintEnvironment;
-            }
-
-            set
-            {
-                this.pclintEnvironment = value;
-                this.OnPropertyChanged("PcLintEnvironment");
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the pc lint environment.
-        /// </summary>
-        public string ProjectWorkingDir
-        {
-            get
-            {
-                return this.projectWorkingDir;
-            }
-
-            set
-            {
-                this.projectWorkingDir = value;
-                this.OnPropertyChanged("ProjectWorkingDir");
-            }
-        }
+        /// <summary>Gets or sets a value indicating whether project is associated.</summary>
+        public bool ProjectIsAssociated { get; set; }
 
         #endregion
 
         #region Public Methods and Operators
 
-        /// <summary>
-        ///     The get options.
-        /// </summary>
-        /// <returns>
-        ///     The
-        ///     <see>
-        ///         <cref>Dictionary</cref>
-        ///     </see>
-        /// </returns>
-        public Dictionary<string, string> GetOptions()
-        {
-            var options = new Dictionary<string, string>
-                              {
-                                  { "VeraExecutable", this.VeraExecutable }, 
-                                  { "VeraArguments", this.VeraArguments }, 
-                                  { "VeraEnvironment", this.VeraEnvironment }, 
-                                  { "PcLintExecutable", this.PcLintExecutable }, 
-                                  { "PcLintArguments", this.PcLintArguments }, 
-                                  { "PcLintEnvironment", this.PcLintEnvironment }, 
-                                  { "RatsExecutable", this.RatsExecutable }, 
-                                  { "RatsArguments", this.RatsArguments }, 
-                                  { "RatsEnvironment", this.RatsEnvironment }, 
-                                  { "CppCheckExecutable", this.CppCheckExecutable }, 
-                                  { "CppCheckArguments", this.CppCheckArguments }, 
-                                  { "CppCheckEnvironment", this.CppCheckEnvironment }, 
-                                  { "CustomExecutable", this.CustomExecutable }, 
-                                  { "CustomArguments", this.CustomArguments }, 
-                                  { "CustomKey", this.CustomKey }, 
-                                  { "CustomEnvironment", this.CustomEnvironment }
-                              };
-
-            // add specific solution properties
-            if (this.Project == null)
-            {
-                return options;
-            }
-
-            if (!string.IsNullOrEmpty(this.ProjectWorkingDir))
-            {
-                options.Add(this.Project.Key + ".ProjectWorkingDir", this.ProjectWorkingDir);
-            }
-
-            if (this.propertiesToRunner != null)
-            {
-                string[] separator = { "\r\n", ";" };
-
-                string[] properties = this.propertiesToRunner.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var elements in properties.Select(property => property.Split('=')))
-                {
-                    options.Add(this.Project.Key + ".propertyToRunner." + elements[0].Trim(), elements[1].Trim());
-                }
-            }
-
-            return options;
-        }
-
-        /// <summary>
-        /// The get user control options.
-        /// </summary>
-        /// <param name="projectIn">
-        /// The project.
-        /// </param>
-        /// <returns>
-        /// The <see cref="UserControl"/>.
-        /// </returns>
+        /// <summary>The get user control options.</summary>
+        /// <param name="projectIn">The project.</param>
+        /// <returns>The <see cref="UserControl"/>.</returns>
         public UserControl GetUserControlOptions(Resource projectIn)
         {
             this.Project = projectIn;
@@ -607,236 +167,129 @@ namespace CxxPlugin.Options
         }
 
         /// <summary>
-        ///     The is enabled.
+        ///     The set options.
         /// </summary>
-        /// <returns>
-        ///     The <see cref="bool" />.
-        /// </returns>
-        public bool IsEnabled()
+        public void SetOptions()
         {
-            return true;
+            this.VeraExecutable = this.GetOptionIfExists("VeraExecutable");
+            this.VeraArguments = this.GetOptionIfExists("VeraArguments");
+            this.VeraEnvironment = this.GetOptionIfExists("VeraEnvironment");
+
+            this.PcLintExecutable = this.GetOptionIfExists("PcLintExecutable");
+            this.PcLintArguments = this.GetOptionIfExists("PcLintArguments");
+            this.PcLintEnvironment = this.GetOptionIfExists("PcLintEnvironment");
+
+            this.RatsExecutable = this.GetOptionIfExists("RatsExecutable");
+            this.RatsArguments = this.GetOptionIfExists("RatsArguments");
+            this.RatsEnvironment = this.GetOptionIfExists("RatsEnvironment");
+
+            this.CppCheckExecutable = this.GetOptionIfExists("CppCheckExecutable");
+            this.CppCheckArguments = this.GetOptionIfExists("CppCheckArguments");
+            this.CppCheckEnvironment = this.GetOptionIfExists("CppCheckEnvironment");
+
+            this.CustomExecutable = this.GetOptionIfExists("CustomExecutable");
+            this.CustomArguments = this.GetOptionIfExists("CustomArguments");
+            this.CustomKey = this.GetOptionIfExists("CustomKey");
+            this.CustomEnvironment = this.GetOptionIfExists("CustomEnvironment");
         }
 
-        /// <summary>
-        ///     The reset defaults.
-        /// </summary>
-        public void ResetDefaults()
+        /// <summary>The get option control user interface.</summary>
+        /// <returns>The <see cref="UserControl" />.</returns>
+        public UserControl GetOptionControlUserInterface()
         {
-            this.ResetOptions("Vera++");
-            this.ResetOptions("CppCheck");
-            this.ResetOptions("Rats");
-            this.ResetOptions("ExternalSensor");
-            this.ResetOptions("RunnerOptions");
+            return this.cxxControl ?? (this.cxxControl = new CxxUserControl(this));
         }
 
-        /// <summary>
-        /// The reset options.
-        /// </summary>
-        /// <param name="optionsTab">
-        /// The options tab.
-        /// </param>
-        public void ResetOptions(string optionsTab)
+        /// <summary>The refresh data in ui.</summary>
+        /// <param name="project">The project.</param>
+        /// <param name="helper">The helper.</param>
+        public void RefreshDataInUi(Resource project, IConfigurationHelper helper)
         {
-            const string PathDef = "C:\\Tekla\\BuildTools";
 
-            if (optionsTab.Equals("Vera++"))
-            {
-                this.VeraExecutable = string.Empty;
-                this.VeraArguments = string.Empty;
+            // read properties
+            this.SetOptions();
 
-                if (!string.IsNullOrEmpty(PathDef))
-                {
-                    this.VeraExecutable = PathDef + "\\vera++\\bin\\vera++.exe";
-                    this.VeraArguments = "-nodup -showrules";
+            this.Project = project;
 
-                    string activeDir = Path.GetDirectoryName(this.VeraExecutable);
-                    if (!string.IsNullOrEmpty(activeDir))
-                    {
-                        string rootp = Directory.GetParent(activeDir).ToString();
-                        this.VeraEnvironment = "VERA_ROOT=" + Path.Combine(rootp, "lib", "vera++");
-                    }
-                }
-            }
-
-            if (optionsTab.Equals("CppCheck"))
-            {
-                this.CppCheckExecutable = string.Empty;
-                this.CppCheckArguments = string.Empty;
-
-                if (!string.IsNullOrEmpty(PathDef))
-                {
-                    this.CppCheckExecutable = PathDef + "\\cppcheck\\cppcheck.exe";
-                    this.CppCheckArguments = "--inline-suppr --enable=all --xml -D__cplusplus -DNT";
-                }
-            }
-
-            if (optionsTab.Equals("Rats"))
-            {
-                this.RatsExecutable = string.Empty;
-                this.RatsArguments = string.Empty;
-
-                if (!string.IsNullOrEmpty(PathDef))
-                {
-                    this.RatsExecutable = PathDef + "\\rats-2.3\\rats.exe";
-                    this.RatsArguments = "--xml";
-                }
-            }
-
-            if (optionsTab.Equals("RunnerOptions"))
-            {
-                if (File.Exists(PathDef + "\\Cpplint\\settingsForSonar.cfg"))
-                {
-                    this.PropertiesToRunner = File.ReadAllText(PathDef + "\\Cpplint\\settingsForSonar.cfg");
-                }
-            }
-
-            if (optionsTab.Equals("ExternalSensor"))
-            {
-                this.CustomExecutable = string.Empty;
-                this.CustomArguments = string.Empty;
-                this.CustomKey = string.Empty;
-                this.CustomEnvironment = string.Empty;
-
-                if (!string.IsNullOrEmpty(PathDef))
-                {
-                    this.CustomExecutable = PathDef + "\\Python\\python.exe";
-                    this.CustomArguments = PathDef + "\\CppLint\\cpplint_mod.py --output=vs7";
-                    this.CustomKey = "cpplint";
-                }
-            }
-        }
-
-        /// <summary>
-        /// The set options.
-        /// </summary>
-        /// <param name="options">
-        /// The options.
-        /// </param>
-        public void SetOptions(Dictionary<string, string> options)
-        {
-            this.VeraExecutable = this.GetOptionIfExists(options, "VeraExecutable");
-            this.VeraArguments = this.GetOptionIfExists(options, "VeraArguments");
-            this.VeraEnvironment = this.GetOptionIfExists(options, "VeraEnvironment");
-
-            this.PcLintExecutable = this.GetOptionIfExists(options, "PcLintExecutable");
-            this.PcLintArguments = this.GetOptionIfExists(options, "PcLintArguments");
-            this.PcLintEnvironment = this.GetOptionIfExists(options, "PcLintEnvironment");
-
-            this.RatsExecutable = this.GetOptionIfExists(options, "RatsExecutable");
-            this.RatsArguments = this.GetOptionIfExists(options, "RatsArguments");
-            this.RatsEnvironment = this.GetOptionIfExists(options, "RatsEnvironment");
-
-            this.CppCheckExecutable = this.GetOptionIfExists(options, "CppCheckExecutable");
-            this.CppCheckArguments = this.GetOptionIfExists(options, "CppCheckArguments");
-            this.CppCheckEnvironment = this.GetOptionIfExists(options, "CppCheckEnvironment");
-
-            this.CustomExecutable = this.GetOptionIfExists(options, "CustomExecutable");
-            this.CustomArguments = this.GetOptionIfExists(options, "CustomArguments");
-            this.CustomKey = this.GetOptionIfExists(options, "CustomKey");
-            this.CustomEnvironment = this.GetOptionIfExists(options, "CustomEnvironment");
-          
             if (this.Project == null)
             {
+                this.ProjectIsAssociated = false;
                 return;
             }
 
-            this.ProjectWorkingDir = this.GetOptionIfExists(options, this.Project.Key + ".ProjectWorkingDir");
+            if (string.IsNullOrEmpty(this.Project.Lang))
+            {
+                this.ProjectIsAssociated = true;
+            }
 
-            Dictionary<string, string> optionsForProject = this.GetOptionsStartingWith(options, this.Project.Key + ".propertyToRunner.");
+            this.ProjectIsAssociated = CxxPlugin.IsSupported(this.Project);
+        }
 
-            string props = optionsForProject.Aggregate(
-                string.Empty, 
-                (current, option) =>
-                current + (option.Key.Replace(this.Project.Key + ".propertyToRunner.", string.Empty) + "=" + option.Value + "\r\n"));
-            this.PropertiesToRunner = props;
+        /// <summary>The save data in ui.</summary>
+        /// <param name="project">The project.</param>
+        /// <param name="helper">The helper.</param>
+        public void SaveDataInUi(Resource project, IConfigurationHelper helper)
+        {
+            this.SaveOption("VeraExecutable", this.VeraExecutable);
+            this.SaveOption("VeraArguments", this.VeraArguments);
+            this.SaveOption("VeraEnvironment", this.VeraEnvironment);
+
+            this.SaveOption("PcLintExecutable", this.PcLintExecutable);
+            this.SaveOption("PcLintArguments", this.PcLintArguments);
+            this.SaveOption("PcLintEnvironment", this.PcLintEnvironment);
+
+            this.SaveOption("RatsExecutable", this.RatsExecutable);
+            this.SaveOption("RatsArguments", this.RatsArguments);
+            this.SaveOption("RatsEnvironment", this.RatsEnvironment);
+
+            this.SaveOption("CppCheckExecutable", this.CppCheckExecutable);
+            this.SaveOption("CppCheckArguments", this.CppCheckArguments);
+            this.SaveOption("CppCheckEnvironment", this.CppCheckEnvironment);
+
+            this.SaveOption("CustomExecutable", this.CustomExecutable);
+            this.SaveOption("CustomArguments", this.CustomArguments);
+            this.SaveOption("CustomKey", this.CustomKey);
+            this.SaveOption("CustomEnvironment", this.CustomEnvironment);
+        }
+
+        /// <summary>The refresh colours.</summary>
+        /// <param name="foreground">The foreground.</param>
+        /// <param name="background">The background.</param>
+        public void RefreshColours(Color foreground, Color background)
+        {
+            this.BackGroundColor = background;
+            this.ForeGroundColor = foreground;
+        }
+
+        /// <summary>The get option if exists.</summary>
+        /// <param name="key">The key.</param>
+        /// <returns>The <see cref="string"/>.</returns>
+        private string GetOptionIfExists(string key)
+        {
+            try
+            {
+                return
+                    this.configuration.ReadSetting(Context.FileAnalysisProperties, OwnersId.PluginGeneralOwnerId, key)
+                        .Value;
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>The save option.</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        private void SaveOption(string key, string value)
+        {
+            this.configuration.WriteOptionInApplicationData(
+                Context.FileAnalysisProperties, 
+                OwnersId.PluginGeneralOwnerId, 
+                key, 
+                value);
         }
 
         #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// The on property changed.
-        /// </summary>
-        /// <param name="propertyName">
-        /// The property name.
-        /// </param>
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = this.PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        /// <summary>
-        /// The get option if exists.
-        /// </summary>
-        /// <param name="options">
-        /// The options.
-        /// </param>
-        /// <param name="key">
-        /// The key.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        private string GetOptionIfExists(Dictionary<string, string> options, string key)
-        {
-            if (options.ContainsKey(key))
-            {
-                return options[key];
-            }
-
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// The get options starting with.
-        /// </summary>
-        /// <param name="options">
-        /// The options.
-        /// </param>
-        /// <param name="key">
-        /// The key.
-        /// </param>
-        /// <returns>
-        /// The <see>
-        ///         <cref>Dictionary</cref>
-        ///     </see>
-        ///     .
-        /// </returns>
-        private Dictionary<string, string> GetOptionsStartingWith(Dictionary<string, string> options, string key)
-        {
-            return options.Where(option => option.Key.StartsWith(key)).ToDictionary(option => option.Key, option => option.Value);
-        }
-
-        #endregion
-
-        /// <summary>
-        ///     The io service.
-        /// </summary>
-        internal class CxxService : ICxxIoService
-        {
-            #region Public Methods and Operators
-
-            /// <summary>
-            /// The open file dialog.
-            /// </summary>
-            /// <param name="filter">
-            /// The filter.
-            /// </param>
-            /// <returns>
-            /// The <see cref="string"/>.
-            /// </returns>
-            public string OpenFileDialog(string filter)
-            {
-                var openFileDialog = new OpenFileDialog { Filter = filter };
-                return openFileDialog.ShowDialog() == DialogResult.OK ? openFileDialog.FileName : string.Empty;
-            }
-
-            #endregion
-        }
     }
 }

@@ -18,10 +18,6 @@ namespace CxxPlugin.LocalExtensions
     using System.Collections.Generic;
     using System.Linq;
 
-    using ExtensionHelpers;
-
-    using ExtensionTypes;
-
     using global::CxxPlugin.Commands;
 
     using Microsoft.FSharp.Collections;
@@ -30,6 +26,9 @@ namespace CxxPlugin.LocalExtensions
     using RestSharp.Deserializers;
 
     using VSSonarPlugins;
+    using VSSonarPlugins.Types;
+    using VSSonarPlugins.Helpers;
+    using SonarRestService;
 
     /// <summary>
     /// The cpp check sensor.
@@ -42,20 +41,17 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "cppcheck";
 
         /// <summary>
-        /// The plugin options.
-        /// </summary>
-        private readonly IPluginsOptions pluginOptions;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CppCheckSensor"/> class.
         /// </summary>
         /// <param name="pluginOptions">
         /// The plugin Options.
         /// </param>
-        public CppCheckSensor(IPluginsOptions pluginOptions)
-            : base(SKey, false)
+        public CppCheckSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
+            : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            this.pluginOptions = pluginOptions;
+            WriteProperty("CppCheckEnvironment", "", true, true);
+            WriteProperty("CppCheckExecutable", @"C:\Program Files (x86)\Cppcheck\cppcheck.exe", true, true);
+            WriteProperty("CppCheckArguments", "--inline-suppr --enable=all --xml -D__cplusplus -DNT", true, true);
         }
 
         /// <summary>
@@ -94,10 +90,9 @@ namespace CxxPlugin.LocalExtensions
         ///     .
         /// </returns>
         public override FSharpMap<string, string> GetEnvironment()
-        {
-            var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["CppCheckEnvironment"]);
-
-            return ConvertCsMapToFSharpMap(data);
+        {            
+            var data = VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("CppCheckEnvironment"));
+            return ConvertCsMapToFSharpMap(data);          
         }
 
         /// <summary>
@@ -108,7 +103,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetCommand()
         {
-            return this.pluginOptions.GetOptions()["CppCheckExecutable"];
+            return ReadGetProperty("CppCheckExecutable");
         }
 
         /// <summary>
@@ -119,7 +114,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetArguments()
         {
-            return this.pluginOptions.GetOptions()["CppCheckArguments"];
+            return ReadGetProperty("CppCheckArguments");
         }
 
         /// <summary>

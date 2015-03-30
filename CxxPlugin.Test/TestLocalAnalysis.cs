@@ -17,7 +17,7 @@ namespace CxxPlugin.Test
     using System.Collections.Generic;
     using System.IO;
 
-    using ExtensionTypes;
+    
 
     using global::CxxPlugin.Commands;
     using global::CxxPlugin.LocalExtensions;

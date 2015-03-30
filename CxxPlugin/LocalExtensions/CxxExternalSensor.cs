@@ -1,74 +1,62 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CxxExternalSensor.cs" company="Copyright © 2014 jmecsoftware">
-//     Copyright (C) 2014 [jmecsoftware, jmecsoftware2014@tekla.com]
+//   Copyright (C) 2014 [jmecsoftware, jmecsoftware2014@tekla.com]
 // </copyright>
+// <summary>
+//   The vera sensor.
+// </summary>
 // --------------------------------------------------------------------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
-// as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. 
-// You should have received a copy of the GNU Lesser General Public License along with this program; if not, write to the Free
-// Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-// --------------------------------------------------------------------------------------------------------------------
-
 namespace CxxPlugin.LocalExtensions
 {
     using System;
     using System.Collections.Generic;
 
-    using global::CxxPlugin.Commands;
-
-    using ExtensionHelpers;
-
-    using ExtensionTypes;
-
     using Microsoft.FSharp.Collections;
 
+    using SonarRestService;
+
     using VSSonarPlugins;
+    using VSSonarPlugins.Helpers;
+    using VSSonarPlugins.Types;
 
     /// <summary>
-    /// The vera sensor.
+    ///     The vera sensor.
     /// </summary>
     public class CxxExternalSensor : ASensor
     {
         /// <summary>
-        /// The s key.
+        ///     The s key.
         /// </summary>
         public const string SKey = "other";
 
         /// <summary>
-        /// The other key.
+        ///     The other key.
         /// </summary>
         public readonly string OtherKey = string.Empty;
 
-        /// <summary>
-        /// The plugin options.
-        /// </summary>
-        private readonly IPluginsOptions pluginOptions;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CxxExternalSensor"/> class.
-        /// </summary>
-        /// <param name="pluginOptions">
-        /// The plugin Options.
-        /// </param>
-        public CxxExternalSensor(IPluginsOptions pluginOptions)
-            : base(SKey, false)
+        /// <summary>Initializes a new instance of the <see cref="CxxExternalSensor"/> class.</summary>
+        /// <param name="notificationManager">The notification Manager.</param>
+        /// <param name="configurationHelper">The configuration Helper.</param>
+        /// <param name="sonarRestService">The sonar Rest Service.</param>
+        public CxxExternalSensor(
+            INotificationManager notificationManager, 
+            IConfigurationHelper configurationHelper, 
+            ISonarRestService sonarRestService)
+            : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            this.pluginOptions = pluginOptions;
-            this.OtherKey = this.pluginOptions.GetOptions()["CustomKey"];
+            this.WriteProperty("CustomEnvironment", string.Empty, true, true);
+            this.WriteProperty("CustomExecutable", @"C:\Tekla\buildtools\Python\python.exe", true, true);
+            this.WriteProperty(
+                "CustomArguments", 
+                @"C:\Tekla\buildtools\CppLint\cpplint_mod.py --output=vs7", 
+                true, 
+                true);
+            this.WriteProperty("CustomKey", "cpplint", true, true);
         }
 
-        /// <summary>
-        /// The get violations.
-        /// </summary>
-        /// <param name="lines">
-        ///     The lines.
-        /// </param>
-        /// <returns>
-        /// The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.
-        /// </returns>
+        /// <summary>The get violations.</summary>
+        /// <param name="lines">The lines.</param>
+        /// <returns>The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.</returns>
         public override List<Issue> GetViolations(FSharpList<string> lines)
         {
             var violations = new List<Issue>();
@@ -82,7 +70,7 @@ namespace CxxPlugin.LocalExtensions
             {
                 try
                 {
-                    int start = 0;
+                    var start = 0;
                     var file = GetStringUntilFirstChar(ref start, line, '(');
 
                     start++;
@@ -101,9 +89,9 @@ namespace CxxPlugin.LocalExtensions
 
                     var entry = new Issue
                                     {
-                                        Line = linenumber,
-                                        Message = msg,
-                                        Rule = this.RepositoryKey + "." + id,
+                                        Line = linenumber, 
+                                        Message = msg, 
+                                        Rule = this.RepositoryKey + "." + id, 
                                         Component = file
                                     };
 
@@ -119,62 +107,53 @@ namespace CxxPlugin.LocalExtensions
         }
 
         /// <summary>
-        /// The get environment.
+        ///     The get environment.
         /// </summary>
         /// <returns>
-        /// The <see>
+        ///     The
+        ///     <see>
         ///         <cref>Dictionary</cref>
         ///     </see>
         ///     .
         /// </returns>
         public override FSharpMap<string, string> GetEnvironment()
         {
-            var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["CustomEnvironment"]);
+            var data = VsSonarUtils.GetEnvironmentFromString(this.ReadGetProperty("CustomEnvironment"));
             return ConvertCsMapToFSharpMap(data);
         }
 
         /// <summary>
-        /// The get command.
+        ///     The get command.
         /// </summary>
         /// <returns>
-        /// The <see cref="string"/>.
+        ///     The <see cref="string" />.
         /// </returns>
         public override string GetCommand()
         {
-            return this.pluginOptions.GetOptions()["CustomExecutable"];
+            return this.ReadGetProperty("CustomExecutable");
         }
 
         /// <summary>
-        /// The get arguments.
+        ///     The get arguments.
         /// </summary>
         /// <returns>
-        /// The <see cref="string"/>.
+        ///     The <see cref="string" />.
         /// </returns>
         public override string GetArguments()
         {
-            return this.pluginOptions.GetOptions()["CustomArguments"];
+            return this.ReadGetProperty("CustomArguments");
         }
 
-        /// <summary>
-        /// The get string until first char.
-        /// </summary>
-        /// <param name="start">
-        /// The start.
-        /// </param>
-        /// <param name="line">
-        /// The line.
-        /// </param>
-        /// <param name="charCheck">
-        /// The char check.
-        /// </param>
-        /// <returns>
-        /// The System.String.
-        /// </returns>
+        /// <summary>The get string until first char.</summary>
+        /// <param name="start">The start.</param>
+        /// <param name="line">The line.</param>
+        /// <param name="charCheck">The char check.</param>
+        /// <returns>The System.String.</returns>
         private static string GetStringUntilFirstChar(ref int start, string line, char charCheck)
         {
             var data = string.Empty;
 
-            for (int i = start; i < line.Length; i++)
+            for (var i = start; i < line.Length; i++)
             {
                 start = i;
                 if (line[i].Equals(charCheck))

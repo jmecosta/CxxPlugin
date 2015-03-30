@@ -19,9 +19,9 @@ namespace CxxPlugin.LocalExtensions
 
     using global::CxxPlugin.Commands;
 
-    using ExtensionHelpers;
+    
 
-    using ExtensionTypes;
+    
 
     using Microsoft.FSharp.Collections;
 
@@ -29,6 +29,9 @@ namespace CxxPlugin.LocalExtensions
     using RestSharp.Deserializers;
 
     using VSSonarPlugins;
+    using VSSonarPlugins.Types;
+    using SonarRestService;
+    using VSSonarPlugins.Helpers;
 
     /// <summary>
     /// The rats sensor.
@@ -41,11 +44,6 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "rats";
 
         /// <summary>
-        /// The plugin options.
-        /// </summary>
-        private readonly IPluginsOptions pluginOptions;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RatsSensor"/> class.
         /// </summary>
         /// <param name="processCtrlIn">
@@ -54,10 +52,12 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="pluginsOptions">
         /// The plugins options.
         /// </param>
-        public RatsSensor(IPluginsOptions pluginsOptions)
-            : base(SKey, true)
+        public RatsSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
+            : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            this.pluginOptions = pluginsOptions;
+            WriteProperty("RatsEnvironment", "", true, true);
+            WriteProperty("RatsExecutable", @"C:\Tekla\buildtools\rats-2.3\rats.exe", true, true);
+            WriteProperty("RatsArguments", "--xml", true, true);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace CxxPlugin.LocalExtensions
                             {
                                 entry.Severity = (Severity)Enum.Parse(typeof(Severity), result.Severity);
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 entry.Severity  = Severity.UNDEFINED;
                             }
@@ -126,8 +126,8 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override FSharpMap<string, string> GetEnvironment()
         {
-            var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["RatsEnvironment"]);
-            return ConvertCsMapToFSharpMap(data);
+            var data = VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("RatsEnvironment"));
+            return ConvertCsMapToFSharpMap(data);  
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetCommand()
         {
-            return this.pluginOptions.GetOptions()["RatsExecutable"];
+            return ReadGetProperty("RatsExecutable");
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetArguments()
         {
-            return this.pluginOptions.GetOptions()["RatsArguments"];
+            return ReadGetProperty("RatsArguments");
         }
 
         /// <summary>

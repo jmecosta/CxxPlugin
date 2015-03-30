@@ -17,7 +17,7 @@ namespace CxxPlugin.Test
     using System.Threading;
     using System.Windows;
 
-    using ExtensionTypes;
+    
 
     using NUnit.Framework;
 

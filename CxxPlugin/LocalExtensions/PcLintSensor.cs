@@ -20,13 +20,16 @@ namespace CxxPlugin.LocalExtensions
 
     using global::CxxPlugin.Commands;
 
-    using ExtensionHelpers;
+    
 
-    using ExtensionTypes;
+    
 
     using Microsoft.FSharp.Collections;
 
     using VSSonarPlugins;
+    using VSSonarPlugins.Types;
+    using SonarRestService;
+    using VSSonarPlugins.Helpers;
 
     /// <summary>
     /// The vera sensor.
@@ -39,11 +42,6 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "pclint";
 
         /// <summary>
-        /// The plugin options.
-        /// </summary>
-        private readonly IPluginsOptions pluginOptions;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PcLintSensor"/> class. 
         /// </summary>
         /// <param name="ctrl">
@@ -52,10 +50,12 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="pluginOptions">
         /// The plugin Options.
         /// </param>
-        public PcLintSensor(IPluginsOptions pluginOptions)
-            : base(SKey, false)
+        public PcLintSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
+            : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            this.pluginOptions = pluginOptions;
+            WriteProperty("PcLintEnvironment", "", true, true);
+            WriteProperty("PcLintExecutable", "", true, true);
+            WriteProperty("PcLintArguments", "", true, true);
         }
 
         /// <summary>
@@ -122,8 +122,8 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override FSharpMap<string, string> GetEnvironment()
         {
-            var data = VsSonarUtils.GetEnvironmentFromString(this.pluginOptions.GetOptions()["PcLintEnvironment"]);
-            return ConvertCsMapToFSharpMap(data);
+            var data = VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("PcLintEnvironment"));
+            return ConvertCsMapToFSharpMap(data); 
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetCommand()
         {
-            return this.pluginOptions.GetOptions()["PcLintExecutable"];
+            return ReadGetProperty("PcLintExecutable");
         }
 
         /// <summary>
@@ -145,9 +145,9 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetArguments()
         {
-            var parent = Directory.GetParent(this.pluginOptions.GetOptions()["PcLintExecutable"]).ToString();
-
-            return "-\"format=%(%F(%l):%) error : (%t -- %m) : [%n]\"" + "-i\"" + parent + "\" +ffn std.lnt env-vc10.lnt " + this.pluginOptions.GetOptions()["PcLintArguments"];
+            var executable = ReadGetProperty("PcLintExecutable");
+            var parent = Directory.GetParent(executable);
+            return "-\"format=%(%F(%l):%) error : (%t -- %m) : [%n]\"" + "-i\"" + parent + "\" +ffn std.lnt env-vc10.lnt " + ReadGetProperty("PcLintArguments");
         }
 
         /// <summary>

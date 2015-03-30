@@ -34,15 +34,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ExtensionTypes, Version=$(VSSonarExtensionVersion), Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>True</SpecificVersion>
-      <HintPath>..\References\$(FSharpFolder)\ExtensionTypes.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion)">
-        <SpecificVersion>True</SpecificVersion>
+      <SpecificVersion>True</SpecificVersion>
     </Reference>
     <Reference Include="Moq">
-      <HintPath>..\References\Moq.dll</HintPath>
+      <HintPath>..\packages\Moq.4.2.1502.0911\lib\net40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\References\nunit.framework.dll</HintPath>
@@ -103,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="CxxPlugin.Test.licenseheader" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildFolder)\NunitRunnerTask.Targets" />
