@@ -84,7 +84,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="VSSonarPlugins, Version=$(VSSonarExtensionVersion), Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>True</SpecificVersion>
-      <HintPath>..\References\$(FSharpFolder)\VSSonarPlugins.dll</HintPath>
+      <HintPath>..\References\VSSonarPlugins.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
