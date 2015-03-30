@@ -96,7 +96,7 @@ namespace CxxPlugin.LocalExtensions
                                     {
                                         Line = linenumber,
                                         Message = msg,
-                                        Rule = this.RepositoryKey + "." + id,
+                                        Rule = this.RepositoryKey + ":" + id,
                                         Component = file
                                     };
 

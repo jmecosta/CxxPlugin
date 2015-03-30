@@ -75,7 +75,7 @@ namespace CxxPlugin.LocalExtensions
             var xml = new XmlDeserializer();
             var output = xml.Deserialize<Results>(new RestResponse { Content = string.Join("\r\n", lines) });
 
-            violations.AddRange(from error in output.Errors let ruleKey = this.RepositoryKey + "." + error.Id where !ruleKey.Equals("cppcheck.unusedFunction") select new Issue { Line = error.Line, Message = error.Msg, Rule = this.RepositoryKey + "." + error.Id, Component = error.File });
+            violations.AddRange(from error in output.Errors let ruleKey = this.RepositoryKey + ":" + error.Id where !ruleKey.Equals("cppcheck:unusedFunction") select new Issue { Line = error.Line, Message = error.Msg, Rule = this.RepositoryKey + ":" + error.Id, Component = error.File });
 
             return violations;
         }

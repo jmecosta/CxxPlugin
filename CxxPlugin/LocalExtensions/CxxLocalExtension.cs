@@ -134,9 +134,7 @@ namespace CxxPlugin.LocalExtensions
 
             foreach (var sensor in this.sensors)
             {
-                CxxPlugin.WriteLogMessage(
-                    this, 
-                    this.StdOutEvent, 
+                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), 
                     "Launching  Analysis on: " + sensor.Key + " " + itemInView.FilePath);
                 threads.Add(
                     this.RunSensorThread(
@@ -288,12 +286,12 @@ namespace CxxPlugin.LocalExtensions
         {
             var issuesPerTool = new List<Issue>();
             try {
-                var data = configurationHelper.ReadSetting(VSSonarPlugins.Types.Context.AnalysisGeneral, OwnersId.AnalysisOwnerId, GlobalIds.ExtensionDebugModeEnabled).Value;
-                if (data.Equals("true"))
+                var data = configurationHelper.ReadSetting(Context.GlobalPropsId, OwnersId.ApplicationOwnerId, GlobalIds.ExtensionDebugModeEnabled).Value;
+                if (data.ToLower().Equals("true"))
                 {
                     foreach (string line in sensorReportedLines)
                     {
-                        CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "[" + key + "] : " + line);
+                        CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), "[" + key + "] : " + line);
                     }
                 }
             } catch(Exception)
@@ -323,7 +321,7 @@ namespace CxxPlugin.LocalExtensions
             }
             catch (Exception ex)
             {
-                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, "Exception: " + key + " " + ex.StackTrace);
+                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), "Exception: " + key + " " + ex.StackTrace);
             }
 
             lock (this.lockThis)
@@ -410,12 +408,10 @@ namespace CxxPlugin.LocalExtensions
             }
             catch (Exception ex)
             {
-                CxxPlugin.WriteLogMessage(
-                    this, 
-                    this.StdOutEvent,
+                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(),
                     sensor.Key + " : Exception on Analysis Plugin : " + file.FilePath + " " + ex.StackTrace);
-                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, sensor.Key + " : StdError: " + exec.GetStdError);
-                CxxPlugin.WriteLogMessage(this, this.StdOutEvent, sensor.Key + " : StdOut: " + exec.GetStdError);
+                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), sensor.Key + " : StdError: " + exec.GetStdError);
+                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), sensor.Key + " : StdOut: " + exec.GetStdError);
             }
         }
 

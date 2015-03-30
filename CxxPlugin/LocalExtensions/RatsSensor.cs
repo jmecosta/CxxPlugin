@@ -53,7 +53,7 @@ namespace CxxPlugin.LocalExtensions
         /// The plugins options.
         /// </param>
         public RatsSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
-            : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
+            : base(SKey, true, notificationManager, configurationHelper, sonarRestService)
         {
             WriteProperty("RatsEnvironment", "", true, true);
             WriteProperty("RatsExecutable", @"C:\Tekla\buildtools\rats-2.3\rats.exe", true, true);
@@ -83,7 +83,7 @@ namespace CxxPlugin.LocalExtensions
 
             foreach (var result in output)
             {
-                if (string.IsNullOrEmpty(result.Type))
+                if (!string.IsNullOrEmpty(result.Type))
                 {
                     foreach (var file in result.Files)
                     {
@@ -91,7 +91,7 @@ namespace CxxPlugin.LocalExtensions
                         {
                             var entry = new Issue
                                             {
-                                                Rule = this.RepositoryKey + "." + result.Type,
+                                                Rule = this.RepositoryKey + ":" + result.Type,
                                                 Line = line.Value,
                                                 Message = result.Message,
                                                 Component = file.Name

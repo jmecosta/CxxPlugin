@@ -119,7 +119,7 @@ namespace CxxPlugin.LocalExtensions
         {
             var commandline = "[" + Directory.GetParent(filePath) + "] : " + this.GetCommand() + " "
                               + this.GetArguments() + " " + filePath;
-            CxxPlugin.WriteLogMessage(caller, logger, commandline);
+            CxxPlugin.WriteLogMessage(this.notificationManager, caller.GetType().ToString(), commandline);
             executor.ExecuteCommand(
                 this.GetCommand(), 
                 this.GetArguments() + " " + filePath, 

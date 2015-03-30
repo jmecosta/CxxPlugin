@@ -165,30 +165,9 @@ namespace CxxPlugin
         /// <param name="e">The e.</param>
         /// <param name="handler">The handler.</param>
         /// <param name="message">The message.</param>
-        public static void WriteLogMessage(object e, EventHandler handler, string message)
+        public static void WriteLogMessage(INotificationManager notificationManager, string id, string data)
         {
-            var dispatcher = Dispatcher.CurrentDispatcher;
-
-            dispatcher.Invoke(
-                () =>
-                    {
-                        var tempEvent = handler;
-                        if (tempEvent != null)
-                        {
-                            tempEvent(e, new LocalAnalysisEventArgs(Key, message, null));
-                        }
-                        else
-                        {
-                            lock (LockThatLog)
-                            {
-                                using (var w = File.AppendText(LogPath))
-                                {
-                                    var op = w as TextWriter;
-                                    op.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + " : " + message);
-                                }
-                            }
-                        }
-                    });
+            notificationManager.ReportMessage(new Message() {Id = id, Data = data}); 
         }
 
         /// <summary>The generate token id.</summary>
