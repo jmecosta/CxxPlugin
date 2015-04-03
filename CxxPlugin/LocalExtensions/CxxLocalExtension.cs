@@ -127,7 +127,7 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public List<Issue> ExecuteAnalysisOnFile(VsProjectItem itemInView, Profile externlProfile, Resource project, ISonarConfiguration conf)
+        public List<Issue> ExecuteAnalysisOnFile(VsFileItem itemInView, Profile externlProfile, Resource project, ISonarConfiguration conf)
         {
             var threads = new List<Thread>();
             var allIssues = new List<Issue>();
@@ -203,7 +203,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public Thread RunSensorThread(
             EventHandler output, 
-            VsProjectItem file, 
+            VsFileItem file, 
             KeyValuePair<string, ASensor> sensor, 
             Profile profileIn, 
             bool changedlines, 
@@ -277,7 +277,7 @@ namespace CxxPlugin.LocalExtensions
         private void ProcessSensorsIssues(
             string key, 
             FSharpList<string> sensorReportedLines, 
-            VsProjectItem itemInView, 
+            VsFileItem itemInView, 
             Profile profileIn, 
             bool modfiedLines, 
             string fileSourceRef, 
@@ -308,8 +308,7 @@ namespace CxxPlugin.LocalExtensions
                     string path2 = issue.Component;
                     if (path1.Equals(path2))
                     {
-                        issue.Component = this.commandPlugin.GetResourceKey(itemInView, project.Key, false);
-                        issue.ComponentSafe = this.commandPlugin.GetResourceKey(itemInView, project.Key, true);
+                        issue.Component = this.commandPlugin.GetResourceKey(itemInView, false);
                         Rule ruleInProfile = Profile.IsRuleEnabled(profileIn, issue.Rule);
                         if (ruleInProfile != null)
                         {
@@ -384,7 +383,7 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         private void RunSensor(
             EventHandler output, 
-            VsProjectItem file, 
+            VsFileItem file, 
             KeyValuePair<string, ASensor> sensor,  
             Profile profileIn, 
             bool changedlines, 

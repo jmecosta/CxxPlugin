@@ -200,7 +200,7 @@ namespace CxxPlugin
         /// <summary>The get language key.</summary>
         /// <param name="projectItem">The project Item.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        public string GetLanguageKey(VsProjectItem projectItem)
+        public string GetLanguageKey(VsFileItem projectItem)
         {
             return "c++";
         }
@@ -222,6 +222,10 @@ namespace CxxPlugin
         public IFileAnalyser GetLocalAnalysisExtension(ISonarConfiguration configuration)
         {
             return this.fileAnalysisExtension;
+        }
+
+        public void LaunchAnalysisOnProject(VsProjectItem project, ISonarConfiguration configuration)
+        {
         }
 
         /// <summary>The get plugin control options.</summary>
@@ -249,26 +253,26 @@ namespace CxxPlugin
         /// <param name="projectKey">The project key.</param>
         /// <param name="safeGeneration">The safe generation.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        public string GetResourceKey(VsProjectItem projectItem, string projectKey, bool safeGeneration)
+        public string GetResourceKey(VsFileItem projectItem, bool safeGeneration)
         {
-            if (safeGeneration && projectItem.ProjectName != null)
+            if (safeGeneration && projectItem.Project.ProjectName != null)
             {
                 var filePath = projectItem.FilePath.Replace("\\", "/");
-                var path = Directory.GetParent(projectItem.ProjectFilePath).ToString().Replace("\\", "/");
+                var path = Directory.GetParent(projectItem.Project.ProjectFilePath).ToString().Replace("\\", "/");
                 var file = filePath.Replace(path + "/", string.Empty);
-                return projectKey + ":" + projectItem.ProjectName + ":" + file;
+                return projectItem.Project.Solution.SonarProject.Key + ":" + projectItem.Project.ProjectName + ":" + file;
             }
 
             var filerelativePath =
-                projectItem.FilePath.Replace(projectItem.SolutionPath + "\\", string.Empty).Replace("\\", "/");
+                projectItem.FilePath.Replace(projectItem.Project.Solution.SolutionPath + "\\", string.Empty).Replace("\\", "/");
             var options = (CxxOptionsController)this.pluginOptions;
             if (string.IsNullOrEmpty(options.ProjectWorkingDir))
             {
-                return projectKey + ":" + filerelativePath.Trim();
+                return projectItem.Project.Solution.SonarProject.Key + ":" + filerelativePath.Trim();
             }
 
             var toReplace = options.ProjectWorkingDir.Replace("\\", "/") + "/";
-            return projectKey + ":" + filerelativePath.Replace(toReplace, string.Empty).Trim();
+            return projectItem.Project.Solution.SonarProject.Key + ":" + filerelativePath.Replace(toReplace, string.Empty).Trim();
         }
 
         /// <summary>
@@ -286,7 +290,7 @@ namespace CxxPlugin
         /// <param name="configuration">The configuration.</param>
         /// <param name="resource">The resource.</param>
         /// <returns>The <see cref="bool"/>.</returns>
-        public bool IsSupported(ISonarConfiguration configuration, Resource resource)
+        public bool IsProjectSupported(ISonarConfiguration configuration, Resource resource)
         {
             return resource != null && resource.Lang.Equals("c++");
         }
@@ -294,7 +298,7 @@ namespace CxxPlugin
         /// <summary>The is supported.</summary>
         /// <param name="fileToAnalyse">The file to analyse.</param>
         /// <returns>The <see cref="bool"/>.</returns>
-        public bool IsSupported(VsProjectItem fileToAnalyse)
+        public bool IsSupported(VsFileItem fileToAnalyse)
         {
             return IsSupported(fileToAnalyse.FileName);
         }
