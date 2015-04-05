@@ -69,6 +69,8 @@ namespace CxxPlugin
         /// <summary>The rest service.</summary>
         private readonly ISonarRestService restService;
 
+        private readonly IVsEnvironmentHelper vshelper;
+
         /// <summary>The desc.</summary>
         private readonly PluginDescription desc;
 
@@ -100,10 +102,12 @@ namespace CxxPlugin
         /// <param name="notificationManager">The notification manager.</param>
         /// <param name="configurationHelper">The configuration helper.</param>
         /// <param name="service">The service.</param>
+        /// <param name="vshelper"></param>
         public CxxPlugin(
             INotificationManager notificationManager, 
             IConfigurationHelper configurationHelper, 
-            ISonarRestService service)
+            ISonarRestService service,
+            IVsEnvironmentHelper vshelper)
         {
             this.pluginOptions = new CxxOptionsController(configurationHelper);
 
@@ -124,6 +128,7 @@ namespace CxxPlugin
             this.notificationManager = notificationManager;
             this.configurationHelper = configurationHelper;
             this.restService = service;
+            this.vshelper = vshelper;
 
             this.fileAnalysisExtension = new CxxLocalExtension(
                 this, 
@@ -265,14 +270,7 @@ namespace CxxPlugin
 
             var filerelativePath =
                 projectItem.FilePath.Replace(projectItem.Project.Solution.SolutionPath + "\\", string.Empty).Replace("\\", "/");
-            var options = (CxxOptionsController)this.pluginOptions;
-            if (string.IsNullOrEmpty(options.ProjectWorkingDir))
-            {
-                return projectItem.Project.Solution.SonarProject.Key + ":" + filerelativePath.Trim();
-            }
-
-            var toReplace = options.ProjectWorkingDir.Replace("\\", "/") + "/";
-            return projectItem.Project.Solution.SonarProject.Key + ":" + filerelativePath.Replace(toReplace, string.Empty).Trim();
+            return projectItem.Project.Solution.SonarProject.Key + ":" + filerelativePath.Trim();
         }
 
         /// <summary>

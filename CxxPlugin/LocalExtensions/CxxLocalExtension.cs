@@ -309,9 +309,10 @@ namespace CxxPlugin.LocalExtensions
                     if (path1.Equals(path2))
                     {
                         issue.Component = this.commandPlugin.GetResourceKey(itemInView, false);
-                        Rule ruleInProfile = Profile.IsRuleEnabled(profileIn, issue.Rule);
+                        Rule ruleInProfile = profileIn.GetRule(issue.Rule);
                         if (ruleInProfile != null)
                         {
+                            issue.Debt = ruleInProfile.DebtRemFnCoeff;
                             issue.Severity = ruleInProfile.Severity;
                             issuesPerTool.Add(issue);
                         }
