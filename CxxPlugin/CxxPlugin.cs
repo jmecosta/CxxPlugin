@@ -233,6 +233,10 @@ namespace CxxPlugin
         {
         }
 
+        public void LaunchAnalysisOnSolution(VsSolutionItem solution, ISonarConfiguration configuration)
+        {
+        }
+
         /// <summary>The get plugin control options.</summary>
         /// <param name="project">The project.</param>
         /// <param name="configuration">The configuration.</param>
