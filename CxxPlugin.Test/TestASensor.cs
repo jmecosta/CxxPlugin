@@ -39,8 +39,7 @@ namespace CxxPlugin.Test
             var map = new Dictionary<string,string>();
             map.Add("key", "value");
 
-            var fsharpMap = ASensor.ConvertCsMapToFSharpMap(map);
-            Assert.AreEqual(1, fsharpMap.Count);
+            Assert.AreEqual(1, map.Count);
 
         }
     }

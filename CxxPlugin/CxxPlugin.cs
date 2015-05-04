@@ -19,8 +19,6 @@ namespace CxxPlugin
     using global::CxxPlugin.LocalExtensions;
     using global::CxxPlugin.Options;
 
-    using SonarRestService;
-
     using VSSonarPlugins;
     using VSSonarPlugins.Types;
 
@@ -107,7 +105,8 @@ namespace CxxPlugin
             INotificationManager notificationManager, 
             IConfigurationHelper configurationHelper, 
             ISonarRestService service,
-            IVsEnvironmentHelper vshelper)
+            IVsEnvironmentHelper vshelper,
+            IVSSonarQubeCmdExecutor executor)
         {
             this.pluginOptions = new CxxOptionsController(configurationHelper);
 
@@ -134,7 +133,8 @@ namespace CxxPlugin
                 this, 
                 this.notificationManager, 
                 this.configurationHelper, 
-                this.restService);
+                this.restService,
+                executor);
         }
 
         #endregion

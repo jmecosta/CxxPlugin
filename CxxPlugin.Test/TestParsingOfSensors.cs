@@ -23,31 +23,9 @@ namespace CxxPlugin.Test
     using global::CxxPlugin.Commands;
     using global::CxxPlugin.LocalExtensions;
 
-    using Microsoft.FSharp.Collections;
-
     using Moq;
 
     using NUnit.Framework;
-
-    public static class Interop
-    {
-        public static FSharpList<T> ToFSharpList<T>(this IList<T> input)
-        {
-            return CreateFSharpList(input, 0);
-        }
-
-        private static FSharpList<T> CreateFSharpList<T>(IList<T> input, int index)
-        {
-            if (index >= input.Count)
-            {
-                return FSharpList<T>.Empty;
-            }
-            else
-            {
-                return FSharpList<T>.Cons(input[index], CreateFSharpList(input, index + 1));
-            }
-        }
-    }
 
     /// <summary>
     /// The test server extension.

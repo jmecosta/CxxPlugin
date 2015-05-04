@@ -20,15 +20,8 @@ namespace CxxPlugin.LocalExtensions
 
     using global::CxxPlugin.Commands;
 
-    
-
-    
-
-    using Microsoft.FSharp.Collections;
-
     using VSSonarPlugins;
     using VSSonarPlugins.Types;
-    using SonarRestService;
     using VSSonarPlugins.Helpers;
 
     /// <summary>
@@ -67,11 +60,11 @@ namespace CxxPlugin.LocalExtensions
         /// <returns>
         /// The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.
         /// </returns>
-        public override List<Issue> GetViolations(FSharpList<string> lines)
+        public override List<Issue> GetViolations(List<string> lines)
         {
             var violations = new List<Issue>();
 
-            if (lines == null || lines.Length == 0)
+            if (lines == null || lines.Count == 0)
             {
                 return violations;
             }
@@ -120,10 +113,9 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public override FSharpMap<string, string> GetEnvironment()
+        public override Dictionary<string, string> GetEnvironment()
         {
-            var data = VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("PcLintEnvironment"));
-            return ConvertCsMapToFSharpMap(data); 
+            return VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("PcLintEnvironment"));
         }
 
         /// <summary>

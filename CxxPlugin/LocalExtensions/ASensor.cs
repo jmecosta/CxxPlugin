@@ -13,14 +13,8 @@ namespace CxxPlugin.LocalExtensions
     using System.Diagnostics;
     using System.IO;
 
-    using Microsoft.FSharp.Collections;
-
-    using SonarRestService;
-
     using VSSonarPlugins;
     using VSSonarPlugins.Types;
-
-    using VSSonarQubeCmdExecutor;
 
     /// <summary>
     ///     The Sensor interface.
@@ -111,7 +105,7 @@ namespace CxxPlugin.LocalExtensions
         /// <returns>
         /// The <see cref="Process"/>.
         /// </returns>
-        public virtual FSharpList<string> LaunchSensor(
+        public virtual List<string> LaunchSensor(
             object caller, 
             EventHandler logger, 
             string filePath, 
@@ -126,7 +120,7 @@ namespace CxxPlugin.LocalExtensions
                 this.GetEnvironment(), 
                 string.Empty);
 
-            return this.UseStdout ? executor.GetStdOut : executor.GetStdError;
+            return this.UseStdout ? executor.GetStdOut() : executor.GetStdError();
         }
 
         /// <summary>
@@ -149,7 +143,7 @@ namespace CxxPlugin.LocalExtensions
         /// <returns>
         /// The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.
         /// </returns>
-        public abstract List<Issue> GetViolations(FSharpList<string> lines);
+        public abstract List<Issue> GetViolations(List<string> lines);
 
         /// <summary>
         ///     The get environment.
@@ -161,7 +155,7 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public abstract FSharpMap<string, string> GetEnvironment();
+        public abstract Dictionary<string, string> GetEnvironment();
 
         /// <summary>
         ///     The get command.
@@ -194,8 +188,8 @@ namespace CxxPlugin.LocalExtensions
             {
                 return
                     this.configurationHelper.ReadSetting(
-                        Context.FileAnalysisProperties, 
-                        OwnersId.PluginGeneralOwnerId, 
+                        Context.FileAnalysisProperties,
+                        "CxxPlugin", 
                         key).Value;
             }
             catch (Exception)
@@ -222,8 +216,8 @@ namespace CxxPlugin.LocalExtensions
         protected void WriteProperty(string key, string value, bool sync = false, bool skipIfFound = false)
         {
             this.configurationHelper.WriteOptionInApplicationData(
-                Context.FileAnalysisProperties, 
-                OwnersId.PluginGeneralOwnerId, 
+                Context.FileAnalysisProperties,
+                "CxxPlugin", 
                 key, 
                 value, 
                 sync, 
@@ -262,26 +256,6 @@ namespace CxxPlugin.LocalExtensions
             {
                 this.commandLineError.Add(e.Data);
             }
-        }
-
-        /// <summary>
-        /// The convert cs map to f sharp map.
-        /// </summary>
-        /// <param name="data">
-        /// The data.
-        /// </param>
-        /// <returns>
-        /// The <see cref="FSharpMap"/>.
-        /// </returns>
-        public static FSharpMap<string, string> ConvertCsMapToFSharpMap(Dictionary<string, string> data)
-        {
-            var map = new FSharpMap<string, string>(new List<Tuple<string, string>>());
-            foreach (var elem in data)
-            {
-                map = map.Add(elem.Key, elem.Value);
-            }
-
-            return map;
         }
     }
 }

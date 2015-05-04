@@ -220,6 +220,7 @@ namespace CxxPlugin.Options
             if (string.IsNullOrEmpty(this.Project.Lang))
             {
                 this.ProjectIsAssociated = true;
+                return;
             }
 
             this.ProjectIsAssociated = CxxPlugin.IsSupported(this.Project);
@@ -269,7 +270,7 @@ namespace CxxPlugin.Options
             try
             {
                 return
-                    this.configuration.ReadSetting(Context.FileAnalysisProperties, OwnersId.PluginGeneralOwnerId, key)
+                    this.configuration.ReadSetting(Context.FileAnalysisProperties, "CxxPlugin", key)
                         .Value;
             }
             catch (Exception)
@@ -285,7 +286,7 @@ namespace CxxPlugin.Options
         {
             this.configuration.WriteOptionInApplicationData(
                 Context.FileAnalysisProperties, 
-                OwnersId.PluginGeneralOwnerId, 
+                "CxxPlugin", 
                 key, 
                 value);
         }

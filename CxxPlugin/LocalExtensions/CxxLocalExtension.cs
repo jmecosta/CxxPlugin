@@ -23,17 +23,8 @@ namespace CxxPlugin.LocalExtensions
     using System.Security.Permissions;
     using System.Threading;
 
-    
-
-    
-
-    using Microsoft.FSharp.Collections;
-
-    using VSSonarQubeCmdExecutor;
-
     using VSSonarPlugins;
     using VSSonarPlugins.Types;
-    using SonarRestService;
     using VSSonarPlugins.Helpers;
 
     /// <summary>
@@ -69,12 +60,17 @@ namespace CxxPlugin.LocalExtensions
 
         #region Constructors and Destructors
 
-        public CxxLocalExtension(IAnalysisPlugin commandPlugin, INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
+        public CxxLocalExtension(IAnalysisPlugin commandPlugin,
+            INotificationManager notificationManager,
+            IConfigurationHelper configurationHelper,
+            ISonarRestService sonarRestService,
+            IVSSonarQubeCmdExecutor exec)
         {
             this.commandPlugin = commandPlugin;
             this.notificationManager = notificationManager;
             this.configurationHelper = configurationHelper;
             this.sonarRestService = sonarRestService;
+            this.executor = exec;
 
             this.issues = new List<Issue>();
             this.sensors = new Dictionary<string, ASensor>
@@ -104,6 +100,7 @@ namespace CxxPlugin.LocalExtensions
         private readonly INotificationManager notificationManager;
         private readonly IConfigurationHelper configurationHelper;
         private readonly ISonarRestService sonarRestService;
+        private readonly IVSSonarQubeCmdExecutor executor;
 
         #endregion
 
@@ -145,7 +142,8 @@ namespace CxxPlugin.LocalExtensions
                         false, 
                         string.Empty, 
                         allIssues,
-                        project));
+                        project,
+                        this.executor));
             }
 
             foreach (Thread thread in threads)
@@ -209,12 +207,13 @@ namespace CxxPlugin.LocalExtensions
             bool changedlines, 
             string sourceRef, 
             List<Issue> issuesToReturn,
-            Resource project)
+            Resource project,
+            IVSSonarQubeCmdExecutor exec)
         {
             var t =
                 new Thread(
                     () =>
-                    this.RunSensor(output, file, sensor, profileIn, changedlines, sourceRef, issuesToReturn,project));
+                    this.RunSensor(output, file, sensor, profileIn, changedlines, sourceRef, issuesToReturn,project, exec));
             t.Start();
             return t;
         }
@@ -276,7 +275,7 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         private void ProcessSensorsIssues(
             string key, 
-            FSharpList<string> sensorReportedLines, 
+            List<string> sensorReportedLines, 
             VsFileItem itemInView, 
             Profile profileIn, 
             bool modfiedLines, 
@@ -390,12 +389,12 @@ namespace CxxPlugin.LocalExtensions
             bool changedlines, 
             string sourceRef, 
             List<Issue> issuesToReturn,
-            Resource project)
+            Resource project,
+            IVSSonarQubeCmdExecutor exec)
         {
-            IVSSonarQubeCmdExecutor exec = new VSSonarQubeCmdExecutor(null, 10);
             try
             {
-                FSharpList<string> lines = sensor.Value.LaunchSensor(this, output, file.FilePath, exec);
+                List<string> lines = sensor.Value.LaunchSensor(this, output, file.FilePath, exec);
                 this.ProcessSensorsIssues(
                     sensor.Key, 
                     lines, 
@@ -410,8 +409,8 @@ namespace CxxPlugin.LocalExtensions
             {
                 CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(),
                     sensor.Key + " : Exception on Analysis Plugin : " + file.FilePath + " " + ex.StackTrace);
-                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), sensor.Key + " : StdError: " + exec.GetStdError);
-                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), sensor.Key + " : StdOut: " + exec.GetStdError);
+                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), sensor.Key + " : StdError: " + exec.GetStdError());
+                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), sensor.Key + " : StdOut: " + exec.GetStdError());
             }
         }
 

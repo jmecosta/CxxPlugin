@@ -11,10 +11,6 @@ namespace CxxPlugin.LocalExtensions
     using System;
     using System.Collections.Generic;
 
-    using Microsoft.FSharp.Collections;
-
-    using SonarRestService;
-
     using VSSonarPlugins;
     using VSSonarPlugins.Helpers;
     using VSSonarPlugins.Types;
@@ -58,11 +54,11 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>The get violations.</summary>
         /// <param name="lines">The lines.</param>
         /// <returns>The VSSonarPlugin.SonarInterface.ResponseMappings.Violations.ViolationsResponse.</returns>
-        public override List<Issue> GetViolations(FSharpList<string> lines)
+        public override List<Issue> GetViolations(List<string> lines)
         {
             var violations = new List<Issue>();
 
-            if (lines == null || lines.Length == 0)
+            if (lines == null || lines.Count == 0)
             {
                 return violations;
             }
@@ -117,10 +113,9 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public override FSharpMap<string, string> GetEnvironment()
+        public override Dictionary<string, string> GetEnvironment()
         {
-            var data = VsSonarUtils.GetEnvironmentFromString(this.ReadGetProperty("CustomEnvironment"));
-            return ConvertCsMapToFSharpMap(data);
+            return VsSonarUtils.GetEnvironmentFromString(this.ReadGetProperty("CustomEnvironment"));
         }
 
         /// <summary>

@@ -39,12 +39,6 @@
     <Reference Include="DifferenceEngine">
       <HintPath>..\References\DifferenceEngine.dll</HintPath>
     </Reference>
-    <Reference Include="CommandExecutor">
-      <HintPath>..\References\$(FSharpFolder)\VSSonarQubeCmdExecutor.dll</HintPath>
-    </Reference>
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion)">
-      <SpecificVersion>True</SpecificVersion>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
@@ -63,10 +57,6 @@
     </Reference>
     <Reference Include="Rhino.Licensing">
       <HintPath>..\References\Rhino.Licensing.dll</HintPath>
-    </Reference>
-    <Reference Include="SonarRestService, Version=$(VSSonarExtensionVersion), Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>True</SpecificVersion>
-      <HintPath>..\References\$(FSharpFolder)\SonarRestService.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
