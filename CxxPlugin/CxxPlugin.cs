@@ -333,6 +333,10 @@ namespace CxxPlugin
             this.Assemblies.Add(path);
         }
 
+        public void Dispose()
+        {
+        }
+
         #endregion
     }
 }
