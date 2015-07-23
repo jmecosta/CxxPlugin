@@ -72,6 +72,8 @@ namespace CxxPlugin
         /// <summary>The desc.</summary>
         private readonly PluginDescription desc;
 
+        public IList<string> Assemblies { get; private set; }
+
         #endregion
 
         #region Constructors and Destructors
@@ -81,6 +83,8 @@ namespace CxxPlugin
         /// </summary>
         public CxxPlugin()
         {
+            this.Assemblies = new List<string>();
+
             if (File.Exists(LogPath))
             {
                 File.Delete(LogPath);
@@ -108,6 +112,8 @@ namespace CxxPlugin
             IVsEnvironmentHelper vshelper,
             IVSSonarQubeCmdExecutor executor)
         {
+            this.Assemblies = new List<string>();
+
             this.pluginOptions = new CxxOptionsController(configurationHelper);
 
             if (File.Exists(LogPath))
@@ -315,6 +321,16 @@ namespace CxxPlugin
         /// <summary>The reset defaults.</summary>
         public void ResetDefaults()
         {
+        }
+
+        public IList<string> DllLocations()
+        {
+            return this.Assemblies;
+        }
+
+        public void SetDllLocation(string path)
+        {
+            this.Assemblies.Add(path);
         }
 
         #endregion
