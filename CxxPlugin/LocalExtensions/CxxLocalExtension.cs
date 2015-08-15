@@ -63,15 +63,13 @@ namespace CxxPlugin.LocalExtensions
         public CxxLocalExtension(IAnalysisPlugin commandPlugin,
             INotificationManager notificationManager,
             IConfigurationHelper configurationHelper,
-            ISonarRestService sonarRestService,
-            IVSSonarQubeCmdExecutor exec)
+            ISonarRestService sonarRestService)
         {
             this.commandPlugin = commandPlugin;
             this.notificationManager = notificationManager;
             this.configurationHelper = configurationHelper;
             this.sonarRestService = sonarRestService;
-            this.executor = exec;
-
+            
             this.issues = new List<Issue>();
             this.sensors = new Dictionary<string, ASensor>
                                {
@@ -100,7 +98,6 @@ namespace CxxPlugin.LocalExtensions
         private readonly INotificationManager notificationManager;
         private readonly IConfigurationHelper configurationHelper;
         private readonly ISonarRestService sonarRestService;
-        private readonly IVSSonarQubeCmdExecutor executor;
 
         #endregion
 
@@ -143,7 +140,7 @@ namespace CxxPlugin.LocalExtensions
                         string.Empty, 
                         allIssues,
                         project,
-                        this.executor));
+                        new VSSonarQubeCmdExecutor.VSSonarQubeCmdExecutor(60000)));
             }
 
             foreach (Thread thread in threads)

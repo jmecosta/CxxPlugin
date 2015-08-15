@@ -77,6 +77,9 @@
       <SpecificVersion>True</SpecificVersion>
       <HintPath>..\References\VSSonarPlugins.dll</HintPath>
     </Reference>
+    <Reference Include="VSSonarQubeCmdExecutor, Version=$(VSSonarExtensionVersion), Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\References\$(FSharpFolder)\VSSonarQubeCmdExecutor.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>

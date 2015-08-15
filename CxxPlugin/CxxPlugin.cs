@@ -109,8 +109,7 @@ namespace CxxPlugin
             INotificationManager notificationManager, 
             IConfigurationHelper configurationHelper, 
             ISonarRestService service,
-            IVsEnvironmentHelper vshelper,
-            IVSSonarQubeCmdExecutor executor)
+            IVsEnvironmentHelper vshelper)
         {
             this.Assemblies = new List<string>();
 
@@ -139,8 +138,7 @@ namespace CxxPlugin
                 this, 
                 this.notificationManager, 
                 this.configurationHelper, 
-                this.restService,
-                executor);
+                this.restService);
         }
 
         #endregion

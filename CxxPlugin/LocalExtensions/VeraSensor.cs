@@ -45,8 +45,8 @@ namespace CxxPlugin.LocalExtensions
         public VeraSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
             : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            WriteProperty("VeraEnvironment", @"VERA_ROOT=C:\Tekla\buildtools\vera++\lib\vera++", true, true);
-            WriteProperty("VeraExecutable", @"C:\Tekla\buildtools\vera++\bin\vera++.exe", true, true);
+            WriteProperty("VeraEnvironment", @"", true, true);
+            WriteProperty("VeraExecutable", @"C:\Program Files (x86)\vera++\bin\vera++.exe", true, true);
             WriteProperty("VeraArguments", "-nodup -showrules", true, true);
         }
 

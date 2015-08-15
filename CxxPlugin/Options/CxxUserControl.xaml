@@ -40,7 +40,7 @@
         <ScrollViewer PanningMode="VerticalOnly">
             <StackPanel>
                 <Expander Header="Vera++">
-                    <Grid Height="75">
+                    <Grid Height="80">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100" />
                             <ColumnDefinition Width="349*" />
@@ -72,7 +72,7 @@
                     </Grid>
                 </Expander>
                 <Expander Header="CppCheck">
-                    <Grid Height="75">
+                    <Grid Height="80">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100" />
                             <ColumnDefinition Width="349*" />
@@ -105,7 +105,7 @@
                     </Grid>
                 </Expander>
                 <Expander Header="PcLint">
-                    <Grid Height="75">
+                    <Grid Height="80">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100" />
                             <ColumnDefinition Width="349*" />
@@ -135,7 +135,7 @@
                     </Grid>
                 </Expander>
                 <Expander Header="Rats">
-                    <Grid Height="75">
+                    <Grid Height="80">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100" />
                             <ColumnDefinition Width="349*" />

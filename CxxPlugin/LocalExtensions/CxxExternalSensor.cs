@@ -41,7 +41,7 @@ namespace CxxPlugin.LocalExtensions
             : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
             this.WriteProperty("CustomEnvironment", string.Empty, true, true);
-            this.WriteProperty("CustomExecutable", @"C:\Tekla\buildtools\Python\python.exe", true, true);
+            this.WriteProperty("CustomExecutable", @"C:\Python27\python.exe", true, true);
             this.WriteProperty(
                 "CustomArguments", 
                 @"C:\Tekla\buildtools\CppLint\cpplint_mod.py --output=vs7", 
