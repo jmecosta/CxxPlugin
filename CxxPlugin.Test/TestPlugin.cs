@@ -52,7 +52,7 @@ namespace CxxPlugin.Test
 
             win.Content =
                 plugin.GetPluginControlOptions(null,
-                    new ConnectionConfiguration("http://sonar", "jocs1", "jocs1"));
+                    new ConnectionConfiguration("http://sonar", "jocs1", "jocs1", 4.5));
             win.ShowDialog();
         }
 
