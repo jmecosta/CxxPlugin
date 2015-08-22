@@ -1,4 +1,4 @@
-CxxPlugin
+CxxPlugin [![Build status](https://ci.appveyor.com/api/projects/status/137dth8cg4jupjpm?svg=true)](https://ci.appveyor.com/project/jorgecosta/cxxplugin-421)
 =========
 
 CxxPlugin - Plugin for VSSonarQubeExtension - Supports Cxx community plugin
