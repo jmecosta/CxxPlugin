@@ -10,25 +10,28 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 
 ## How to compile
-Use VS2012 and just build, it will produce CxxPlugin.dll.
+Use any visual studio version higher than 2010 and just build, it will produce CxxPlugin.VSQ in the BuildDrop.
 
 ## Installation
+Use the vssonarextension plugin manager to install the .VSQ
 
-Copy into Extensions Folder of Visual Studio. For Example:
-$(ProFile)\AppData\Local\Microsoft\Visual Studio\11\Extensions
-
-## Usage
+## Configuration
 The plugin supports:
-* Vera, Rats, CppCheck, PcLint, a external configured Tool and Sonar Analysis
+* Vera, Rats, CppCheck, PcLint, a external configured Tool for local file analysis
 
 ![Image](../master/wiki/VeraConfig.png?raw=true)
 
-To configure the plugin, locate the binaries on disk and configure any arguments and environments that the tools will use while they execute. 
+To configure the plugin, locate the binaries on disk and configure any arguments and environments that the tools will use while they execute.
 
-**Please ensure that Java, sonar runner or maven are correctly located.**
+The environment variable is with format:
+KEY1=VALUE1;KEY2=VALUE2 
 
-## Local Analysis
-To run local analysis, a valid sonar project needs to be available in the working directory. Additional properties can be set in the options, these will be passed to as command arguments so they will overwrite the ones defined in the project file
+### Custom external tool
+In the figure above, cpplint is configured in order to generate issues during local file analysis. Here you can do whatever you want, you can create your own script to run analysis. the only requirement is that the script or tool will  report issues to standard output in visual studio compatible format. 
 
+The key value in the external tool is crucial to map the ids of the tool with rules in sonar. In cpplint above the fianal key will be other.cpplint.RuleKey. So cpplint is added to the Key property
+
+## Analysis modes provided
+The tools configured in this plugin are used during File analysis and in the local analyses mode: Incremental and preview. The VSSonarExtension will call each of this tools with the file and report issues against it.
 
 
