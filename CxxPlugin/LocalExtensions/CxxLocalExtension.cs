@@ -137,8 +137,6 @@ namespace CxxPlugin.LocalExtensions
                         itemInView, 
                         sensor,
                         this.profile["c++"], 
-                        false, 
-                        string.Empty, 
                         allIssues,
                         project,
                         new VSSonarQubeCmdExecutor.VSSonarQubeCmdExecutor(60000)));
@@ -202,8 +200,6 @@ namespace CxxPlugin.LocalExtensions
             VsFileItem file, 
             KeyValuePair<string, ASensor> sensor, 
             Profile profileIn, 
-            bool changedlines, 
-            string sourceRef, 
             List<Issue> issuesToReturn,
             Resource project,
             IVSSonarQubeCmdExecutor exec)
@@ -211,7 +207,7 @@ namespace CxxPlugin.LocalExtensions
             var t =
                 new Thread(
                     () =>
-                    this.RunSensor(output, file, sensor, profileIn, changedlines, sourceRef, issuesToReturn,project, exec));
+                    this.RunSensor(output, file, sensor, profileIn, issuesToReturn,project, exec));
             t.Start();
             return t;
         }
@@ -276,8 +272,6 @@ namespace CxxPlugin.LocalExtensions
             List<string> sensorReportedLines, 
             VsFileItem itemInView, 
             Profile profileIn, 
-            bool modfiedLines, 
-            string fileSourceRef, 
             List<Issue> issuesToReturn,
             Resource project)
         {
@@ -323,32 +317,7 @@ namespace CxxPlugin.LocalExtensions
 
             lock (this.lockThis)
             {
-                try
-                {
-                    if (modfiedLines)
-                    {
-                        if (fileSourceRef != null)
-                        {
-                            ArrayList diffReport = VsSonarUtils.GetSourceDiffFromStrings(
-                                itemInView.FilePath, 
-                                fileSourceRef);
-                            issuesToReturn.AddRange(
-                                VsSonarUtils.GetIssuesInModifiedLinesOnly(issuesPerTool, diffReport));
-                        }
-                        else
-                        {
-                            issuesToReturn.AddRange(issuesPerTool);
-                        }
-                    }
-                    else
-                    {
-                        issuesToReturn.AddRange(issuesPerTool);
-                    }
-                }
-                catch (Exception)
-                {
-                    issuesToReturn.AddRange(issuesPerTool);
-                }
+                issuesToReturn.AddRange(issuesPerTool);
             }
         }
 
@@ -389,8 +358,6 @@ namespace CxxPlugin.LocalExtensions
             VsFileItem file, 
             KeyValuePair<string, ASensor> sensor,  
             Profile profileIn, 
-            bool changedlines, 
-            string sourceRef, 
             List<Issue> issuesToReturn,
             Resource project,
             IVSSonarQubeCmdExecutor exec)
@@ -403,8 +370,6 @@ namespace CxxPlugin.LocalExtensions
                     lines, 
                     file,  
                     profileIn, 
-                    changedlines, 
-                    sourceRef, 
                     issuesToReturn,
                     project);
             }

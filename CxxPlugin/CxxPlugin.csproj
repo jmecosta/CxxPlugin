@@ -37,9 +37,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DifferenceEngine">
-      <HintPath>..\References\DifferenceEngine.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.Data">
       <HintPath>..\packages\VSSonarExtensionPlugin$(VSSonarExtensionVersion)\lib\FSharp.Data.dll</HintPath>
       <Private>True</Private>
