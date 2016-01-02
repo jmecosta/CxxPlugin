@@ -312,8 +312,9 @@ namespace CxxPlugin
         /// <summary>The associate project.</summary>
         /// <param name="project">The project.</param>
         /// <param name="configuration">The configuration.</param>
-        public void AssociateProject(Resource project, ISonarConfiguration configuration)
+        public void AssociateProject(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profile)
         {
+            ((CxxLocalExtension)this.fileAnalysisExtension).UpdateProfile(profile);
         }
 
         /// <summary>The reset defaults.</summary>

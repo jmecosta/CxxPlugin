@@ -98,6 +98,7 @@ namespace CxxPlugin.LocalExtensions
         private readonly INotificationManager notificationManager;
         private readonly IConfigurationHelper configurationHelper;
         private readonly ISonarRestService sonarRestService;
+        private Dictionary<string, Profile> profile;
 
         #endregion
 
@@ -121,7 +122,7 @@ namespace CxxPlugin.LocalExtensions
         ///     </see>
         ///     .
         /// </returns>
-        public List<Issue> ExecuteAnalysisOnFile(VsFileItem itemInView, Profile externlProfile, Resource project, ISonarConfiguration conf)
+        public List<Issue> ExecuteAnalysisOnFile(VsFileItem itemInView, Resource project, ISonarConfiguration conf)
         {
             var threads = new List<Thread>();
             var allIssues = new List<Issue>();
@@ -135,7 +136,7 @@ namespace CxxPlugin.LocalExtensions
                         this.StdOutEvent, 
                         itemInView, 
                         sensor,
-                        externlProfile, 
+                        this.profile["c++"], 
                         false, 
                         string.Empty, 
                         allIssues,
@@ -349,6 +350,11 @@ namespace CxxPlugin.LocalExtensions
                     issuesToReturn.AddRange(issuesPerTool);
                 }
             }
+        }
+
+        internal void UpdateProfile(Dictionary<string, Profile> profile)
+        {
+            this.profile = profile;
         }
 
         /// <summary>
