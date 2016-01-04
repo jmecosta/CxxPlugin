@@ -117,3 +117,6 @@ buildlog2015.txt
 *.Test.unittest.report.xml
 CxxPlugin2013.VSQ
 CxxPlugin2015.VSQ
+.cxxresults/**
+.sonarqube/**
+*.Test.coverage.xml
