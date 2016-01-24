@@ -53,26 +53,26 @@ namespace CxxPlugin
         /// <summary>
         ///     The plugin options.
         /// </summary>
-        private readonly IPluginControlOption pluginOptions;
+        readonly IPluginControlOption pluginOptions;
 
         /// <summary>The notification manager.</summary>
-        private readonly INotificationManager notificationManager;
+        readonly INotificationManager notificationManager;
 
         /// <summary>The configuration helper.</summary>
-        private readonly IConfigurationHelper configurationHelper;
+        readonly IConfigurationHelper configurationHelper;
 
         /// <summary>The file analysis extension.</summary>
-        private readonly IFileAnalyser fileAnalysisExtension;
+        readonly IFileAnalyser fileAnalysisExtension;
 
         /// <summary>The rest service.</summary>
-        private readonly ISonarRestService restService;
+        readonly ISonarRestService restService;
 
-        private readonly IVsEnvironmentHelper vshelper;
+        readonly IVsEnvironmentHelper vshelper;
 
         /// <summary>The desc.</summary>
         private readonly PluginDescription desc;
 
-        public IList<string> Assemblies { get; private set; }
+        IList<string> Assemblies { get; private set; }
 
         #endregion
 
