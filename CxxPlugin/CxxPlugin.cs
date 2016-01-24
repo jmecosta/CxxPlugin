@@ -72,7 +72,7 @@ namespace CxxPlugin
         /// <summary>The desc.</summary>
         private readonly PluginDescription desc;
 
-        IList<string> Assemblies { get; private set; }
+        IList<string> Assemblies { get; set; }
 
         #endregion
 
