@@ -18,11 +18,9 @@ namespace CxxPlugin.LocalExtensions
     using System.Collections.Generic;
     using System.IO;
 
-    using global::CxxPlugin.Commands;
-
     using VSSonarPlugins;
-    using VSSonarPlugins.Types;
     using VSSonarPlugins.Helpers;
+    using VSSonarPlugins.Types;
 
     /// <summary>
     /// The vera sensor.

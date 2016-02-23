@@ -28,8 +28,6 @@ namespace CxxPlugin
     [Export(typeof(IPlugin))]
     public class CxxPlugin : IAnalysisPlugin
     {
-        #region Static Fields
-
         /// <summary>
         ///     The key.
         /// </summary>
@@ -45,10 +43,6 @@ namespace CxxPlugin
         /// </summary>
         private static readonly string LogPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
                                                  + "\\VSSonarExtension\\CxxPlugin.log";
-
-        #endregion
-
-        #region Fields
 
         /// <summary>
         ///     The plugin options.
@@ -71,12 +65,6 @@ namespace CxxPlugin
 
         /// <summary>The desc.</summary>
         private readonly PluginDescription desc;
-
-        public IList<string> Assemblies { get; private set; }
-
-        #endregion
-
-        #region Constructors and Destructors
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CxxPlugin" /> class.
@@ -141,9 +129,13 @@ namespace CxxPlugin
                 this.restService);
         }
 
-        #endregion
-
-        #region Public Methods and Operators
+        /// <summary>
+        /// Gets the assemblies.
+        /// </summary>
+        /// <value>
+        /// The assemblies.
+        /// </value>
+        public IList<string> Assemblies { get; private set; }
 
         /// <summary>The is supported.</summary>
         /// <param name="resource">The resource.</param>
@@ -198,9 +190,13 @@ namespace CxxPlugin
             return Assembly.GetExecutingAssembly().Location;
         }
 
-        /// <summary>The get key.</summary>
+        /// <summary>
+        /// The get key.
+        /// </summary>
         /// <param name="configuration">The configuration.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <returns>
+        /// The <see cref="string" />.
+        /// </returns>
         public string GetKey(ISonarConfiguration configuration)
         {
             return Key;
@@ -214,12 +210,14 @@ namespace CxxPlugin
             return "c++";
         }
 
-        /// <summary>The get licenses.</summary>
+        /// <summary>
+        /// The get licenses.
+        /// </summary>
         /// <param name="configuration">The configuration.</param>
-        /// <returns>The<see>
-        ///         <cref>Dictionary</cref>
-        ///     </see>
-        ///     .</returns>
+        /// <returns>
+        /// The<see><cref>Dictionary</cref></see>
+        /// .
+        /// </returns>
         public Dictionary<string, VsLicense> GetLicenses(ISonarConfiguration configuration)
         {
             return new Dictionary<string, VsLicense>();
@@ -237,8 +235,14 @@ namespace CxxPlugin
         {
         }
 
+        /// <summary>
+        /// Launches the analysis on solution.
+        /// </summary>
+        /// <param name="solution">The solution.</param>
+        /// <param name="configuration">The configuration.</param>
         public void LaunchAnalysisOnSolution(VsSolutionItem solution, ISonarConfiguration configuration)
         {
+            // not needed
         }
 
         /// <summary>The get plugin control options.</summary>
@@ -309,33 +313,49 @@ namespace CxxPlugin
             return IsSupported(fileToAnalyse.FileName);
         }
 
-        /// <summary>The associate project.</summary>
+        /// <summary>
+        /// The associate project.
+        /// </summary>
         /// <param name="project">The project.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <param name="profile">The profile.</param>
         public void AssociateProject(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profile)
         {
             ((CxxLocalExtension)this.fileAnalysisExtension).UpdateProfile(profile);
         }
 
-        /// <summary>The reset defaults.</summary>
+        /// <summary>
+        /// The reset defaults.
+        /// </summary>
         public void ResetDefaults()
         {
+            // not needed
         }
 
+        /// <summary>
+        /// DLLs the locations.
+        /// </summary>
+        /// <returns></returns>
         public IList<string> DllLocations()
         {
             return this.Assemblies;
         }
 
+        /// <summary>
+        /// Sets the DLL location.
+        /// </summary>
+        /// <param name="path">The path.</param>
         public void SetDllLocation(string path)
         {
             this.Assemblies.Add(path);
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
-        }
-
-        #endregion
+            // not needed
+        }    
     }
 }

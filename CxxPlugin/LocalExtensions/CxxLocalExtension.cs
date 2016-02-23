@@ -15,18 +15,16 @@
 namespace CxxPlugin.LocalExtensions
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Security.Permissions;
     using System.Threading;
 
     using VSSonarPlugins;
     using VSSonarPlugins.Types;
-    using VSSonarPlugins.Helpers;
-
+    
     /// <summary>
     ///     The cxx server extension.
     /// </summary>
@@ -34,8 +32,6 @@ namespace CxxPlugin.LocalExtensions
     [HostProtection(SecurityAction.LinkDemand, Synchronization = true, ExternalThreading = true)]
     public class CxxLocalExtension : WaitHandle, IFileAnalyser
     {
-        #region Fields
-
         /// <summary>
         ///     The command plugin.
         /// </summary>
@@ -56,11 +52,35 @@ namespace CxxPlugin.LocalExtensions
         /// </summary>
         private readonly Dictionary<string, ASensor> sensors;
 
-        #endregion
+        /// <summary>
+        /// The notification manager
+        /// </summary>
+        private readonly INotificationManager notificationManager;
 
-        #region Constructors and Destructors
+        /// <summary>
+        /// The configuration helper
+        /// </summary>
+        private readonly IConfigurationHelper configurationHelper;
 
-        public CxxLocalExtension(IAnalysisPlugin commandPlugin,
+        /// <summary>
+        /// The sonar rest service
+        /// </summary>
+        private readonly ISonarRestService sonarRestService;
+
+        /// <summary>
+        /// The profile
+        /// </summary>
+        private Dictionary<string, Profile> profile;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CxxLocalExtension"/> class.
+        /// </summary>
+        /// <param name="commandPlugin">The command plugin.</param>
+        /// <param name="notificationManager">The notification manager.</param>
+        /// <param name="configurationHelper">The configuration helper.</param>
+        /// <param name="sonarRestService">The sonar rest service.</param>
+        public CxxLocalExtension(
+            IAnalysisPlugin commandPlugin,
             INotificationManager notificationManager,
             IConfigurationHelper configurationHelper,
             ISonarRestService sonarRestService)
@@ -87,40 +107,20 @@ namespace CxxPlugin.LocalExtensions
                                };
         }
 
-        #endregion
-
-        #region Public Events
-
         /// <summary>
         ///     The std out event.
         /// </summary>
         public event EventHandler StdOutEvent;
-        private readonly INotificationManager notificationManager;
-        private readonly IConfigurationHelper configurationHelper;
-        private readonly ISonarRestService sonarRestService;
-        private Dictionary<string, Profile> profile;
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         /// The execute analysis on file.
         /// </summary>
-        /// <param name="itemInView">
-        /// The item In View.
-        /// </param>
-        /// <param name="externlProfile">
-        /// The externl profile.
-        /// </param>
-        /// <param name="projectIn">
-        /// The project.
-        /// </param>
+        /// <param name="itemInView">The item In View.</param>
+        /// <param name="project">The project.</param>
+        /// <param name="conf">The conf.</param>
         /// <returns>
-        /// The <see>
-        ///         <cref>List</cref>
-        ///     </see>
-        ///     .
+        /// The <see><cref>List</cref></see>
+        /// .
         /// </returns>
         public List<Issue> ExecuteAnalysisOnFile(VsFileItem itemInView, Resource project, ISonarConfiguration conf)
         {
@@ -129,8 +129,11 @@ namespace CxxPlugin.LocalExtensions
 
             foreach (var sensor in this.sensors)
             {
-                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), 
+                CxxPlugin.WriteLogMessage(
+                    this.notificationManager,
+                    this.GetType().ToString(), 
                     "Launching  Analysis on: " + sensor.Key + " " + itemInView.FilePath);
+
                 threads.Add(
                     this.RunSensorThread(
                         this.StdOutEvent, 
@@ -138,7 +141,6 @@ namespace CxxPlugin.LocalExtensions
                         sensor,
                         this.profile["c++"], 
                         allIssues,
-                        project,
                         new VSSonarQubeCmdExecutor.VSSonarQubeCmdExecutor(60000)));
             }
 
@@ -164,36 +166,18 @@ namespace CxxPlugin.LocalExtensions
         {
             return this.issues;
         }
-      
+
         /// <summary>
         /// The run sensor thread.
         /// </summary>
-        /// <param name="output">
-        /// The output.
-        /// </param>
-        /// <param name="file">
-        /// The file.
-        /// </param>
-        /// <param name="sensor">
-        /// The sensor.
-        /// </param>
-        /// <param name="projectIn">
-        /// The project in.
-        /// </param>
-        /// <param name="profileIn">
-        /// The profile in.
-        /// </param>
-        /// <param name="changedlines">
-        /// The changedlines.
-        /// </param>
-        /// <param name="sourceRef">
-        /// The source ref.
-        /// </param>
-        /// <param name="issuesToReturn">
-        /// The issues to return.
-        /// </param>
+        /// <param name="output">The output.</param>
+        /// <param name="file">The file.</param>
+        /// <param name="sensor">The sensor.</param>
+        /// <param name="profileIn">The profile in.</param>
+        /// <param name="issuesToReturn">The issues to return.</param>
+        /// <param name="exec">The execute.</param>
         /// <returns>
-        /// The <see cref="Thread"/>.
+        /// The <see cref="Thread" />.
         /// </returns>
         public Thread RunSensorThread(
             EventHandler output, 
@@ -201,13 +185,12 @@ namespace CxxPlugin.LocalExtensions
             KeyValuePair<string, ASensor> sensor, 
             Profile profileIn, 
             List<Issue> issuesToReturn,
-            Resource project,
             IVSSonarQubeCmdExecutor exec)
         {
             var t =
                 new Thread(
                     () =>
-                    this.RunSensor(output, file, sensor, profileIn, issuesToReturn,project, exec));
+                    this.RunSensor(output, file, sensor, profileIn, issuesToReturn, exec));
             t.Start();
             return t;
         }
@@ -222,62 +205,48 @@ namespace CxxPlugin.LocalExtensions
         {
         }
 
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// The is issue supported.
         /// </summary>
-        /// <param name="issue">
-        /// The issue.
-        /// </param>
+        /// <param name="issue">The issue.</param>
+        /// <param name="conf">The conf.</param>
         /// <returns>
-        /// The <see cref="bool"/>.
+        /// The <see cref="bool" />.
         /// </returns>
         public bool IsIssueSupported(Issue issue, ISonarConfiguration conf)
         {
             return CxxPlugin.IsSupported(issue.Component);
         }
 
+
+        /// <summary>
+        /// Updates the profile.
+        /// </summary>
+        /// <param name="profileIn">The profile in.</param>
+        public void UpdateProfile(Dictionary<string, Profile> profileIn)
+        {
+            this.profile = profileIn;
+        }
+
         /// <summary>
         /// The process sensors issues.
         /// </summary>
-        /// <param name="key">
-        /// The key.
-        /// </param>
-        /// <param name="sensorReportedLines">
-        /// The sensor reported lines.
-        /// </param>
-        /// <param name="itemInView">
-        /// The item in view.
-        /// </param>
-        /// <param name="projectIn">
-        /// The project in.
-        /// </param>
-        /// <param name="profileIn">
-        /// The profile in.
-        /// </param>
-        /// <param name="modfiedLines">
-        /// The modfied lines.
-        /// </param>
-        /// <param name="fileSourceRef">
-        /// The file source ref.
-        /// </param>
-        /// <param name="issuesToReturn">
-        /// The issues to return.
-        /// </param>
+        /// <param name="key">The key.</param>
+        /// <param name="sensorReportedLines">The sensor reported lines.</param>
+        /// <param name="itemInView">The item in view.</param>
+        /// <param name="profileIn">The profile in.</param>
+        /// <param name="issuesToReturn">The issues to return.</param>
         private void ProcessSensorsIssues(
             string key, 
             List<string> sensorReportedLines, 
             VsFileItem itemInView, 
             Profile profileIn, 
-            List<Issue> issuesToReturn,
-            Resource project)
+            List<Issue> issuesToReturn)
         {
             var issuesPerTool = new List<Issue>();
-            try {
-                var data = configurationHelper.ReadSetting(Context.GlobalPropsId, OwnersId.ApplicationOwnerId, GlobalIds.ExtensionDebugModeEnabled).Value;
+            try
+            {
+                var data = this.configurationHelper.ReadSetting(Context.GlobalPropsId, OwnersId.ApplicationOwnerId, GlobalIds.ExtensionDebugModeEnabled).Value;
                 if (data.ToLower().Equals("true"))
                 {
                     foreach (string line in sensorReportedLines)
@@ -285,11 +254,12 @@ namespace CxxPlugin.LocalExtensions
                         CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), "[" + key + "] : " + line);
                     }
                 }
-            } catch(Exception)
+            }
+            catch (Exception ex)
             {
+                Debug.WriteLine(ex.Message);
             }
             
-
             try
             {
                 List<Issue> issuesInTool = this.sensors[key].GetViolations(sensorReportedLines);
@@ -321,67 +291,42 @@ namespace CxxPlugin.LocalExtensions
             }
         }
 
-        internal void UpdateProfile(Dictionary<string, Profile> profile)
-        {
-            this.profile = profile;
-        }
-
         /// <summary>
         /// The run sensor.
         /// </summary>
-        /// <param name="output">
-        /// The output.
-        /// </param>
-        /// <param name="file">
-        /// The file.
-        /// </param>
-        /// <param name="sensor">
-        /// The sensor.
-        /// </param>
-        /// <param name="projectIn">
-        /// The project in.
-        /// </param>
-        /// <param name="profileIn">
-        /// The profile in.
-        /// </param>
-        /// <param name="changedlines">
-        /// The changedlines.
-        /// </param>
-        /// <param name="sourceRef">
-        /// The source ref.
-        /// </param>
-        /// <param name="issuesToReturn">
-        /// The issues to return.
-        /// </param>
+        /// <param name="output">The output.</param>
+        /// <param name="file">The file.</param>
+        /// <param name="sensor">The sensor.</param>
+        /// <param name="profileIn">The profile in.</param>
+        /// <param name="issuesToReturn">The issues to return.</param>
+        /// <param name="exec">The execute.</param>
         private void RunSensor(
-            EventHandler output, 
-            VsFileItem file, 
-            KeyValuePair<string, ASensor> sensor,  
-            Profile profileIn, 
+            EventHandler output,
+            VsFileItem file,
+            KeyValuePair<string, ASensor> sensor,
+            Profile profileIn,
             List<Issue> issuesToReturn,
-            Resource project,
             IVSSonarQubeCmdExecutor exec)
         {
             try
             {
                 List<string> lines = sensor.Value.LaunchSensor(this, output, file.FilePath, exec);
                 this.ProcessSensorsIssues(
-                    sensor.Key, 
-                    lines, 
-                    file,  
-                    profileIn, 
-                    issuesToReturn,
-                    project);
+                    sensor.Key,
+                    lines,
+                    file,
+                    profileIn,
+                    issuesToReturn);
             }
             catch (Exception ex)
             {
-                CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(),
+                CxxPlugin.WriteLogMessage(
+                    this.notificationManager,
+                    this.GetType().ToString(),
                     sensor.Key + " : Exception on Analysis Plugin : " + file.FilePath + " " + ex.StackTrace);
                 CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), sensor.Key + " : StdError: " + exec.GetStdError());
                 CxxPlugin.WriteLogMessage(this.notificationManager, this.GetType().ToString(), sensor.Key + " : StdOut: " + exec.GetStdError());
             }
         }
-
-        #endregion
     }
 }

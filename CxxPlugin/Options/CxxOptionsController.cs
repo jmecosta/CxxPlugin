@@ -205,7 +205,6 @@ namespace CxxPlugin.Options
         /// <param name="helper">The helper.</param>
         public void RefreshDataInUi(Resource project, IConfigurationHelper helper)
         {
-
             // read properties
             this.SetOptions();
 
