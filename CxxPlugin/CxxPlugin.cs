@@ -61,6 +61,9 @@ namespace CxxPlugin
         /// <summary>The rest service.</summary>
         private readonly ISonarRestService restService;
 
+        /// <summary>
+        /// The vshelper
+        /// </summary>
         private readonly IVsEnvironmentHelper vshelper;
 
         /// <summary>The desc.</summary>
@@ -88,11 +91,13 @@ namespace CxxPlugin
                             };
         }
 
-        /// <summary>Initializes a new instance of the <see cref="CxxPlugin"/> class.</summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CxxPlugin" /> class.
+        /// </summary>
         /// <param name="notificationManager">The notification manager.</param>
         /// <param name="configurationHelper">The configuration helper.</param>
         /// <param name="service">The service.</param>
-        /// <param name="vshelper"></param>
+        /// <param name="vshelper">The vshelper.</param>
         public CxxPlugin(
             INotificationManager notificationManager, 
             IConfigurationHelper configurationHelper, 
@@ -162,13 +167,15 @@ namespace CxxPlugin
             return resource != null && resource.Lang.Equals("c++");
         }
 
-        /// <summary>The write log message.</summary>
-        /// <param name="e">The e.</param>
-        /// <param name="handler">The handler.</param>
-        /// <param name="message">The message.</param>
+        /// <summary>
+        /// The write log message.
+        /// </summary>
+        /// <param name="notificationManager">The notification manager.</param>
+        /// <param name="id">The identifier.</param>
+        /// <param name="data">The data.</param>
         public static void WriteLogMessage(INotificationManager notificationManager, string id, string data)
         {
-            notificationManager.ReportMessage(new Message() {Id = id, Data = data}); 
+            notificationManager.ReportMessage(new Message { Id = id, Data = data }); 
         }
 
         /// <summary>The generate token id.</summary>
@@ -231,8 +238,14 @@ namespace CxxPlugin
             return this.fileAnalysisExtension;
         }
 
+        /// <summary>
+        /// Launches the analysis on project.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="configuration">The configuration.</param>
         public void LaunchAnalysisOnProject(VsProjectItem project, ISonarConfiguration configuration)
         {
+            // not needed
         }
 
         /// <summary>
@@ -265,11 +278,14 @@ namespace CxxPlugin
             return this.desc;
         }
 
-        /// <summary>The get resource key.</summary>
+        /// <summary>
+        /// The get resource key.
+        /// </summary>
         /// <param name="projectItem">The project item.</param>
-        /// <param name="projectKey">The project key.</param>
         /// <param name="safeGeneration">The safe generation.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <returns>
+        /// The <see cref="string" />.
+        /// </returns>
         public string GetResourceKey(VsFileItem projectItem, bool safeGeneration)
         {
             if (safeGeneration && projectItem.Project.ProjectName != null)
@@ -335,7 +351,7 @@ namespace CxxPlugin
         /// <summary>
         /// DLLs the locations.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns assemblies</returns>
         public IList<string> DllLocations()
         {
             return this.Assemblies;
