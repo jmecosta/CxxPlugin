@@ -22,6 +22,31 @@ namespace CxxPlugin.LocalExtensions
     public abstract class ASensor
     {
         /// <summary>
+        ///     The repository key.
+        /// </summary>
+        protected readonly string RepositoryKey;
+
+        /// <summary>
+        ///     The use std out.
+        /// </summary>
+        protected readonly bool UseStdout;
+
+        /// <summary>
+        /// The configuration helper.
+        /// </summary>
+        protected readonly IConfigurationHelper ConfigurationHelper;
+
+        /// <summary>
+        /// The notification manager.
+        /// </summary>
+        protected readonly INotificationManager NotificationManager;
+
+        /// <summary>
+        /// The sonar rest service.
+        /// </summary>
+        protected readonly ISonarRestService SonarRestService;
+
+        /// <summary>
         ///     The command line error.
         /// </summary>
         private readonly List<string> commandLineError = new List<string>();
@@ -32,48 +57,13 @@ namespace CxxPlugin.LocalExtensions
         private readonly List<string> commandLineOuput = new List<string>();
 
         /// <summary>
-        ///     The repository key.
+        /// Initializes a new instance of the <see cref="ASensor" /> class.
         /// </summary>
-        protected readonly string RepositoryKey;
-
-        /// <summary>
-        ///     The use stdout.
-        /// </summary>
-        protected readonly bool UseStdout;
-
-        /// <summary>
-        /// The configuration helper.
-        /// </summary>
-        protected IConfigurationHelper configurationHelper;
-
-        /// <summary>
-        /// The notification manager.
-        /// </summary>
-        protected INotificationManager notificationManager;
-
-        /// <summary>
-        /// The sonar rest service.
-        /// </summary>
-        protected ISonarRestService sonarRestService;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ASensor"/> class.
-        /// </summary>
-        /// <param name="repositoryKey">
-        /// The repository key.
-        /// </param>
-        /// <param name="useStdout">
-        /// The use stdout.
-        /// </param>
-        /// <param name="notificationManager">
-        /// The notification manager.
-        /// </param>
-        /// <param name="configurationHelper">
-        /// The configuration helper.
-        /// </param>
-        /// <param name="sonarRestService">
-        /// The sonar rest service.
-        /// </param>
+        /// <param name="repositoryKey">The repository key.</param>
+        /// <param name="useStdout">The use std out.</param>
+        /// <param name="notificationManager">The notification manager.</param>
+        /// <param name="configurationHelper">The configuration helper.</param>
+        /// <param name="sonarRestService">The sonar rest service.</param>
         protected ASensor(
             string repositoryKey, 
             bool useStdout, 
@@ -81,9 +71,9 @@ namespace CxxPlugin.LocalExtensions
             IConfigurationHelper configurationHelper, 
             ISonarRestService sonarRestService)
         {
-            this.notificationManager = notificationManager;
-            this.configurationHelper = configurationHelper;
-            this.sonarRestService = sonarRestService;
+            this.NotificationManager = notificationManager;
+            this.ConfigurationHelper = configurationHelper;
+            this.SonarRestService = sonarRestService;
             this.RepositoryKey = repositoryKey;
             this.UseStdout = useStdout;
         }
@@ -91,19 +81,12 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         /// The launch sensor.
         /// </summary>
-        /// <param name="caller">
-        /// The caller.
-        /// </param>
-        /// <param name="logger">
-        /// The logger.
-        /// </param>
-        /// <param name="filePath">
-        /// The file Path.
-        /// </param>
-        /// <param name="executor">
-        /// </param>
+        /// <param name="caller">The caller.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="filePath">The file Path.</param>
+        /// <param name="executor">The executor.</param>
         /// <returns>
-        /// The <see cref="Process"/>.
+        /// The <see cref="Process" />.
         /// </returns>
         public virtual List<string> LaunchSensor(
             object caller, 
@@ -112,11 +95,11 @@ namespace CxxPlugin.LocalExtensions
             IVSSonarQubeCmdExecutor executor)
         {
             var commandline = "[" + Directory.GetParent(filePath) + "] : " + this.GetCommand() + " "
-                              + this.GetArguments() + " " + filePath;
-            CxxPlugin.WriteLogMessage(this.notificationManager, caller.GetType().ToString(), commandline);
+                              + this.GetArguments(filePath);
+            CxxPlugin.WriteLogMessage(this.NotificationManager, caller.GetType().ToString(), commandline);
             executor.ExecuteCommand(
                 this.GetCommand(), 
-                this.GetArguments() + " " + filePath, 
+                this.GetArguments(filePath), 
                 this.GetEnvironment(), 
                 string.Empty);
 
@@ -166,12 +149,21 @@ namespace CxxPlugin.LocalExtensions
         public abstract string GetCommand();
 
         /// <summary>
-        ///     The get arguments.
+        /// The get arguments.
         /// </summary>
+        /// <param name="filePath">The file path.</param>
         /// <returns>
-        ///     The <see cref="string" />.
+        /// The <see cref="string" />.
         /// </returns>
-        public abstract string GetArguments();
+        public abstract string GetArguments(string filePath);
+
+        /// <summary>
+        /// Updates the profile.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="profileIn">The profile in.</param>
+        public abstract void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn);
 
         /// <summary>
         /// The read get property.
@@ -187,7 +179,7 @@ namespace CxxPlugin.LocalExtensions
             try
             {
                 return
-                    this.configurationHelper.ReadSetting(
+                    this.ConfigurationHelper.ReadSetting(
                         Context.FileAnalysisProperties,
                         "CxxPlugin", 
                         key).Value;
@@ -215,7 +207,7 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         protected void WriteProperty(string key, string value, bool sync = false, bool skipIfFound = false)
         {
-            this.configurationHelper.WriteOptionInApplicationData(
+            this.ConfigurationHelper.WriteOptionInApplicationData(
                 Context.FileAnalysisProperties,
                 "CxxPlugin", 
                 key, 

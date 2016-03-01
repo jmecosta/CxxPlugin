@@ -16,14 +16,12 @@ namespace CxxPlugin.LocalExtensions
 {
     using System;
     using System.Collections.Generic;
-
-    using global::CxxPlugin.Commands;
     using RestSharp;
     using RestSharp.Deserializers;
 
     using VSSonarPlugins;
-    using VSSonarPlugins.Types;
     using VSSonarPlugins.Helpers;
+    using VSSonarPlugins.Types;
 
     /// <summary>
     /// The rats sensor.
@@ -36,20 +34,28 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "rats";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RatsSensor"/> class.
+        /// Initializes a new instance of the <see cref="RatsSensor" /> class.
         /// </summary>
-        /// <param name="processCtrlIn">
-        /// The process ctrl in.
-        /// </param>
-        /// <param name="pluginsOptions">
-        /// The plugins options.
-        /// </param>
+        /// <param name="notificationManager">The notification manager.</param>
+        /// <param name="configurationHelper">The configuration helper.</param>
+        /// <param name="sonarRestService">The sonar rest service.</param>
         public RatsSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
             : base(SKey, true, notificationManager, configurationHelper, sonarRestService)
         {
-            WriteProperty("RatsEnvironment", "", true, true);
-            WriteProperty("RatsExecutable", @"C:\Tekla\buildtools\rats-2.3\rats.exe", true, true);
-            WriteProperty("RatsArguments", "--xml", true, true);
+            this.WriteProperty("RatsEnvironment", string.Empty, true, true);
+            this.WriteProperty("RatsExecutable", @"C:\Tekla\buildtools\rats-2.3\rats.exe", true, true);
+            this.WriteProperty("RatsArguments", "--xml", true, true);
+        }
+
+        /// <summary>
+        /// Updates the profile.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="profileIn">The profile in.</param>
+        public override void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
+        {
+            // not needed
         }
 
         /// <summary>
@@ -118,7 +124,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override Dictionary<string, string> GetEnvironment()
         {
-            return VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("RatsEnvironment"));
+            return VsSonarUtils.GetEnvironmentFromString(this.ReadGetProperty("RatsEnvironment"));
         }
 
         /// <summary>
@@ -129,18 +135,19 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetCommand()
         {
-            return ReadGetProperty("RatsExecutable");
+            return this.ReadGetProperty("RatsExecutable");
         }
 
         /// <summary>
         /// The get arguments.
         /// </summary>
+        /// <param name="filePath">The file path.</param>
         /// <returns>
-        /// The <see cref="string"/>.
+        /// The <see cref="string" />.
         /// </returns>
-        public override string GetArguments()
+        public override string GetArguments(string filePath)
         {
-            return ReadGetProperty("RatsArguments");
+            return this.ReadGetProperty("RatsArguments") + " " + filePath;
         }
 
         /// <summary>

@@ -33,20 +33,28 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "pclint";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PcLintSensor"/> class. 
+        /// Initializes a new instance of the <see cref="PcLintSensor" /> class.
         /// </summary>
-        /// <param name="ctrl">
-        /// The ctrl.
-        /// </param>
-        /// <param name="pluginOptions">
-        /// The plugin Options.
-        /// </param>
+        /// <param name="notificationManager">The notification manager.</param>
+        /// <param name="configurationHelper">The configuration helper.</param>
+        /// <param name="sonarRestService">The sonar rest service.</param>
         public PcLintSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
             : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            WriteProperty("PcLintEnvironment", "", true, true);
-            WriteProperty("PcLintExecutable", "", true, true);
-            WriteProperty("PcLintArguments", "", true, true);
+            this.WriteProperty("PcLintEnvironment", string.Empty, true, true);
+            this.WriteProperty("PcLintExecutable", string.Empty, true, true);
+            this.WriteProperty("PcLintArguments", string.Empty, true, true);
+        }
+
+        /// <summary>
+        /// Updates the profile.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="profileIn">The profile in.</param>
+        public override void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
+        {
+            // not needed
         }
 
         /// <summary>
@@ -113,7 +121,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override Dictionary<string, string> GetEnvironment()
         {
-            return VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("PcLintEnvironment"));
+            return VsSonarUtils.GetEnvironmentFromString(this.ReadGetProperty("PcLintEnvironment"));
         }
 
         /// <summary>
@@ -124,20 +132,21 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetCommand()
         {
-            return ReadGetProperty("PcLintExecutable");
+            return this.ReadGetProperty("PcLintExecutable");
         }
 
         /// <summary>
         /// The get arguments.
         /// </summary>
+        /// <param name="filePath">The file path.</param>
         /// <returns>
-        /// The <see cref="string"/>.
+        /// The <see cref="string" />.
         /// </returns>
-        public override string GetArguments()
+        public override string GetArguments(string filePath)
         {
             var executable = ReadGetProperty("PcLintExecutable");
             var parent = Directory.GetParent(executable);
-            return "-\"format=%(%F(%l):%) error : (%t -- %m) : [%n]\"" + "-i\"" + parent + "\" +ffn std.lnt env-vc10.lnt " + ReadGetProperty("PcLintArguments");
+            return "-\"format=%(%F(%l):%) error : (%t -- %m) : [%n]\"" + "-i\"" + parent + "\" +ffn std.lnt env-vc10.lnt " + this.ReadGetProperty("PcLintArguments") + " " + filePath;
         }
 
         /// <summary>

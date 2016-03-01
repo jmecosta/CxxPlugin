@@ -73,6 +73,11 @@ namespace CxxPlugin.LocalExtensions
         private Dictionary<string, Profile> profile;
 
         /// <summary>
+        /// The is loading
+        /// </summary>
+        private bool isLoading;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CxxLocalExtension"/> class.
         /// </summary>
         /// <param name="commandPlugin">The command plugin.</param>
@@ -98,7 +103,8 @@ namespace CxxPlugin.LocalExtensions
                                        new CppCheckSensor(notificationManager, configurationHelper, sonarRestService)
                                    }, 
                                    { RatsSensor.SKey, new RatsSensor(notificationManager, configurationHelper, sonarRestService) }, 
-                                   { VeraSensor.SKey, new VeraSensor(notificationManager, configurationHelper, sonarRestService) }, 
+                                   { VeraSensor.SKey, new VeraSensor(notificationManager, configurationHelper, sonarRestService) },
+                                   { CxxLintSensor.SKey, new CxxLintSensor(notificationManager, configurationHelper, sonarRestService) },
                                    { PcLintSensor.SKey, new PcLintSensor(notificationManager, configurationHelper, sonarRestService) }, 
                                    {
                                        CxxExternalSensor.SKey, 
@@ -222,10 +228,22 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         /// Updates the profile.
         /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="configuration">The configuration.</param>
         /// <param name="profileIn">The profile in.</param>
-        public void UpdateProfile(Dictionary<string, Profile> profileIn)
+        public void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
         {
-            this.profile = profileIn;
+            if (!this.isLoading)
+            {
+                this.isLoading = true;
+                this.profile = profileIn;
+                foreach (var sensor in this.sensors)
+                {
+                    sensor.Value.UpdateProfile(project, configuration, profileIn);
+                }
+
+                this.isLoading = false;
+            }
         }
 
         /// <summary>

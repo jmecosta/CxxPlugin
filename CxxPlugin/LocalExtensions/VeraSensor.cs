@@ -17,11 +17,9 @@ namespace CxxPlugin.LocalExtensions
     using System;
     using System.Collections.Generic;
 
-    using global::CxxPlugin.Commands;
-
     using VSSonarPlugins;
-    using VSSonarPlugins.Types;
     using VSSonarPlugins.Helpers;
+    using VSSonarPlugins.Types;
 
     /// <summary>
     /// The vera sensor.
@@ -34,20 +32,17 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "vera++";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VeraSensor"/> class.
+        /// Initializes a new instance of the <see cref="VeraSensor" /> class.
         /// </summary>
-        /// <param name="ctrl">
-        /// The ctrl.
-        /// </param>
-        /// <param name="pluginsOptions">
-        /// The plugins Options.
-        /// </param>
+        /// <param name="notificationManager">The notification manager.</param>
+        /// <param name="configurationHelper">The configuration helper.</param>
+        /// <param name="sonarRestService">The sonar rest service.</param>
         public VeraSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
             : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            WriteProperty("VeraEnvironment", @"", true, true);
-            WriteProperty("VeraExecutable", @"C:\Program Files (x86)\vera++\bin\vera++.exe", true, true);
-            WriteProperty("VeraArguments", "-nodup -showrules", true, true);
+            this.WriteProperty("VeraEnvironment", string.Empty, true, true);
+            this.WriteProperty("VeraExecutable", @"C:\Program Files (x86)\vera++\bin\vera++.exe", true, true);
+            this.WriteProperty("VeraArguments", "-nodup -showrules", true, true);
         }
 
         /// <summary>
@@ -99,6 +94,17 @@ namespace CxxPlugin.LocalExtensions
         }
 
         /// <summary>
+        /// Updates the profile.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="profileIn">The profile in.</param>
+        public override void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
+        {
+            // not needed
+        }
+
+        /// <summary>
         /// The get environment.
         /// </summary>
         /// <returns>
@@ -109,7 +115,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override Dictionary<string, string> GetEnvironment()
         {
-            return VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("VeraEnvironment"));
+            return VsSonarUtils.GetEnvironmentFromString(this.ReadGetProperty("VeraEnvironment"));
         }
 
         /// <summary>
@@ -120,18 +126,19 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetCommand()
         {
-            return ReadGetProperty("VeraExecutable");
+            return this.ReadGetProperty("VeraExecutable");
         }
 
         /// <summary>
         /// The get arguments.
         /// </summary>
+        /// <param name="filePath">The file path.</param>
         /// <returns>
-        /// The <see cref="string"/>.
+        /// The <see cref="string" />.
         /// </returns>
-        public override string GetArguments()
+        public override string GetArguments(string filePath)
         {
-            return ReadGetProperty("VeraArguments");
+            return this.ReadGetProperty("VeraArguments") + " " + filePath;
         }
     }
 }

@@ -94,6 +94,12 @@ namespace CxxPlugin.Commands
                 return;
             }
 
+            if (optionsTab.Equals("CxxLint"))
+            {
+                var data = this.service.OpenFileDialog("CxxLint executable|*.jar");
+                this.model.CxxLint = data;
+            }
+
             if (optionsTab.Equals("Vera++"))
             {
                 var data = this.service.OpenFileDialog("Vera++ executable|vera++.exe");

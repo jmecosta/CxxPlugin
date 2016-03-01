@@ -14,7 +14,6 @@ namespace CxxPlugin
     using System.Globalization;
     using System.IO;
     using System.Reflection;
-    using System.Windows.Threading;
 
     using global::CxxPlugin.LocalExtensions;
     using global::CxxPlugin.Options;
@@ -106,7 +105,7 @@ namespace CxxPlugin
         {
             this.Assemblies = new List<string>();
 
-            this.pluginOptions = new CxxOptionsController(configurationHelper);
+            this.pluginOptions = new CxxOptionsController(configurationHelper, service);
 
             if (File.Exists(LogPath))
             {
@@ -132,6 +131,15 @@ namespace CxxPlugin
                 this.notificationManager, 
                 this.configurationHelper, 
                 this.restService);
+        }
+
+        /// <summary>
+        /// Called when [connect to sonar].
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        public void OnConnectToSonar(ISonarConfiguration configuration)
+        {
+            ((CxxOptionsController)this.pluginOptions).OnConnectToSonar(configuration);
         }
 
         /// <summary>
@@ -337,7 +345,7 @@ namespace CxxPlugin
         /// <param name="profile">The profile.</param>
         public void AssociateProject(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profile)
         {
-            ((CxxLocalExtension)this.fileAnalysisExtension).UpdateProfile(profile);
+            ((CxxLocalExtension)this.fileAnalysisExtension).UpdateProfile(project, configuration, profile);
         }
 
         /// <summary>
@@ -372,6 +380,6 @@ namespace CxxPlugin
         public void Dispose()
         {
             // not needed
-        }    
+        }
     }
 }

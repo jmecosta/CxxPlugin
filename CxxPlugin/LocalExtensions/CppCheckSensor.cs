@@ -14,18 +14,15 @@
 
 namespace CxxPlugin.LocalExtensions
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-
-    using global::CxxPlugin.Commands;
 
     using RestSharp;
     using RestSharp.Deserializers;
 
     using VSSonarPlugins;
-    using VSSonarPlugins.Types;
     using VSSonarPlugins.Helpers;
+    using VSSonarPlugins.Types;
 
     /// <summary>
     /// The cpp check sensor.
@@ -38,17 +35,17 @@ namespace CxxPlugin.LocalExtensions
         public const string SKey = "cppcheck";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CppCheckSensor"/> class.
+        /// Initializes a new instance of the <see cref="CppCheckSensor" /> class.
         /// </summary>
-        /// <param name="pluginOptions">
-        /// The plugin Options.
-        /// </param>
+        /// <param name="notificationManager">The notification manager.</param>
+        /// <param name="configurationHelper">The configuration helper.</param>
+        /// <param name="sonarRestService">The sonar rest service.</param>
         public CppCheckSensor(INotificationManager notificationManager, IConfigurationHelper configurationHelper, ISonarRestService sonarRestService)
             : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
-            WriteProperty("CppCheckEnvironment", "", true, true);
-            WriteProperty("CppCheckExecutable", @"C:\Program Files (x86)\Cppcheck\cppcheck.exe", true, true);
-            WriteProperty("CppCheckArguments", "--inline-suppr --enable=all --xml -D__cplusplus -DNT", true, true);
+            this.WriteProperty("CppCheckEnvironment", string.Empty, true, true);
+            this.WriteProperty("CppCheckExecutable", @"C:\Program Files (x86)\Cppcheck\cppcheck.exe", true, true);
+            this.WriteProperty("CppCheckArguments", "--inline-suppr --enable=all --xml -D__cplusplus -DNT", true, true);
         }
 
         /// <summary>
@@ -72,7 +69,9 @@ namespace CxxPlugin.LocalExtensions
             var xml = new XmlDeserializer();
             var output = xml.Deserialize<Results>(new RestResponse { Content = string.Join("\r\n", lines) });
 
-            violations.AddRange(from error in output.Errors let ruleKey = this.RepositoryKey + ":" + error.Id where !ruleKey.Equals("cppcheck:unusedFunction") select new Issue { Line = error.Line, Message = error.Msg, Rule = this.RepositoryKey + ":" + error.Id, Component = error.File });
+            violations.AddRange(
+                from error in output.Errors let ruleKey = this.RepositoryKey + ":" + error.Id where !ruleKey.Equals("cppcheck:unusedFunction")
+                select new Issue { Line = error.Line, Message = error.Msg, Rule = this.RepositoryKey + ":" + error.Id, Component = error.File } );
 
             return violations;
         }
@@ -88,7 +87,7 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override Dictionary<string, string> GetEnvironment()
         {            
-            return VsSonarUtils.GetEnvironmentFromString(ReadGetProperty("CppCheckEnvironment"));
+            return VsSonarUtils.GetEnvironmentFromString(this.ReadGetProperty("CppCheckEnvironment"));
         }
 
         /// <summary>
@@ -99,18 +98,30 @@ namespace CxxPlugin.LocalExtensions
         /// </returns>
         public override string GetCommand()
         {
-            return ReadGetProperty("CppCheckExecutable");
+            return this.ReadGetProperty("CppCheckExecutable");
         }
 
         /// <summary>
         /// The get arguments.
         /// </summary>
+        /// <param name="filePath">The file path.</param>
         /// <returns>
-        /// The <see cref="string"/>.
+        /// The <see cref="string" />.
         /// </returns>
-        public override string GetArguments()
+        public override string GetArguments(string filePath)
         {
-            return ReadGetProperty("CppCheckArguments");
+            return this.ReadGetProperty("CppCheckArguments") + " " + filePath;
+        }
+
+        /// <summary>
+        /// Updates the profile.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="profileIn">The profile in.</param>
+        public override void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
+        {
+            // not needed
         }
 
         /// <summary>

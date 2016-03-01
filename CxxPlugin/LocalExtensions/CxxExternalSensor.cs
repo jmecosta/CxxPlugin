@@ -23,12 +23,12 @@ namespace CxxPlugin.LocalExtensions
         /// <summary>
         ///     The s key.
         /// </summary>
-        public const string SKey = "other";
+        public static string SKey = "other";
 
         /// <summary>
         ///     The other key.
         /// </summary>
-        public readonly string OtherKey = string.Empty;
+        private readonly string otherKey = string.Empty;
 
         /// <summary>Initializes a new instance of the <see cref="CxxExternalSensor"/> class.</summary>
         /// <param name="notificationManager">The notification Manager.</param>
@@ -48,7 +48,18 @@ namespace CxxPlugin.LocalExtensions
                 true, 
                 true);
             this.WriteProperty("CustomKey", "cpplint", true, true);
-            this.OtherKey = this.ReadGetProperty("CustomKey");
+            this.otherKey = this.ReadGetProperty("CustomKey");
+        }
+
+        /// <summary>
+        /// Updates the profile.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="profileIn">The profile in.</param>
+        public override void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
+        {
+            // not needed
         }
 
         /// <summary>The get violations.</summary>
@@ -79,9 +90,9 @@ namespace CxxPlugin.LocalExtensions
                     start++;
                     var id = GetStringUntilFirstChar(ref start, line, ']');
 
-                    if (!string.IsNullOrEmpty(this.OtherKey))
+                    if (!string.IsNullOrEmpty(this.otherKey))
                     {
-                        id = this.OtherKey + "." + id;
+                        id = this.otherKey + "." + id;
                     }
 
                     var entry = new Issue
@@ -130,14 +141,15 @@ namespace CxxPlugin.LocalExtensions
         }
 
         /// <summary>
-        ///     The get arguments.
+        /// The get arguments.
         /// </summary>
+        /// <param name="filePath">The file path.</param>
         /// <returns>
-        ///     The <see cref="string" />.
+        /// The <see cref="string" />.
         /// </returns>
-        public override string GetArguments()
+        public override string GetArguments(string filePath)
         {
-            return this.ReadGetProperty("CustomArguments");
+            return this.ReadGetProperty("CustomArguments") + " " + filePath;
         }
 
         /// <summary>The get string until first char.</summary>

@@ -39,6 +39,33 @@
         </Grid.ColumnDefinitions>
         <ScrollViewer PanningMode="VerticalOnly">
             <StackPanel>
+                <Expander Header="Cxx Lint (ensure java is available)">
+                    <Grid Height="85">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="349*" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="25" />
+                        </Grid.RowDefinitions>
+                        <Label Content="Cxx Lint Jar"
+                               VerticalContentAlignment="Center" />
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 TextWrapping="Wrap" Text="{Binding CxxLint}" VerticalContentAlignment="Center" />
+                        <Button x:Name="CxxLintBrowse" Content="..."
+                                Grid.Row="0" Grid.Column="2" Command="{Binding OpenCommand}" CommandParameter="CxxLint"
+                                Style="{DynamicResource SquareButtonStyle}" />
+                        
+                        <Button x:Name="DownloadLintFromSonarQube" Content="Download linter from SonarQube server"
+                                Grid.Row="1" Grid.Column="1" Command="{Binding DownloadCxxLintFromServerCommand}"
+                                Style="{DynamicResource SquareButtonStyle}" />
+                        <Label Content="{Binding ErrorMessage, FallbackValue=asdasdassdfsddfsdfs}" Grid.Row="2" Grid.ColumnSpan="3"
+                               VerticalContentAlignment="Center" />                      
+                    </Grid>
+                </Expander>                
                 <Expander Header="Vera++">
                     <Grid Height="80">
                         <Grid.ColumnDefinitions>
