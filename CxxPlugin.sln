@@ -1,8 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+Microsoft Visual Studio Solution File, Format Version 14.00
+# Visual Studio 2015
+VisualStudioVersion = 14
+MinimumVisualStudioVersion = 14
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CxxPlugin", "CxxPlugin\CxxPlugin.csproj", "{3755A099-7EE1-4593-9BB0-50DA67039C99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CxxPlugin.Test", "CxxPlugin.Test\CxxPlugin.Test.csproj", "{04CDA1BF-6FC4-4813-B299-4BDF8B8AE696}"
