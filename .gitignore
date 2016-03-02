@@ -120,3 +120,4 @@ CxxPlugin2015.VSQ
 .cxxresults/**
 .sonarqube/**
 *.Test.coverage.xml
+*.orig

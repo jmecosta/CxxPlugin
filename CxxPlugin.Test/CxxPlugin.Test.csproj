@@ -111,6 +111,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="CxxPlugin.Test.licenseheader" />
     <None Include="packages.config" />
   </ItemGroup>
