@@ -128,7 +128,7 @@ namespace CxxPlugin.LocalExtensions
         /// The <see><cref>List</cref></see>
         /// .
         /// </returns>
-        public List<Issue> ExecuteAnalysisOnFile(VsFileItem itemInView, Resource project, ISonarConfiguration conf)
+        public List<Issue> ExecuteAnalysisOnFile(VsFileItem itemInView, Resource project, ISonarConfiguration conf, bool fromSave)
         {
             var threads = new List<Thread>();
             var allIssues = new List<Issue>();
