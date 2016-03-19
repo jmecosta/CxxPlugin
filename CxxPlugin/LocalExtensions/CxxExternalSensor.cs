@@ -41,10 +41,10 @@ namespace CxxPlugin.LocalExtensions
             : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
             this.WriteProperty("CustomEnvironment", string.Empty, true, true);
-            this.WriteProperty("CustomExecutable", @"C:\Python27\python.exe", true, true);
+            this.WriteProperty("CustomExecutable", @"C:\tools\python2\python.exe", true, true);
             this.WriteProperty(
-                "CustomArguments", 
-                @"C:\Tekla\buildtools\CppLint\cpplint_mod.py --output=vs7", 
+                "CustomArguments",
+                @"C:\ProgramData\MSBuidSonarQube\cpplint_mod.py --output=vs7", 
                 true, 
                 true);
             this.WriteProperty("CustomKey", "cpplint", true, true);

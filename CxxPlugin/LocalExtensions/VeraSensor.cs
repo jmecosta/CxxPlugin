@@ -41,7 +41,7 @@ namespace CxxPlugin.LocalExtensions
             : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
             this.WriteProperty("VeraEnvironment", string.Empty, true, true);
-            this.WriteProperty("VeraExecutable", @"C:\Program Files (x86)\vera++\bin\vera++.exe", true, true);
+            this.WriteProperty("VeraExecutable", @"C:\ProgramData\MSBuidSonarQube\VERA\bin\vera++.exe", true, true);
             this.WriteProperty("VeraArguments", "-nodup -showrules", true, true);
         }
 

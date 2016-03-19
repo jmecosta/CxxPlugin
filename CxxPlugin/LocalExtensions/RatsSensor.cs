@@ -43,7 +43,7 @@ namespace CxxPlugin.LocalExtensions
             : base(SKey, true, notificationManager, configurationHelper, sonarRestService)
         {
             this.WriteProperty("RatsEnvironment", string.Empty, true, true);
-            this.WriteProperty("RatsExecutable", @"C:\Tekla\buildtools\rats-2.3\rats.exe", true, true);
+            this.WriteProperty("RatsExecutable", @"C:\ProgramData\MSBuidSonarQube\RATS\rats.exe", true, true);
             this.WriteProperty("RatsArguments", "--xml", true, true);
         }
 

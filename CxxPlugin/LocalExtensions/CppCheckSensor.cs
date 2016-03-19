@@ -44,7 +44,7 @@ namespace CxxPlugin.LocalExtensions
             : base(SKey, false, notificationManager, configurationHelper, sonarRestService)
         {
             this.WriteProperty("CppCheckEnvironment", string.Empty, true, true);
-            this.WriteProperty("CppCheckExecutable", @"C:\Program Files (x86)\Cppcheck\cppcheck.exe", true, true);
+            this.WriteProperty("CppCheckExecutable", @"C:\Program Files\Cppcheck\cppcheck.exe", true, true);
             this.WriteProperty("CppCheckArguments", "--inline-suppr --enable=all --xml -D__cplusplus -DNT", true, true);
         }
 
