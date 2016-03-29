@@ -344,7 +344,7 @@ namespace CxxPlugin.Options
         /// <param name="value">The value.</param>
         private void SaveOption(string key, string value)
         {
-            this.configuration.WriteOptionInApplicationData(
+            this.configuration.WriteSetting(
                 Context.FileAnalysisProperties, 
                 "CxxPlugin", 
                 key, 

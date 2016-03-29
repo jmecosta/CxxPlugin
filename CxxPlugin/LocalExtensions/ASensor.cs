@@ -207,7 +207,7 @@ namespace CxxPlugin.LocalExtensions
         /// </param>
         protected void WriteProperty(string key, string value, bool sync = false, bool skipIfFound = false)
         {
-            this.ConfigurationHelper.WriteOptionInApplicationData(
+            this.ConfigurationHelper.WriteSetting(
                 Context.FileAnalysisProperties,
                 "CxxPlugin", 
                 key, 
