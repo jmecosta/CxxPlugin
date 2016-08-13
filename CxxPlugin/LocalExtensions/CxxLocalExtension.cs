@@ -291,7 +291,7 @@ namespace CxxPlugin.LocalExtensions
                         Rule ruleInProfile = profileIn.GetRule(issue.Rule);
                         if (ruleInProfile != null)
                         {
-                            issue.Debt = ruleInProfile.DebtRemFnCoeff;
+                            issue.Effort = ruleInProfile.DebtRemFnCoeff;
                             issue.Severity = ruleInProfile.Severity;
                             issuesPerTool.Add(issue);
                         }
