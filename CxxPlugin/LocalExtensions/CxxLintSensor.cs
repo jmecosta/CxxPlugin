@@ -17,6 +17,7 @@ namespace CxxPlugin.LocalExtensions
 
     using VSSonarPlugins;
     using VSSonarPlugins.Types;
+    using System.Diagnostics;
 
     /// <summary>
     ///     The CxxLintSensor sensor.
@@ -136,8 +137,18 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="profileIn">The profile in.</param>
         public override void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
         {
-            this.SolutionData = MSBuildHelper.CreateSolutionData(Path.Combine(project.SolutionRoot, project.SolutionName));
-            MSBuildHelper.CreateSolutionBuildData(this.SolutionData);
+            var dataPath = Path.Combine(project.SolutionRoot, project.SolutionName);
+            var packagesPath = Path.Combine(project.SolutionRoot, "Packages");
+            this.SolutionData = MSBuildHelper.PreProcessSolution(
+                "", packagesPath, dataPath, true, false);
+
+            foreach (var projectd in this.SolutionData.Projects)
+            {
+                foreach (var item in projectd.Value.NugetReferences)
+                {
+                    Debug.WriteLine("nuget: " + item);
+                }
+            }
 
             this.pathForSettings = Path.Combine(project.SolutionRoot, ".sonarqube", "cxx-lint");
             if (Directory.Exists(this.pathForSettings))

@@ -225,19 +225,6 @@ namespace CxxPlugin
             return "c++";
         }
 
-        /// <summary>
-        /// The get licenses.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <returns>
-        /// The<see><cref>Dictionary</cref></see>
-        /// .
-        /// </returns>
-        public Dictionary<string, VsLicense> GetLicenses(ISonarConfiguration configuration)
-        {
-            return new Dictionary<string, VsLicense>();
-        }
-
         /// <summary>The get local analysis extension.</summary>
         /// <param name="configuration">The configuration.</param>
         /// <returns>The <see cref="ILocalAnalyserExtension"/>.</returns>

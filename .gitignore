@@ -121,3 +121,6 @@ CxxPlugin2015.VSQ
 .sonarqube/**
 *.Test.coverage.xml
 *.orig
+.vs/CxxPlugin.sqlite
+buildlog2017.txt
+CxxPlugin2017.VSQ
