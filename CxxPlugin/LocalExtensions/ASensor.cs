@@ -163,7 +163,11 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="project">The project.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="profileIn">The profile in.</param>
-        public abstract void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn);
+        public abstract void UpdateProfile(
+            Resource project,
+            ISonarConfiguration configuration,
+            Dictionary<string, Profile> profileIn,
+            string vsVersion);
 
         /// <summary>
         /// The read get property.

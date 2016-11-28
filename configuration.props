@@ -41,7 +41,7 @@
         <IntermediateOutputPath>$(OBJDir)$(MSBuildProjectName)\</IntermediateOutputPath>
 		
 		
-		<VSSonarVersion>6.0.1</VSSonarVersion>
+		<VSSonarVersion>6.0.2</VSSonarVersion>
         <VSSonarExtensionVersion>3Api.$(VSSonarVersion)</VSSonarExtensionVersion>
     </PropertyGroup>    
 

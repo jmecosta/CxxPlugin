@@ -135,12 +135,16 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="project">The project.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="profileIn">The profile in.</param>
-        public override void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
+        public override void UpdateProfile(
+            Resource project,
+            ISonarConfiguration configuration,
+            Dictionary<string, Profile> profileIn,
+            string vsVersion)
         {
             var dataPath = Path.Combine(project.SolutionRoot, project.SolutionName);
             var packagesPath = Path.Combine(project.SolutionRoot, "Packages");
             this.SolutionData = MSBuildHelper.PreProcessSolution(
-                "", packagesPath, dataPath, true, false);
+                "", packagesPath, dataPath, true, false, vsVersion);
 
             foreach (var projectd in this.SolutionData.Projects)
             {
@@ -393,6 +397,11 @@ namespace CxxPlugin.LocalExtensions
             var builder = new StringBuilder();
             var finalbuilder = new StringBuilder();
             builder.AppendLine("  \"includes\": [");
+
+            foreach (var include in projectdata.Value.SystemIncludeDirs)
+            {
+                builder.AppendLine("    \"" + Path.GetFullPath(include).Replace("\\", "/") + "\",");
+            }
 
             foreach (var include in projectdata.Value.AdditionalIncludeDirectories)
             {

@@ -119,7 +119,11 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="project">The project.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="profileIn">The profile in.</param>
-        public override void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
+        public override void UpdateProfile(
+            Resource project,
+            ISonarConfiguration configuration,
+            Dictionary<string, Profile> profileIn,
+            string vsVersion)
         {
             // not needed
         }

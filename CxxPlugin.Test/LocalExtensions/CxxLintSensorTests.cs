@@ -31,7 +31,7 @@ namespace CxxPlugin.LocalExtensions.Tests
             project.SolutionName = "ConsoleApp.sln";
             project.SolutionRoot = Path.Combine(executionFolder, "TestData", "ConsoleApp");
 
-            lintSensor.UpdateProfile(project, sonarService.Object, profile);
+            lintSensor.UpdateProfile(project, sonarService.Object, profile, "14.0");
             Assert.That(lintSensor.SolutionData.Projects.Count, Is.EqualTo(1));
         }
     }

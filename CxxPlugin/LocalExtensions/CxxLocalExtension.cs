@@ -231,7 +231,11 @@ namespace CxxPlugin.LocalExtensions
         /// <param name="project">The project.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="profileIn">The profile in.</param>
-        public void UpdateProfile(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profileIn)
+        public void UpdateProfile(
+            Resource project,
+            ISonarConfiguration configuration,
+            Dictionary<string, Profile> profileIn,
+            string vsVersion)
         {
             if (!this.isLoading)
             {
@@ -239,7 +243,7 @@ namespace CxxPlugin.LocalExtensions
                 this.profile = profileIn;
                 foreach (var sensor in this.sensors)
                 {
-                    sensor.Value.UpdateProfile(project, configuration, profileIn);
+                    sensor.Value.UpdateProfile(project, configuration, profileIn, vsVersion);
                 }
 
                 this.isLoading = false;

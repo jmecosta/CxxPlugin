@@ -38,7 +38,6 @@ namespace CxxPlugin.Test
         {
             var map = new Dictionary<string,string>();
             map.Add("key", "value");
-
             Assert.AreEqual(1, map.Count);
 
         }

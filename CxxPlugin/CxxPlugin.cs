@@ -330,9 +330,13 @@ namespace CxxPlugin
         /// <param name="project">The project.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="profile">The profile.</param>
-        public void AssociateProject(Resource project, ISonarConfiguration configuration, Dictionary<string, Profile> profile)
+        public void AssociateProject(
+            Resource project,
+            ISonarConfiguration configuration,
+            Dictionary<string, Profile> profile,
+            string vsVersion)
         {
-            ((CxxLocalExtension)this.fileAnalysisExtension).UpdateProfile(project, configuration, profile);
+            ((CxxLocalExtension)this.fileAnalysisExtension).UpdateProfile(project, configuration, profile, vsVersion);
         }
 
         /// <summary>
